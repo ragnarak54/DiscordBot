@@ -1,11 +1,16 @@
 import discord
 from discord.ext import commands
 import random
+import urllib
+import request
 
 description = '''An example bot to showcase the discord.ext.commands extension
 module.
 There are a number of utility commands being showcased here.'''
 bot = commands.Bot(command_prefix='?', description=description)
+token = 'NDM5ODAzNDEzNjIzMDc4OTI3.DcYeoQ.SNjcoLvT-YHWlBgdQNH0dOfwSSU'
+
+
 
 @bot.event
 async def on_ready():
@@ -13,6 +18,11 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+@bot.command()
+async def merchant():
+    """Displays the daily Traveling merchant stock."""
+    await bot.say(request.returnDatString())
 
 @bot.command()
 async def add(left : int, right : int):
@@ -60,4 +70,4 @@ async def _bot():
     """Is the bot cool?"""
     await bot.say('Yes, the bot is cool.')
 
-bot.run('NDM5ODAzNDEzNjIzMDc4OTI3.DcYeoQ.SNjcoLvT-YHWlBgdQNH0dOfwSSU')
+bot.run(token)
