@@ -2,6 +2,15 @@
 # https://stackoverflow.com/questions/2563822/how-do-you-composite-an-image-onto-another-image-with-pil-in-python?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 from PIL import Image, ImageDraw, ImageFont
 
+class MerchItem:
+    def __init__(self, image_key, name, cost, quantity):
+        self.image_key = image_key
+        self.name = name
+        self.cost = cost
+        self.quantity = quantity
+    def get_picture(self):
+        Image.open(self.image_key, 'r')
+
 x_img = 20
 x_cost = 300
 y_space = 25
