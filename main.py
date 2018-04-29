@@ -34,7 +34,7 @@ async def merchant():
     now = datetime.datetime.now()
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
-    await bot.upload('res_img.png')
+    await bot.upload(output.output_img)
 
 
 
