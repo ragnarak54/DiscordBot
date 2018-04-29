@@ -1,15 +1,19 @@
 # https://code-maven.com/create-images-with-python-pil-pillow
 # https://stackoverflow.com/questions/2563822/how-do-you-composite-an-image-onto-another-image-with-pil-in-python?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 from PIL import Image, ImageDraw, ImageFont
+import request
 
-class MerchItem:
+images_dir = "images/"
+output_img = "res_img.png"
+
+class MerchItem:    
     def __init__(self, image_key, name, cost, quantity):
         self.image_key = image_key
         self.name = name
         self.cost = cost
         self.quantity = quantity
     def get_icon(self):
-        return Image.open(self.image_key, 'r')
+        return Image.open(images_dir + self.image_key, 'r')
 
 x_icon = 20
 x_cost = 400
@@ -47,7 +51,7 @@ def image(items):
         img.paste(icons[i], (x_icon, y))
         write(d, (x_name, y), items[i].name)
         write(d, (x_cost, y), items[i].cost)
-    img.save('res_img.png')
+    img.save(output_img)
 
 ### below this is for testing purposes
 
@@ -61,3 +65,5 @@ def test(items):
     image(items)
 
 # test([ MerchItem('img' + str(x) + '.png', 'Item ' + str(x), str(1000000 * x), str(1000000 * x)) for x in range(0, 12) ])
+
+image(request.parse_merch_items())
