@@ -26,7 +26,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-@bot.command()
+@bot.command(name='merch', aliases=['merchant'])
 async def merchant():
     """Displays the daily Traveling merchant stock."""
     output.generate_merch_image()
@@ -34,7 +34,6 @@ async def merchant():
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
     await bot.upload(output.output_img)
-
 
 
 @bot.command()
