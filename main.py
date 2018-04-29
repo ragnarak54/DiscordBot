@@ -3,12 +3,20 @@ from discord.ext import commands
 import random
 import urllib
 import request
+import asyncio
+import io
+import output
+import datetime
+
+
+
 
 description = '''An example bot to showcase the discord.ext.commands extension
 module.
 There are a number of utility commands being showcased here.'''
 bot = commands.Bot(command_prefix='?', description=description)
 token = 'NDM5ODAzNDEzNjIzMDc4OTI3.DcYeoQ.SNjcoLvT-YHWlBgdQNH0dOfwSSU'
+
 
 
 
@@ -22,7 +30,13 @@ async def on_ready():
 @bot.command()
 async def merchant():
     """Displays the daily Traveling merchant stock."""
-    await bot.say(request.returnDatString())
+    output.generate_merch_image()
+    now = datetime.datetime.now()
+    date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
+    await bot.say(date_message)
+    await bot.upload('res_img.png')
+
+
 
 @bot.command()
 async def add(left : int, right : int):
@@ -71,3 +85,4 @@ async def _bot():
     await bot.say('Yes, the bot is cool.')
 
 bot.run(token)
+
