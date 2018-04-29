@@ -55,6 +55,9 @@ def image(items):
         write(d, (x_cost, y), items[i].cost)
     img.save(output_img)
 
+def generate_merch_image():
+    image(request.parse_merch_items())
+
 ### below this is for testing purposes
 
 test_colors = ['red', 'green', 'blue']
@@ -67,5 +70,3 @@ def test(items):
     image(items)
 
 # test([ MerchItem('img' + str(x) + '.png', 'Item ' + str(x), str(1000000 * x), str(1000000 * x)) for x in range(0, 12) ])
-
-image(request.parse_merch_items())
