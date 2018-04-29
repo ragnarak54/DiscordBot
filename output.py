@@ -5,6 +5,8 @@ import request
 
 images_dir = "images/"
 output_img = "res_img.png"
+img_bg = (54, 57, 62)
+img_text = (255,255,255)
 
 class MerchItem:    
     def __init__(self, image_key, name, cost, quantity):
@@ -22,10 +24,10 @@ title_fnt = ImageFont.truetype('./fonts/roboto/Roboto-Regular.ttf', 20)
 fnt = ImageFont.truetype('./fonts/roboto/Roboto-Regular.ttf', 15)
 
 def write_title(draw, coord, text):
-    draw.text(coord, text, font=title_fnt, fill=(0,0,0))
+    draw.text(coord, text, font=title_fnt, fill=img_text)
 
 def write(draw, coord, text):
-    draw.text(coord, text, font=fnt, fill=(0,0,0))
+    draw.text(coord, text, font=fnt, fill=img_text)
 
 def image(items):
     """creates an image named res_img.png that displays items with icons and costs"""
@@ -41,7 +43,7 @@ def image(items):
     x_name = 2 * x_icon + max_icon_width
     
     img_height = (len(items) + 1) * (y_space + max_icon_height) + y_space
-    img = Image.new('RGB', (500, img_height), color = 'white')
+    img = Image.new('RGB', (500, img_height), color = img_bg)
     d = ImageDraw.Draw(img)
     y = y_space
     write_title(d, (x_icon, y), "Item")
