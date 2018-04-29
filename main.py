@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import random
 import urllib
-import request
 import asyncio
 import io
 import output

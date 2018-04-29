@@ -2,20 +2,11 @@
 # https://stackoverflow.com/questions/2563822/how-do-you-composite-an-image-onto-another-image-with-pil-in-python?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 from PIL import Image, ImageDraw, ImageFont
 import request
+import merch
 
-images_dir = "images/"
 output_img = "res_img.png"
 img_bg = (54, 57, 62)
 img_text = (255,255,255)
-
-class MerchItem:    
-    def __init__(self, image_key, name, cost, quantity):
-        self.image_key = image_key
-        self.name = name
-        self.cost = cost
-        self.quantity = quantity
-    def get_icon(self):
-        return Image.open(images_dir + self.image_key, 'r')
 
 x_icon = 20
 x_cost = 400
@@ -69,4 +60,4 @@ def test(items):
         img.save(items[i].image_key)
     image(items)
 
-# test([ MerchItem('img' + str(x) + '.png', 'Item ' + str(x), str(1000000 * x), str(1000000 * x)) for x in range(0, 12) ])
+# test([ merch.MerchItem('img' + str(x) + '.png', 'Item ' + str(x), str(1000000 * x), str(1000000 * x)) for x in range(0, 12) ])

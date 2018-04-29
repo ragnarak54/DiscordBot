@@ -1,6 +1,6 @@
 import requests # pip install requests
 from html.parser import HTMLParser
-import output
+import merch
 
 
 class MerchWebsiteParser(HTMLParser):
@@ -38,7 +38,7 @@ class MerchWebsiteParser(HTMLParser):
                 if self.skipped_head:
                     assert all(value is not None for value in self.curr_merch_attrs)
                     assert len(self.curr_merch_attrs) == 4
-                    self.merch_items.append(output.MerchItem(*self.curr_merch_attrs))
+                    self.merch_items.append(merch.MerchItem(*self.curr_merch_attrs))
                     self.curr_merch_attrs = []
                 else:
                     self.skipped_head = True
