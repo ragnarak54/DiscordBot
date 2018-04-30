@@ -31,6 +31,7 @@ async def merchant():
     """Displays the daily Traveling merchant stock."""
     output.generate_merch_image()
     now = datetime.datetime.now()
+    print("called at " + now.strftime("%H:%M"))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
     await bot.upload(output.output_img)
