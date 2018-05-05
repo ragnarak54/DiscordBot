@@ -36,6 +36,9 @@ async def merchant():
     await bot.say(date_message)
     await bot.upload(output.output_img)
 
+@bot.command(name='3amerch')
+async def third_age_merch():
+    await bot.say("-500m")
 
 @bot.command()
 async def add(left : int, right : int):
