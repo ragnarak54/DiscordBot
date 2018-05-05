@@ -26,7 +26,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-@bot.command(name='merch', aliases=['merchant'])
+@bot.command(name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant():
     """Displays the daily Traveling merchant stock."""
     output.generate_merch_image()
