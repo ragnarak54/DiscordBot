@@ -6,6 +6,14 @@ import asyncio
 import io
 import output
 import datetime
+import logging
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
 
 
 
@@ -26,12 +34,15 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-@bot.command(name='merch', aliases=['merchant', 'shop', 'stock'])
-async def merchant():
+@bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
+async def merchant(ctx, member: discord.Member = None):
     """Displays the daily Traveling merchant stock."""
     output.generate_merch_image()
     now = datetime.datetime.now()
-    print("called at " + now.strftime("%H:%M"))
+    if member is None:
+        member = ctx.message.author
+    logger.info("called at " + now.strftime("%H:%M") + ' by {0}'.format(member))
+    print("called at " + now.strftime("%H:%M") + ' by {0}'.format(member))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
     await bot.upload(output.output_img)
