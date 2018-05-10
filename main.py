@@ -61,8 +61,9 @@ async def third_age_merch():
     await bot.say("-500m")
 
 @bot.command()
-async def donate(ctx):
+async def donate():
     """Donation link"""
+
     await bot.say("https://www.paypal.me/ProcBot Any donation is greatly appreciated!")
 
 @bot.command()
