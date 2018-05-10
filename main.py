@@ -1,9 +1,6 @@
 import discord
 from discord.ext import commands
 import random
-import urllib
-import asyncio
-import io
 import output
 import datetime
 import logging
@@ -19,12 +16,9 @@ logger.addHandler(handler)
 
 
 
-description = '''An example bot to showcase the discord.ext.commands extension
-module.
-There are a number of utility commands being showcased here.'''
+description = '''A bot to help keep up with the Travelling Merchant's daily stock!.
+There are a number of functionalities being worked on.'''
 bot = commands.Bot(command_prefix='?', description=description)
-
-
 
 
 
@@ -35,59 +29,51 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+@bot.event
+async def on_at(message):
+
+    await bot.process_commands(message)
+
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
-async def merchant(ctx, member: discord.Member = None):
+async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
 
     output.generate_merch_image()
     now = datetime.datetime.now()
-    if member is None:
-        member = ctx.message.author
-    logger.info("called at " + now.strftime("%H:%M") + ' by {0}'.format(member))
-    print("called at " + now.strftime("%H:%M") + ' by {0}'.format(member))
+    member = ctx.message.author
+    channel = ctx.message.channel
+    server = ctx.message.server
+    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
+    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
     await bot.upload(output.output_img)
 
 @bot.command(pass_context=True)
-async def addnotif(ctx, member: discord.Member = None):
+async def addnotif(ctx, item):
     """Adds an item to a user's notify list."""
-    playerNotifs = open("playerNotifs.txt", "w")
+    #playerNotifs = open("playerNotifs.txt", "w")
+    await bot.say("Coming soon!")
 
-
-    await bot.send_message
-
-@bot.command(name='3amerch')
+@bot.command(name='3amerch', category='memes')
 async def third_age_merch():
+    """:("""
     await bot.say("-500m")
+
+@bot.command()
+async def donate(ctx):
+    """Donation link"""
+    await bot.say("https://www.paypal.me/ProcBot Any donation is greatly appreciated!")
 
 @bot.command()
 async def add(left : int, right : int):
     """Adds two numbers together."""
     await bot.say(left + right)
 
-@bot.command()
-async def roll(dice : str):
-    """Rolls a dice in NdN format."""
-    try:
-        rolls, limit = map(int, dice.split('d'))
-    except Exception:
-        await bot.say('Format has to be in NdN!')
-        return
-
-    result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
-    await bot.say(result)
-
 @bot.command(description='For when you wanna settle the score some other way')
 async def choose(*choices : str):
     """Chooses between multiple choices."""
     await bot.say(random.choice(choices))
-
-@bot.command()
-async def repeat(times : int, content='repeating...'):
-    """Repeats a message multiple times."""
-    for i in range(times):
-        await bot.say(content)
 
 @bot.command()
 async def joined(member : discord.Member):
@@ -106,6 +92,11 @@ async def cool(ctx):
 async def _bot():
     """Is the bot cool?"""
     await bot.say('Yes, the bot is cool.')
+
+@cool.command(name='proc')
+async def _proc():
+    """Is proc cool?"""
+    await bot.say('Yes, proc is cool.')
 
 bot.run(config.token)
 
