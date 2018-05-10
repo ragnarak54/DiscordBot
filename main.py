@@ -7,6 +7,7 @@ import io
 import output
 import datetime
 import logging
+import config
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -22,7 +23,7 @@ description = '''An example bot to showcase the discord.ext.commands extension
 module.
 There are a number of utility commands being showcased here.'''
 bot = commands.Bot(command_prefix='?', description=description)
-token = 'NDM5ODAzNDEzNjIzMDc4OTI3.DcYeoQ.SNjcoLvT-YHWlBgdQNH0dOfwSSU'
+
 
 
 
@@ -37,6 +38,7 @@ async def on_ready():
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx, member: discord.Member = None):
     """Displays the daily Traveling merchant stock."""
+
     output.generate_merch_image()
     now = datetime.datetime.now()
     if member is None:
@@ -46,6 +48,14 @@ async def merchant(ctx, member: discord.Member = None):
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.say(date_message)
     await bot.upload(output.output_img)
+
+@bot.command(pass_context=True)
+async def addnotif(ctx, member: discord.Member = None):
+    """Adds an item to a user's notify list."""
+    playerNotifs = open("playerNotifs.txt", "w")
+
+
+    await bot.send_message
 
 @bot.command(name='3amerch')
 async def third_age_merch():
@@ -97,5 +107,5 @@ async def _bot():
     """Is the bot cool?"""
     await bot.say('Yes, the bot is cool.')
 
-bot.run(token)
+bot.run(config.token)
 
