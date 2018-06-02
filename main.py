@@ -120,7 +120,7 @@ async def joined(member : discord.Member):
     await bot.say('{0.name} joined in {0.joined_at}'.format(member))
 
 @bot.command()
-async def test():
+async def testme():
     userdb.test_connection()
 
 @bot.group(pass_context=True)
