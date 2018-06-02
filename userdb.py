@@ -8,7 +8,7 @@ def new_connection():
     cursor = conn.cursor()
 
 def test_connection():
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute('select * from user_prefs')
     data = cursor.fetchall()
@@ -17,14 +17,14 @@ def test_connection():
     conn.close()
 
 def create_table():
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID TEXT, item TEXT)')
     cursor.close()
     conn.close()
 
 def user_exists(user):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute('SELECT count(discordID) from user_prefs WHERE discordID = ?', (str(user),))
     data = cursor.fetchall()
@@ -34,7 +34,7 @@ def user_exists(user):
     return True
 
 def new_user(userID):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("INSERT INTO user_prefs (discordID) VALUES (?)", (str(userID)))
     conn.commit()
@@ -42,7 +42,7 @@ def new_user(userID):
     conn.close()
 
 def new_pref(userID, item):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("INSERT INTO user_prefs (discordID, item) VALUES (?, ?)", (str(userID), str(item)))
     conn.commit()
@@ -50,7 +50,7 @@ def new_pref(userID, item):
     conn.close()
 
 def remove_pref(userID, item):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("DELETE FROM user_prefs WHERE item = ?", (str(item),))
     conn.commit()
@@ -58,7 +58,7 @@ def remove_pref(userID, item):
     conn.close()
 
 def pref_exists(userID, item):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("SELECT count(item) from user_prefs where discordID = ? and item = ?", (str(userID), str(item)))
     data = cursor.fetchall()
@@ -68,7 +68,7 @@ def pref_exists(userID, item):
     conn.close()
 
 def user_prefs(userID):
-    conn = psycopg2.connect("dbname=userdb user=postgres")
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("SELECT item FROM user_prefs WHERE discordID = ?", (str(userID),))
     return cursor.fetchall()
