@@ -3,6 +3,7 @@ import psycopg2
 import config
 
 
+
 def new_connection():
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
@@ -17,11 +18,15 @@ def test_connection():
     conn.close()
 
 def create_table():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID TEXT, item TEXT)')
-    cursor.close()
-    conn.close()
+    try:
+        conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
+        cursor = conn.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID char(50), item char(50))')
+        cursor.close()
+        conn.close()
+        print("table successfully created")
+    except Exception as e:
+        print(e)
 
 def user_exists(user):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))

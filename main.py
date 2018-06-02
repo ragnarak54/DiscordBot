@@ -6,7 +6,6 @@ import datetime
 import logging
 import config
 import userdb
-import sqlite3
 import psycopg2
 
 
@@ -16,7 +15,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-#userdb.create_table()
+userdb.create_table()
 
 
 
