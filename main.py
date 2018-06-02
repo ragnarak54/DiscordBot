@@ -5,6 +5,10 @@ import output
 import datetime
 import logging
 import config
+import userdb
+import sqlite3
+import psycopg2
+
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -12,7 +16,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-
+#userdb.create_table()
 
 
 
@@ -52,19 +56,53 @@ async def merchant(ctx):
 @bot.command(pass_context=True)
 async def addnotif(ctx, item):
     """Adds an item to a user's notify list."""
+    stritem = str(item).lower()
+    if not stritem.isalnum():
+        await bot.say("lul")
+        return
+    if not userdb.pref_exists(ctx.message.author, stritem):
+        userdb.new_pref(ctx.message.author, stritem)
+        await bot.say("Notification for {0} added!".format(item))
+    else:
+        await bot.say("Already exists for this user")
+
+
     #playerNotifs = open("playerNotifs.txt", "w")
-    await bot.say("Coming soon!")
+    #await bot.say("Coming soon!")
+
+@bot.command(pass_context=True)
+async def removenotif(ctx, item):
+    """Removes an item from a user's notify list."""
+    stritem = str(item).lower()
+    if not stritem.isalnum():
+        await bot.say("lul")
+        return
+    if userdb.pref_exists(ctx.message.author, stritem):
+        userdb.remove_pref(ctx.message.author, stritem)
+        await bot.say("Notification for {0} removed!".format(stritem))
+    else:
+        await bot.say("user does not have this preference")
+
+@bot.command(pass_context=True)
+async def shownotifs(ctx):
+    """Shows a user's preferences"""
+    data = userdb.user_prefs(ctx.message.author)
+    print(type(data))
+    if not data:
+        await bot.say("No notifications added for this user")
+        return
+    await bot.say(data)
+
+
+@bot.command(pass_context=True)
+async def test(ctx, item):
+    userdb.pref_exists(ctx.message.author, item)
+
 
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch():
     """:("""
     await bot.say("-500m")
-
-@bot.command()
-async def donate():
-    """Donation link"""
-
-    await bot.say("https://www.paypal.me/ProcBot Any donation is greatly appreciated!")
 
 @bot.command()
 async def add(left : int, right : int):
@@ -80,6 +118,10 @@ async def choose(*choices : str):
 async def joined(member : discord.Member):
     """Says when a member joined."""
     await bot.say('{0.name} joined in {0.joined_at}'.format(member))
+
+@bot.command()
+async def test():
+    userdb.test_connection()
 
 @bot.group(pass_context=True)
 async def cool(ctx):
