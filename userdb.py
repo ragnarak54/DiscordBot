@@ -77,7 +77,7 @@ def users(item):
                                                                                config.mysql['passwd'],
                                                                                config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT discordID from user_prefs WHERE item = %s", str(item))
+    cursor.execute("SELECT DISTINCT discordID from user_prefs WHERE item = %s", (str(item),))
     data = cursor.fetchall()
     cursor.close()
     conn.close()
