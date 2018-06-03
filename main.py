@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import random
 import output
-from datetime import datetime, timedelta
+from datetime import timedelta
+import datetime
 import logging
 import config
 import userdb
@@ -36,8 +37,9 @@ async def on_ready():
 async def daily_message():
     await bot.wait_until_ready()
     while not bot.is_closed:
+        print("yes")
         now = datetime.datetime.now()
-        schedule_time = now.replace(hour=0, minutes=6) + timedelta(days=1)
+        schedule_time = now.replace(hour=0, minute=6) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
