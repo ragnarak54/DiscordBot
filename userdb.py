@@ -71,3 +71,14 @@ def user_prefs(userID):
     return cursor.fetchall()
     cursor.close()
     conn.close()
+
+def users(item):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT discordID from user_prefs WHERE item = %s", str(item))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data

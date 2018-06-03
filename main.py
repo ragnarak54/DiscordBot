@@ -9,6 +9,7 @@ import config
 import userdb
 import psycopg2
 import asyncio
+import request
 
 
 logger = logging.getLogger('discord')
@@ -39,19 +40,30 @@ async def daily_message():
     while not bot.is_closed:
         print("yes")
         now = datetime.datetime.now()
-        schedule_time = now.replace(hour=0, minute=6) + timedelta(days=1)
+        schedule_time = now.replace(hour=0, minute=10) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
+
         await asyncio.sleep(60)
+
+
+
+
 
 @bot.event
 async def on_at(message):
 
     await bot.process_commands(message)
+
+@bot.command
+async def user_notifs(item):
+    """Displays users who have the input preference"""
+    data = userdb.users(item)
+    print(data)
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
@@ -102,7 +114,6 @@ async def removenotif(ctx, item):
 async def shownotifs(ctx):
     """Shows a user's preferences"""
     data = userdb.user_prefs(ctx.message.author)
-    print(type(data))
     if not data:
         await bot.say("No notifications added for this user")
         return
