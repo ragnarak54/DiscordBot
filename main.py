@@ -2,11 +2,12 @@ import discord
 from discord.ext import commands
 import random
 import output
-import datetime
+from datetime import datetime, timedelta
 import logging
 import config
 import userdb
 import psycopg2
+import asyncio
 
 
 logger = logging.getLogger('discord')
@@ -31,6 +32,19 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+async def daily_message():
+    await bot.wait_until_ready()
+    while not bot.is_closed:
+        now = datetime.datetime.now()
+        schedule_time = now.replace(hour=0, minutes=6) + timedelta(days=1)
+        time_left = schedule_time - now
+        sleep_time = time_left.total_seconds()
+        await asyncio.sleep(sleep_time)
+        output.generate_merch_image()
+        channel = discord.Object(id=config.chat_id)
+        await bot.send_file(channel, output.output_img, content="Today's stock:")
+        await asyncio.sleep(60)
 
 @bot.event
 async def on_at(message):
@@ -140,5 +154,6 @@ async def _proc():
     """Is proc cool?"""
     await bot.say('Yes, proc is cool.')
 
+bot.loop.create_task(daily_merch())
 bot.run(config.token)
 
