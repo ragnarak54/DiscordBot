@@ -154,6 +154,6 @@ async def _proc():
     """Is proc cool?"""
     await bot.say('Yes, proc is cool.')
 
-bot.loop.create_task(daily_merch())
+bot.loop.create_task(daily_message())
 bot.run(config.token)
 
