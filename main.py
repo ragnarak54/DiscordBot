@@ -63,8 +63,8 @@ async def on_at(message):
 async def user_notifs(item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
-    print((data[0])[0])
-    print((data[1])[0])
+    users = [user_tuple[0] for user_tuple in data]
+    print(users)
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
