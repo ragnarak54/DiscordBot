@@ -59,7 +59,7 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
-@bot.command
+@bot.command()
 async def user_notifs(item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
