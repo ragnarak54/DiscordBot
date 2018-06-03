@@ -59,11 +59,14 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
-@bot.command()
-async def user_notifs(item):
+@bot.command(pass_context=True)
+async def user_notifs(ctx, item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
-    users = [user_tuple[0] for user_tuple in data]
+    users = [user_tuple[0].strip() for user_tuple in data]
+    for user in users:
+        user = discord.Server.get_member(user)
+        await bot.send_message(user, "testing testing 123")
     print(users)
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
