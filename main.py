@@ -65,7 +65,7 @@ async def user_notifs(ctx, item):
     data = userdb.users(item)
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
-        user = discord.Server.get_member(user)
+        user = discord.Server.get_member(user_id=user)
         await bot.send_message(user, "testing testing 123")
     print(users)
 
