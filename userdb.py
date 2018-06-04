@@ -38,10 +38,10 @@ def user_exists(user):
     conn.close()
     return True
 
-def new_pref(userID, username, item):
+def new_pref(userID, username, item, server):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO user_prefs (discordID, username, item) VALUES (%s, %s, %s)", (str(userID), str(username), str(item)))
+    cursor.execute("INSERT INTO user_prefs (discordID, username, item, server) VALUES (%s, %s, %s)", (str(userID), str(username), str(item), str(server)))
     conn.commit()
     cursor.close()
     conn.close()

@@ -73,7 +73,6 @@ async def user_notifs(*, item):
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
-
     output.generate_merch_image()
     now = datetime.datetime.now()
     member = ctx.message.author
@@ -82,8 +81,7 @@ async def merchant(ctx):
     logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
     print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
-    await bot.say(date_message)
-    await bot.upload(output.output_img)
+    await bot.upload(output.output_img, date_message)
 
 @bot.command(pass_context=True)
 async def addnotif(ctx, *, item):
@@ -93,7 +91,7 @@ async def addnotif(ctx, *, item):
         await bot.say("lul")
         return
     if not userdb.pref_exists(ctx.message.author.id, stritem):
-        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem)
+        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server)
         await bot.say("Notification for {0} added!".format(item))
     else:
         await bot.say("Already exists for this user")
@@ -106,8 +104,8 @@ async def addnotif(ctx, *, item):
 async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()
-    if not stritem.isalnum():
-        await bot.say("lul")
+    if not stritem.replace(' ', '').isalnum():
+        await bot.say("Please enter the item in the proper format")
         return
     if userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.remove_pref(ctx.message.author.id, stritem)
@@ -119,10 +117,12 @@ async def removenotif(ctx, *, item):
 async def shownotifs(ctx):
     """Shows a user's preferences"""
     data = userdb.user_prefs(ctx.message.author.id)
+    notifs = [data_tuple[0].strip() for data_tuple in data]
     if not data:
         await bot.say("No notifications added for this user")
         return
-    await bot.say(data)
+    notifs = [data_tuple[0].strip() for data_tuple in data]
+    await bot.say(notifs)
 
 
 @bot.command(pass_context=True)
