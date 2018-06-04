@@ -60,13 +60,13 @@ async def on_at(message):
     await bot.process_commands(message)
 
 @bot.command(pass_context=True)
-async def user_notifs(ctx, item):
+async def user_notifs(ctx, *, item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
-        user = discord.Server.get_member(user_id=user)
-        await bot.send_message(user, "testing testing 123")
+        member = ctx.message.server.get_member(user_id=user)
+        await bot.send_message(member, "testing testing 123")
     print(users)
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
@@ -91,8 +91,8 @@ async def addnotif(ctx, item):
     if not stritem.isalnum():
         await bot.say("lul")
         return
-    if not userdb.pref_exists(ctx.message.author, stritem):
-        userdb.new_pref(ctx.message.author, stritem)
+    if not userdb.pref_exists(ctx.message.author.id, stritem):
+        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem)
         await bot.say("Notification for {0} added!".format(item))
     else:
         await bot.say("Already exists for this user")
@@ -108,8 +108,8 @@ async def removenotif(ctx, item):
     if not stritem.isalnum():
         await bot.say("lul")
         return
-    if userdb.pref_exists(ctx.message.author, stritem):
-        userdb.remove_pref(ctx.message.author, stritem)
+    if userdb.pref_exists(ctx.message.author.id, stritem):
+        userdb.remove_pref(ctx.message.author.id, stritem)
         await bot.say("Notification for {0} removed!".format(stritem))
     else:
         await bot.say("user does not have this preference")
@@ -117,7 +117,7 @@ async def removenotif(ctx, item):
 @bot.command(pass_context=True)
 async def shownotifs(ctx):
     """Shows a user's preferences"""
-    data = userdb.user_prefs(ctx.message.author)
+    data = userdb.user_prefs(ctx.message.author.id)
     if not data:
         await bot.say("No notifications added for this user")
         return
@@ -126,7 +126,7 @@ async def shownotifs(ctx):
 
 @bot.command(pass_context=True)
 async def test(ctx, item):
-    userdb.pref_exists(ctx.message.author, item)
+    userdb.pref_exists(ctx.message.author.id, item)
 
 
 @bot.command(name='3amerch', category='memes')

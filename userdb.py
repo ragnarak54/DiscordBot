@@ -21,7 +21,7 @@ def create_table():
     try:
         conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
         cursor = conn.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID char(50), item char(50))')
+        cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID char(50), username char(50), item char(50))')
         cursor.close()
         conn.close()
         print("table successfully created")
@@ -38,10 +38,10 @@ def user_exists(user):
     conn.close()
     return True
 
-def new_pref(userID, item):
+def new_pref(userID, username, item):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO user_prefs (discordID, item) VALUES (%s, %s)", (str(userID), str(item)))
+    cursor.execute("INSERT INTO user_prefs (discordID, username, item) VALUES (%s, %s, %s)", (str(userID), str(username), str(item)))
     conn.commit()
     cursor.close()
     conn.close()
@@ -49,7 +49,7 @@ def new_pref(userID, item):
 def remove_pref(userID, item):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM user_prefs WHERE item = %s", (str(item),))
+    cursor.execute("DELETE FROM user_prefs WHERE item = %s AND discordID = %s", (str(item), str(userID)))
     conn.commit()
     cursor.close()
     conn.close()
@@ -68,9 +68,10 @@ def user_prefs(userID):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("SELECT item FROM user_prefs WHERE discordID = %s", (str(userID),))
-    return cursor.fetchall()
+    data = cursor.fetchall()
     cursor.close()
     conn.close()
+    return data
 
 def users(item):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
