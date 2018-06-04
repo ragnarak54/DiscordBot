@@ -124,7 +124,10 @@ async def shownotifs(ctx):
         await bot.say("No notifications added for this user")
         return
     notifs = [data_tuple[0].strip() for data_tuple in data]
-    await bot.say(notifs)
+    b = [':small_blue_diamond:' + x + '\n' for x in notifs]
+    user_string = 'Current notifications for {0}:\n'.format(ctx.message.author)
+    string = ''.join(user_string + b)
+    await bot.say(string)
 
 
 @bot.command(pass_context=True)
