@@ -126,7 +126,7 @@ async def shownotifs(ctx):
     notifs = [data_tuple[0].strip() for data_tuple in data]
     b = [':small_blue_diamond:' + x + '\n' for x in notifs]
     user_string = 'Current notifications for {0}:\n'.format(ctx.message.author)
-    string = ''.join(user_string + b)
+    string = user_string + ''.join(b)
     await bot.say(string)
 
 
