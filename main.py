@@ -81,7 +81,7 @@ async def merchant(ctx):
     logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
     print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
-    await bot.upload(output.output_img, date_message)
+    await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
 
 @bot.command(pass_context=True)
 async def addnotif(ctx, *, item):
