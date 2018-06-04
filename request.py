@@ -14,6 +14,7 @@ class MerchWebsiteParser(HTMLParser):
         self.curr_data = ''
         self.curr_img_key = ''
         self.skipped_head = False
+        self.stock_date = ''
 
     def handle_starttag(self, tag, attrs):
         assert self.recording_table >= 0
@@ -60,3 +61,9 @@ def parse_merch_items():
     r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
     return parser.merch_items
+
+def parse_stock_date():
+    parser = MerchWebsiteParser()
+    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
+    parser.feed(r.text)
+    return parser.stock_date

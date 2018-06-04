@@ -44,6 +44,7 @@ async def daily_message():
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
+
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
@@ -59,15 +60,15 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
-@bot.command(pass_context=True)
-async def user_notifs(ctx, *, item):
+@bot.command()
+async def user_notifs(*, item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
-        member = ctx.message.server.get_member(user_id=user)
+        member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
         await bot.send_message(member, "testing testing 123")
-    print(users)
+        print(user)
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
