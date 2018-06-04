@@ -85,7 +85,7 @@ async def merchant(ctx):
     await bot.upload(output.output_img)
 
 @bot.command(pass_context=True)
-async def addnotif(ctx, item):
+async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
     if not stritem.isalnum():
@@ -102,7 +102,7 @@ async def addnotif(ctx, item):
     #await bot.say("Coming soon!")
 
 @bot.command(pass_context=True)
-async def removenotif(ctx, item):
+async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()
     if not stritem.isalnum():
