@@ -88,7 +88,7 @@ async def merchant(ctx):
 async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
-    if not stritem.isalnum():
+    if not stritem.replace(' ', '').isalnum():
         await bot.say("lul")
         return
     if not userdb.pref_exists(ctx.message.author.id, stritem):
