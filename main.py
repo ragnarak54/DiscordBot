@@ -44,7 +44,9 @@ async def daily_message():
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
-
+        items = request.parse_merch_items()
+        for item in items:
+            user_notifs(item)
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
