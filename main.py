@@ -93,7 +93,7 @@ async def addnotif(ctx, *, item):
         await bot.say("lul")
         return
     if not userdb.pref_exists(ctx.message.author.id, stritem):
-        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server)
+        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
         await bot.say("Notification for {0} added!".format(item))
     else:
         await bot.say("Already exists for this user")
