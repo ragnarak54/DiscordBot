@@ -84,12 +84,12 @@ def users(item):
     conn.close()
     return data
 
-def user_server(username):
+def user_server(discordID):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
                                                                                config.mysql['passwd'],
                                                                                config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT server from user_prefs WHERE username = %s", (str(username),))
+    cursor.execute("SELECT DISTINCT server from user_prefs WHERE discordID = %s", (str(discordID),))
     data = cursor.fetchall()
     cursor.close()
     conn.close()
