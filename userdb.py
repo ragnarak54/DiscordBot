@@ -95,3 +95,14 @@ def user_server(username):
     conn.close()
     print(data[0])
     return (data[0])[0]
+
+def ah_roles(items):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT role from ah_roles where (item = %s or item = %s or item = %s)", str(items[1].lower()), str(items[2].lower()), str(items[3].lower()))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data

@@ -45,8 +45,12 @@ async def daily_message():
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
         items = request.parse_merch_items()
+        data = userdb.ah_roles(items)
+        roles = [role_tuple[0].strip() for role_tuple in data]
+        tag_string = "Tags: " + ''.join(roles)
+        await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
         for item in items:
-            user_notifs(item)
+            auto_user_notifs(str(item).lower())
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
@@ -67,9 +71,18 @@ async def auto_user_notifs(item):
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
         member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
-        await bot.send_message(member, "{0} is in stock!".format(item))
+        if not userdb.user_server(user):
+            await bot.send_message(member, "{0} is in stock!".format(item))
         print(user)
 
+@bot.command()
+async def ah_test():
+    items = request.parse_merch_items()
+    data = userdb.ah_roles(items)
+    roles = [role_tuple[0].strip() for role_tuple in data]
+    b = [role + '\n' for role in roles]
+    tag_string = "Tags: " + ''.join(b)
+    await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
 
 @bot.command()
 async def user_notifs(*, item):
