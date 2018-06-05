@@ -93,6 +93,7 @@ async def ah_test(ctx):
 async def user_notifs(*, item):
     """Displays users who have the input preference"""
     data = userdb.users(item)
+    print(data)
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
         member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
