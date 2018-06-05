@@ -44,7 +44,7 @@ async def daily_message():
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
-        items = [item.name for item in request.parse_merch_items()]
+        items = [item.name.lower() for item in request.parse_merch_items()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
@@ -102,7 +102,7 @@ async def user_notifs(*, item):
 
 @bot.command()
 async def notif_test():
-    items = [item.name for item in request.parse_merch_items()]
+    items = [item.name.lower() for item in request.parse_merch_items()]
     print(items)
     for item in items:
         data = userdb.users(item)
