@@ -82,6 +82,7 @@ async def ah_test():
     roles = [role_tuple[0].strip() for role_tuple in data]
     b = [role + '\n' for role in roles]
     tag_string = "Tags: " + ''.join(b)
+    print(tag_string)
     await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
 
 @bot.command()
