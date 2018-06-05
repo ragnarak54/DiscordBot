@@ -94,7 +94,7 @@ def user_server(discordID):
     cursor.close()
     conn.close()
     print(data[0])
-    return (data[0])[0]
+    return (data[0])[0].strip()
 
 def ah_roles(items):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
