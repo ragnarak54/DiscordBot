@@ -101,7 +101,7 @@ def ah_roles(items):
                                                                                config.mysql['passwd'],
                                                                                config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("SELECT role from ah_roles where (item = %s or item = %s or item = %s)", str(items[1]).lower(), str(items[2]).lower(), str(items[3]).lower())
+    cursor.execute("SELECT role from ah_roles where (item = %s or item = %s or item = %s)", (str(items[1]).lower(), str(items[2]).lower(), str(items[3]).lower()))
     data = cursor.fetchall()
     cursor.close()
     conn.close()
