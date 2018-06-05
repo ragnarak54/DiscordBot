@@ -44,11 +44,12 @@ async def daily_message():
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         await asyncio.sleep(sleep_time)
-        items = request.parse_merch_items()
+        items = [item.name for item in request.parse_merch_items()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
-        tag_string = "Tags: " + ''.join(roles)
-        await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
+        b = [role + '\n' for role in roles]
+        tag_string = "Tags: " + ''.join(b)
+        #await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
         for item in items:
             auto_user_notifs(str(item).lower())
         output.generate_merch_image()
@@ -75,20 +76,18 @@ async def auto_user_notifs(item):
             await bot.send_message(member, "{0} is in stock!".format(item))
         print(user)
 
-@bot.command()
-async def ah_test():
-    items = [item.name for item in request.parse_merch_items()]
-    data = userdb.ah_roles(items)
-    print(items)
-    print(items[1])
-    print(data)
-    roles = [role_tuple[0].strip() for role_tuple in data]
-    print(roles)
-    b = [role + '\n' for role in roles]
-    print(b)
-    tag_string = "Tags: " + ''.join(b)
-    print(tag_string)
-    await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
+@bot.command(pass_context=True, name='ah_merch')
+async def ah_test(ctx):
+    if ctx.message.author.top_role >= discord.utils.get(ctx.message.server.roles, id=config.ah_mod_role) \
+            or ctx.message.author.id == config.proc:
+        items = [item.name for item in request.parse_merch_items()]
+        data = userdb.ah_roles(items)
+        roles = [role_tuple[0].strip() for role_tuple in data]
+        b = [role + '\n' for role in roles]
+        tag_string = "Tags: " + ''.join(b)
+        await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
+    else:
+        return
 
 @bot.command()
 async def user_notifs(*, item):
