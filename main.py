@@ -77,7 +77,7 @@ async def auto_user_notifs(item):
 
 @bot.command()
 async def ah_test():
-    items = request.parse_merch_items()
+    items = [item.name for item in request.parse_merch_items()]
     data = userdb.ah_roles(items)
     print(items)
     print(items[1])
