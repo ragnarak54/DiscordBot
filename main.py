@@ -62,6 +62,15 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
+async def auto_user_notifs(item):
+    data = userdb.users(item)
+    users = [user_tuple[0].strip() for user_tuple in data]
+    for user in users:
+        member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
+        await bot.send_message(member, "{0} is in stock!".format(item))
+        print(user)
+
+
 @bot.command()
 async def user_notifs(*, item):
     """Displays users who have the input preference"""
@@ -125,7 +134,7 @@ async def shownotifs(ctx):
         return
     notifs = [data_tuple[0].strip() for data_tuple in data]
     b = [':small_blue_diamond:' + x + '\n' for x in notifs]
-    user_string = 'Current notifications for {0}:\n'.format(ctx.message.author)
+    user_string = 'Current notifications for {0}:\n'.format(ctx.message.author.nick)
     string = user_string + ''.join(b)
     await bot.say(string)
 
