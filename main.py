@@ -79,6 +79,8 @@ async def auto_user_notifs(item):
 async def ah_test():
     items = request.parse_merch_items()
     data = userdb.ah_roles(items)
+    print(items)
+    print(items[1])
     print(data)
     roles = [role_tuple[0].strip() for role_tuple in data]
     print(roles)
