@@ -38,20 +38,19 @@ async def on_ready():
 async def daily_message():
     await bot.wait_until_ready()
     while not bot.is_closed:
-        print("yes")
         now = datetime.datetime.now()
         schedule_time = now.replace(hour=0, minute=10) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
+        print(sleep_time)
         await asyncio.sleep(sleep_time)
         items = [item.name.lower() for item in request.parse_merch_items()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
-        tag_string = "Tags: " + ''.join(b)
-        #await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
-        for item in items:
-            auto_user_notifs(str(item).lower())
+        tag_string = "Tags: \n" + ''.join(b)
+        await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
+        user_notifs()
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
@@ -89,28 +88,30 @@ async def ah_test(ctx):
     else:
         return
 
-@bot.command()
-async def user_notifs(*, item):
+@bot.command(pass_context=True)
+async def user_notifs(ctx, *, item):
     """Displays users who have the input preference"""
-    data = userdb.users(item)
-    users = [user_tuple[0].strip() for user_tuple in data]
-    for user in users:
-        print(user)
-        member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
-        await bot.send_message(member, "{0} is in stock!".format(item))
-        print(user)
-
-@bot.command()
-async def notif_test():
-    items = [item.name.lower() for item in request.parse_merch_items()]
-    print(items)
-    for item in items:
+    if ctx.message.author.id == config.proc:
         data = userdb.users(item)
         users = [user_tuple[0].strip() for user_tuple in data]
-        print(users)
         for user in users:
+            print(user)
             member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
             await bot.send_message(member, "{0} is in stock!".format(item))
+            print(user)
+
+@bot.command(pass_context=True)
+async def notif_test(ctx):
+    if ctx.message.author.id == config.proc:
+        items = [item.name.lower() for item in request.parse_merch_items()]
+        print(items)
+        for item in items:
+            data = userdb.users(item)
+            users = [user_tuple[0].strip() for user_tuple in data]
+            print(users)
+            for user in users:
+                member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
+                await bot.send_message(member, "{0} is in stock!".format(item))
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
