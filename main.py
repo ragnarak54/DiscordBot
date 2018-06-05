@@ -102,9 +102,11 @@ async def user_notifs(*, item):
 @bot.command()
 async def notif_test():
     items = [item.name for item in request.parse_merch_items()]
+    print(items)
     for item in items:
         data = userdb.users(item)
         users = [user_tuple[0].strip() for user_tuple in data]
+        print(users)
         for user in users:
             member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
             await bot.send_message(member, "{0} is in stock!".format(item))
