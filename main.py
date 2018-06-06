@@ -48,15 +48,17 @@ async def daily_message():
         now2 = datetime.datetime.now()
         while not now2.day == request.parse_stock_date():
             await asyncio.sleep(60)
+        output.generate_merch_image()
         items = [item.name.lower() for item in request.parse_merch_items()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
         tag_string = "Tags: \n" + ''.join(b)
-        await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
+        ah_channel = bot.get_channel(config.ah_chat_id)
+        await bot.send_file(ah_channel, output.output_img, content="Tags:\n" + tag_string)
         auto_user_notifs()
         output.generate_merch_image()
-        channel = discord.Object(id=config.chat_id)
+        channel = bot.get_channel(config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
 
         await asyncio.sleep(60)
