@@ -56,7 +56,8 @@ async def daily_message():
         tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content="Tags:\n" + tag_string)
-        auto_user_notifs()
+        for item in items:
+            auto_user_notifs(item)
         output.generate_merch_image()
         channel = bot.get_channel(config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
