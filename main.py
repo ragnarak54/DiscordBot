@@ -135,8 +135,9 @@ async def addnotif(ctx, *, item):
     stritem = str(item).lower()
     if not str(item) in itemlist.item_list:
         await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
-        itemstr = "".join(itemlist.item_list + "\n")
-        await bot.send_message(ctx.message.author, itemstr)
+        itemstr = [item + "\n" for item in itemlist.item_list]
+        itemstrv2 = "".join(itemstr)
+        await bot.send_message(ctx.message.author, itemstrv2)
         return
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
