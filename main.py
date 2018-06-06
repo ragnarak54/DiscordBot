@@ -10,6 +10,7 @@ import userdb
 import psycopg2
 import asyncio
 import request
+import itemlist
 
 
 logger = logging.getLogger('discord')
@@ -132,8 +133,9 @@ async def merchant(ctx):
 async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
-    if not stritem.replace(' ', '').isalnum():
-        await bot.say("lul")
+    if not str(item) in itemlist.item_list:
+        await bot.say("Make sure you're spelling your item correctly!\n Check your PMs for a list of correct spellings, or refer to the wikia page.")
+        await bot.send_message(ctx.message.author, itemlist.item_list)
         return
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
