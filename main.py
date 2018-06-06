@@ -50,7 +50,7 @@ async def daily_message():
         b = [role + '\n' for role in roles]
         tag_string = "Tags: \n" + ''.join(b)
         await bot.send_message(discord.Object(id=config.ah_chat_id), tag_string)
-        user_notifs()
+        auto_user_notifs()
         output.generate_merch_image()
         channel = discord.Object(id=config.chat_id)
         await bot.send_file(channel, output.output_img, content="Today's stock:")
@@ -71,8 +71,7 @@ async def auto_user_notifs(item):
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
         member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
-        if not userdb.user_server(user):
-            await bot.send_message(member, "{0} is in stock!".format(item))
+        await bot.send_message(member, "{0} is in stock!".format(item))
         print(user)
 
 @bot.command(pass_context=True, name='ah_merch')
