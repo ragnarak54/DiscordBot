@@ -62,8 +62,33 @@ def parse_merch_items():
     parser.feed(r.text)
     return parser.merch_items
 
+class DateParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.date = ''
+        self.ye = False
+        self.first = True
+        self.line_num = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'i' and self.first:
+            self.ye = True
+            self.first = False
+
+    def handle_endtag(self, tag):
+        if tag == 'i' and self.ye:
+            self.ye = False
+
+    def handle_data(self, data):
+        if self.ye:
+            print(data)
+            self.line_num += 1
+            print(self.line_num)
+            if self.line_num == 2 or self.line_num == 4:
+                self.date += data + " "
+
 def parse_stock_date():
-    parser = MerchWebsiteParser()
+    parser = DateParser()
     r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
-    return parser.stock_date
+    return parser.date[:2].strip()

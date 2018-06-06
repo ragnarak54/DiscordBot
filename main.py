@@ -39,11 +39,14 @@ async def daily_message():
     await bot.wait_until_ready()
     while not bot.is_closed:
         now = datetime.datetime.now()
-        schedule_time = now.replace(hour=0, minute=10) + timedelta(days=1)
+        schedule_time = now.replace(hour=0, minute=2) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()
         print(sleep_time)
         await asyncio.sleep(sleep_time)
+        now2 = datetime.datetime.now()
+        while not now2.day == request.parse_stock_date():
+            await asyncio.sleep(60)
         items = [item.name.lower() for item in request.parse_merch_items()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
