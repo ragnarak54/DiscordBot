@@ -36,9 +36,10 @@ def pref_exists(userID, item):
     cursor.execute("SELECT count(item) from user_prefs where discordID = %s and item = %s", (str(userID), str(item)))
     data = cursor.fetchall()
     print(data)
-    return (data[0])[0] > 0
     cursor.close()
     conn.close()
+    return (data[0])[0] > 0
+
 
 # returns the list of preferences for a user
 def user_prefs(userID):
@@ -74,6 +75,17 @@ def user_server(discordID):
     conn.close()
     print(data[0])
     return (data[0])[0].strip()
+
+def user_exists(discordID):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(discordID) from user_prefs WHERE discordID = %s", (str(discordID),))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return (data[0])[0] > 0
 
 # gets the id for the AH discord role for an item
 def ah_roles(items):

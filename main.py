@@ -11,6 +11,7 @@ import psycopg2
 import asyncio
 import request
 import itemlist
+import random
 
 
 logger = logging.getLogger('discord')
@@ -142,6 +143,11 @@ async def merchant(ctx):
     print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
+    if not userdb.user_exists(ctx.message.author.id):
+        print("user {0} doesn't have any preferences".format(ctx.message.author))
+        chance = random.random()
+        if chance < 0.5:
+            await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
 
 @bot.command(pass_context=True)
 async def addnotif(ctx, *, item):
