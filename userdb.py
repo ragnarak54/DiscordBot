@@ -1,22 +1,7 @@
-import sqlite3
 import psycopg2
 import config
 
-
-
-def new_connection():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-
-def test_connection():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("""select * from user_prefs""")
-    data = cursor.fetchall()
-    print(data)
-    cursor.close()
-    conn.close()
-
+# test function called at the start f the program to see if the DB connection is successful
 def create_table():
     try:
         conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
@@ -24,19 +9,9 @@ def create_table():
         cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID char(50), username char(50), item char(50))')
         cursor.close()
         conn.close()
-        print("table successfully created")
+        print("DB connection successful")
     except Exception as e:
         print(e)
-
-def user_exists(user):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute('SELECT count(discordID) from user_prefs WHERE discordID = ?', (str(user),))
-    data = cursor.fetchall()
-    print(data)
-    cursor.close()
-    conn.close()
-    return True
 
 def new_pref(userID, username, item, server):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
@@ -54,6 +29,7 @@ def remove_pref(userID, item):
     cursor.close()
     conn.close()
 
+# returns if an item is in a user's notify list
 def pref_exists(userID, item):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
@@ -64,6 +40,7 @@ def pref_exists(userID, item):
     cursor.close()
     conn.close()
 
+# returns the list of preferences for a user
 def user_prefs(userID):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
     cursor = conn.cursor()
@@ -73,6 +50,7 @@ def user_prefs(userID):
     conn.close()
     return data
 
+# returns the list of users for an item
 def users(item):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
                                                                                config.mysql['passwd'],
@@ -84,6 +62,7 @@ def users(item):
     conn.close()
     return data
 
+# gets the server that a user is in
 def user_server(discordID):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
                                                                                config.mysql['passwd'],
@@ -96,6 +75,7 @@ def user_server(discordID):
     print(data[0])
     return (data[0])[0].strip()
 
+# gets the id for the AH discord role for an item
 def ah_roles(items):
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
                                                                                config.mysql['passwd'],

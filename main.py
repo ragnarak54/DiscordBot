@@ -19,10 +19,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-userdb.create_table()
-
-
-
 description = '''A bot to help keep up with the Travelling Merchant's daily stock!.
 There are a number of functionalities being worked on.'''
 bot = commands.Bot(command_prefix='?', description=description)
@@ -36,45 +32,50 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+# background task for automatic notifications each day
 async def daily_message():
     await bot.wait_until_ready()
     while not bot.is_closed:
         now = datetime.datetime.now()
         schedule_time = now.replace(hour=0, minute=2) + timedelta(days=1)
         time_left = schedule_time - now
-        sleep_time = time_left.total_seconds()
+        sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:02
         print(sleep_time)
         await asyncio.sleep(sleep_time)
+
         now2 = datetime.datetime.today()
+        # Check the wiki's date to see if it's current. If not, try again in 60 seconds
         while not now2.day == int(request.parse_stock_date()):
             print(now2.day)
             print(request.parse_stock_date())
             await asyncio.sleep(60)
-        output.generate_merch_image()
-        items = [item.name.lower() for item in request.parse_merch_items()]
+
+        output.generate_merch_image()  # generate the new image
+        items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
+
         data = userdb.ah_roles(items)
-        roles = [role_tuple[0].strip() for role_tuple in data]
+        roles = [role_tuple[0].strip() for role_tuple in data]  # get the roles for these items in AH discord
+        # format the string to be sent
         b = [role + '\n' for role in roles]
         tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content="Tags:\n" + tag_string)
+
+        # notify users for each item in today's stock
         for item in items:
             auto_user_notifs(item)
-        output.generate_merch_image()
+
         channel = bot.get_channel(config.chat_id)
-        await bot.send_file(channel, output.output_img, content="Today's stock:")
+        await bot.send_file(channel, output.output_img, content="Today's stock:")  # send new stock to bossbands chat
 
         await asyncio.sleep(60)
-
-
-
-
 
 @bot.event
 async def on_at(message):
 
     await bot.process_commands(message)
 
+# PMs users who have the item preference
 async def auto_user_notifs(item):
     data = userdb.users(item)
     users = [user_tuple[0].strip() for user_tuple in data]
@@ -85,6 +86,7 @@ async def auto_user_notifs(item):
 
 @bot.command(pass_context=True, name='ah_merch')
 async def ah_test(ctx):
+    """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.message.author.top_role >= discord.utils.get(ctx.message.server.roles, id=config.ah_mod_role) \
             or ctx.message.author.id == config.proc:
         items = [item.name for item in request.parse_merch_items()]
@@ -98,7 +100,7 @@ async def ah_test(ctx):
 
 @bot.command(pass_context=True)
 async def user_notifs(ctx, *, item):
-    """Displays users who have the input preference"""
+    """Notifies users who have the input preference"""
     if ctx.message.author.id == config.proc:
         data = userdb.users(item)
         users = [user_tuple[0].strip() for user_tuple in data]
@@ -107,9 +109,13 @@ async def user_notifs(ctx, *, item):
             member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
             await bot.send_message(member, "{0} is in stock!".format(item))
             print(user)
+    else:
+        print("{0} tried to call user_notifs!".format(ctx.message.author))
+        bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True)
 async def notif_test(ctx):
+    """Notifies users for today's stock"""
     if ctx.message.author.id == config.proc:
         items = [item.name.lower() for item in request.parse_merch_items()]
         print(items)
@@ -120,6 +126,9 @@ async def notif_test(ctx):
             for user in users:
                 member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
                 await bot.send_message(member, "{0} is in stock!".format(item))
+    else:
+        print("{0} tried to call notif_test!".format(ctx.message.author))
+        bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
@@ -129,8 +138,8 @@ async def merchant(ctx):
     member = ctx.message.author
     channel = ctx.message.channel
     server = ctx.message.server
-    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
-    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member,channel,server))
+    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
+    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
     date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
     await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
 
@@ -170,9 +179,8 @@ async def removenotif(ctx, *, item):
 
 @bot.command(pass_context=True)
 async def shownotifs(ctx):
-    """Shows a user's preferences"""
+    """Shows a user's notify list"""
     data = userdb.user_prefs(ctx.message.author.id)
-    notifs = [data_tuple[0].strip() for data_tuple in data]
     if not data:
         await bot.say("No notifications added for this user")
         return
