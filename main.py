@@ -21,7 +21,7 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 description = '''A bot to help keep up with the Travelling Merchant's daily stock!.
-There are a number of functionalities being worked on.'''
+Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
 bot = commands.Bot(command_prefix='?', description=description)
 
 
@@ -192,7 +192,11 @@ async def shownotifs(ctx):
         return
     notifs = [data_tuple[0].strip() for data_tuple in data]
     b = [':small_blue_diamond:' + x + '\n' for x in notifs]
-    user_string = 'Current notifications for {0}:\n'.format(ctx.message.author.nick)
+    # check if called in a direct message with the bot
+    if not ctx.message.server:
+        user_string = 'Current notifications for {0}:\n'.format(ctx.message.author)
+    else:
+        user_string = 'Current notifications for {0}:\n'.format(ctx.message.author.nick)
     string = user_string + ''.join(b)
     await bot.say(string)
 
