@@ -45,8 +45,10 @@ async def daily_message():
         sleep_time = time_left.total_seconds()
         print(sleep_time)
         await asyncio.sleep(sleep_time)
-        now2 = datetime.datetime.now()
-        while not now2.day == request.parse_stock_date():
+        now2 = datetime.datetime.today()
+        while not now2.day == int(request.parse_stock_date()):
+            print(now2.day)
+            print(request.parse_stock_date())
             await asyncio.sleep(60)
         output.generate_merch_image()
         items = [item.name.lower() for item in request.parse_merch_items()]
