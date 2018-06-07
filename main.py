@@ -20,11 +20,11 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-description = '''A bot to help keep up with the Travelling Merchant's daily stock!.
+description = '''A bot to help keep up with the Travelling Merchant's daily stock!
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
 bot = commands.Bot(command_prefix='?', description=description)
 
-
+procUser = bot.get_user_info(user_id=config.proc)
 
 @bot.event
 async def on_ready():
@@ -112,7 +112,8 @@ async def user_notifs(ctx, *, item):
             print(user)
     else:
         print("{0} tried to call user_notifs!".format(ctx.message.author))
-        bot.say("This command isn't for you!")
+        await bot.send_message(procUser, "{0} tried to call user_notifs!".format(ctx.message.author))
+        await bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True)
 async def notif_test(ctx):
@@ -129,7 +130,8 @@ async def notif_test(ctx):
                 await bot.send_message(member, "{0} is in stock!".format(item))
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
-        bot.say("This command isn't for you!")
+        await bot.send_message(procUser, "{0} tried to call notif_test!".format(ctx.message.author))
+        await bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
@@ -200,10 +202,12 @@ async def shownotifs(ctx):
     string = user_string + ''.join(b)
     await bot.say(string)
 
-
 @bot.command(pass_context=True)
-async def test(ctx, item):
-    userdb.pref_exists(ctx.message.author.id, item)
+async def users(ctx, *, item):
+    if ctx.message.author.id == config.proc:
+        userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
+        await bot.say(userlist)
+
 
 
 @bot.command(name='3amerch', category='memes')
@@ -225,10 +229,6 @@ async def choose(*choices : str):
 async def joined(member : discord.Member):
     """Says when a member joined."""
     await bot.say('{0.name} joined in {0.joined_at}'.format(member))
-
-@bot.command()
-async def testme():
-    userdb.test_connection()
 
 @bot.group(pass_context=True)
 async def cool(ctx):
