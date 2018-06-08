@@ -53,6 +53,7 @@ async def daily_message():
 
         output.generate_merch_image()  # generate the new image
         items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
+        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%d-%m-%Y"))
 
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]  # get the roles for these items in AH discord
@@ -60,14 +61,14 @@ async def daily_message():
         b = [role + '\n' for role in roles]
         tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
-        await bot.send_file(ah_channel, output.output_img, content="Tags:\n" + tag_string)
+        await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
 
         # notify users for each item in today's stock
         for item in items:
-            auto_user_notifs(item)
+            await auto_user_notifs(item)
 
         channel = bot.get_channel(config.chat_id)
-        await bot.send_file(channel, output.output_img, content="Today's stock:")  # send new stock to bossbands chat
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to bossbands chat
 
         await asyncio.sleep(60)
 
@@ -136,20 +137,24 @@ async def notif_test(ctx):
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
-    output.generate_merch_image()
-    now = datetime.datetime.now()
-    member = ctx.message.author
-    channel = ctx.message.channel
-    server = ctx.message.server
-    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-    date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
-    await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
-    if not userdb.user_exists(ctx.message.author.id):
-        print("user {0} doesn't have any preferences".format(ctx.message.author))
-        chance = random.random()
-        if chance < 0.5:
-            await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
+    now2 = datetime.datetime.today()
+    if now2.day == int(request.parse_stock_date()):
+        output.generate_merch_image()
+        now = datetime.datetime.now()
+        member = ctx.message.author
+        channel = ctx.message.channel
+        server = ctx.message.server
+        logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
+        print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
+        date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
+        await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
+        if not userdb.user_exists(ctx.message.author.id):
+            print("user {0} doesn't have any preferences".format(ctx.message.author))
+            chance = random.random()
+            if chance < 0.5:
+                await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
+    else:
+        await bot.say("The new stock isn't out yet!")
 
 @bot.command(pass_context=True)
 async def addnotif(ctx, *, item):
