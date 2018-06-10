@@ -70,6 +70,9 @@ async def daily_message():
         channel = bot.get_channel(config.chat_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to bossbands chat
 
+        channel = bot.get_channel(config.leech_pvm_id)
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to leechpvm chat
+
         await asyncio.sleep(60)
 
 @bot.event

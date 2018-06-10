@@ -81,9 +81,7 @@ class DateParser(HTMLParser):
 
     def handle_data(self, data):
         if self.ye:
-            print(data)
             self.line_num += 1
-            print(self.line_num)
             if self.line_num == 2 or self.line_num == 4:
                 self.date += data + " "
 
