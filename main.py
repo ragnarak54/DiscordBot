@@ -73,6 +73,15 @@ async def daily_message():
         channel = bot.get_channel(config.leech_pvm_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to leechpvm chat
 
+        channel = bot.get_channel(config.oasis_id)
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to oasis chat
+
+        channel = bot.get_channel(config.missfits_id)
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to missfits chat
+
+        channel = bot.get_channel(config.tuc_id)
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to tuc chat
+
         await asyncio.sleep(60)
 
 @bot.event
