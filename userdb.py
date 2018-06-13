@@ -104,6 +104,6 @@ def authorize_user(server, user):
                                                                                config.mysql['passwd'],
                                                                                config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO authorized_users (sever, username) values (%s, %s)", (str(server), str(user)))
+    cursor.execute("INSERT INTO authorized_users (server, username) values (%s, %s)", (str(server), str(user)))
     cursor.close()
     conn.close()
