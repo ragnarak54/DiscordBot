@@ -24,7 +24,7 @@ description = '''A bot to help keep up with the Travelling Merchant's daily stoc
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
 bot = commands.Bot(command_prefix='?', description=description)
 
-procUser = bot.get_user_info(user_id=config.proc)
+procUser = discord.utils.get(bot.get_all_members(), id=config.proc)
 
 @bot.event
 async def on_ready():
