@@ -82,6 +82,9 @@ async def daily_message():
         channel = bot.get_channel(config.tuc_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to tuc chat
 
+        channel = bot.get_channel(config.reclusion_id)
+        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to reclusion chat
+
         await asyncio.sleep(60)
 
 @bot.event
@@ -212,7 +215,7 @@ async def shownotifs(ctx):
     notifs = [data_tuple[0].strip() for data_tuple in data]
     b = [':small_blue_diamond:' + x + '\n' for x in notifs]
     # check if called in a direct message with the bot
-    if not ctx.message.server:
+    if not ctx.message.server or not ctx.message.author.nick:
         user_string = 'Current notifications for {0}:\n'.format(ctx.message.author)
     else:
         user_string = 'Current notifications for {0}:\n'.format(ctx.message.author.nick)
