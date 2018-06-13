@@ -98,3 +98,12 @@ def ah_roles(items):
     cursor.close()
     conn.close()
     return data
+
+def authorize_user(server, user):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO authorized_users (sever, username) values (%s, %s)", (str(server), str(user)))
+    cursor.close()
+    conn.close()

@@ -228,7 +228,15 @@ async def users(ctx, *, item):
         userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
         await bot.say(userlist)
 
-
+@bot.command(pass_context=True)
+async def authorize(ctx, user: discord.Member):
+    if ctx.message.author.id == config.proc:
+        userdb.authorize_user(ctx.message.server.id, user.id)
+        print("{0} authorized".format(user))
+    else:
+        print("{0} tried to call authorize!".format(ctx.message.author))
+        await bot.send_message(procUser, "{0} tried to call authorize!".format(ctx.message.author))
+        await bot.say("This command isn't for you!")
 
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch():
