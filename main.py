@@ -259,7 +259,7 @@ async def daily_channel(ctx):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
         channel = userdb.get_current_channel(ctx.message.server)
         if channel is not None:
-            await bot.say("Currently set to #" + (channel[0])[0].strip() + ".\nUse the `?set_daily_channel` command to change this.")
+            await bot.say("Currently set to #" + str((channel[0])[0]).strip() + ".\nUse the `?set_daily_channel` command to change this.")
         else:
             await bot.say("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
