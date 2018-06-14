@@ -172,12 +172,12 @@ async def merchant(ctx):
         if not userdb.user_exists(ctx.message.author.id):
             print("user {0} doesn't have any preferences".format(ctx.message.author))
             chance = random.random()
-            if chance < 0.5:
+            if chance < 0.1:
                 await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
     else:
         await bot.say("The new stock isn't out yet!")
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, aliases=['newnotif'])
 async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
@@ -191,6 +191,7 @@ async def addnotif(ctx, *, item):
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
         await bot.say("Notification for {0} added!".format(item))
+        print("{0} added notification for {1} in {2}".format(ctx.message.author, item, ctx.message.server))
     else:
         await bot.say("Already exists for this user")
 
@@ -198,7 +199,7 @@ async def addnotif(ctx, *, item):
     #playerNotifs = open("playerNotifs.txt", "w")
     #await bot.say("Coming soon!")
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, aliases=['delnotif', 'remnotif'])
 async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()

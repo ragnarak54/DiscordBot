@@ -35,7 +35,6 @@ def pref_exists(userID, item):
     cursor = conn.cursor()
     cursor.execute("SELECT count(item) from user_prefs where discordID = %s and item = %s", (str(userID), str(item)))
     data = cursor.fetchall()
-    print(data)
     cursor.close()
     conn.close()
     return (data[0])[0] > 0
