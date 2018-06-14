@@ -247,12 +247,19 @@ async def authorize(ctx, user: discord.Member):
 
 @bot.command(pass_context=True)
 async def set_daily_channel(ctx, new_channel: discord.Channel):
+    """A command for authorized users to set or update the channel that receives the daily stock message"""
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
         new = userdb.update_channel(ctx.message.server, new_channel.id)
         if new:
             await bot.say("Channel set")
         else:
             await bot.say("Channel settings updated")
+
+@bot.command(pass_context=True)
+async def suggestion(ctx, *, string):
+    """Sends a message to me with your suggestion!"""
+    await bot.send_message(bot.procUser, "{0} says: ".format(ctx.message.author) + string)
+    bot.say("Thanks for the suggestion!")
 
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch():
