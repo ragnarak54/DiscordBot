@@ -242,7 +242,11 @@ async def authorize(ctx, user: discord.Member):
 @bot.command(pass_context=True)
 async def set_daily_channel(ctx, new_channel: discord.Channel):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
-        userdb.update_channel(ctx.message.server, new_channel)
+        new = userdb.update_channel(ctx.message.server, new_channel.id)
+        if new:
+            bot.say("Channel settings updated")
+        else:
+            bot.say("Channel set")
 
 
 @bot.command(name='3amerch', category='memes')

@@ -129,9 +129,11 @@ def update_channel(server, channel):
     data = cursor.fetchall()
     if (data[0])[0] > 0:
         cursor.execute("UPDATE daily_message_channels SET channel = %s where server = %s", (str(channel), str(server)))
-
+        new = False
     else:
         cursor.execute("INSERT INTO daily_message_channels (server, channel) values (%s, %s)", (str(server), str(channel)))
+        new = True
     conn.commit()
     cursor.close()
     conn.close()
+    return new
