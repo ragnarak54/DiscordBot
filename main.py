@@ -232,7 +232,7 @@ async def users(ctx, *, item):
 @bot.command(pass_context=True)
 async def authorize(ctx, user: discord.Member):
     if ctx.message.author.id == config.proc:
-        userdb.authorize_user(ctx.message.server.id, user)
+        userdb.authorize_user(ctx.message.server, user)
         print("{0} authorized".format(user))
     else:
         print("{0} tried to call authorize!".format(ctx.message.author))
