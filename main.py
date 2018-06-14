@@ -68,13 +68,12 @@ async def daily_message():
         for item in items:
             await auto_user_notifs(item)
 
-        channels = [channel_tuple[0].strip() for channel_tuple in userdb.get_all_channels()]
+        # get all the channels for daily messages, then loop through them
+        channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
 
         for channel in channels:
-            await bot.send_file(channel, output.output_img, content=new_stock_string)
-
-        channel = bot.get_channel(config.chat_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to bossbands chat
+            await bot.send_message(bot.procUser, str(channel))
+            # await bot.send_file(channel, output.output_img, content=new_stock_string)
 
         channel = bot.get_channel(config.leech_pvm_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to leechpvm chat
@@ -85,9 +84,6 @@ async def daily_message():
         channel = bot.get_channel(config.missfits_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to missfits chat
 
-        channel = bot.get_channel(config.tuc_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to tuc chat
-
         channel = bot.get_channel(config.reclusion_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to reclusion chat
 
@@ -97,6 +93,13 @@ async def daily_message():
 async def on_at(message):
 
     await bot.process_commands(message)
+
+@bot.command()
+async def channel_test():
+    channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
+    for channel in channels:
+        await bot.send_message(bot.procUser, str(channel))
+
 
 # PMs users who have the item preference
 async def auto_user_notifs(item):
