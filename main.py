@@ -24,10 +24,10 @@ description = '''A bot to help keep up with the Travelling Merchant's daily stoc
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
 bot = commands.Bot(command_prefix='?', description=description)
 
-procUser = discord.utils.get(bot.get_all_members(), id=config.proc)
 
 @bot.event
 async def on_ready():
+    bot.procUser = await bot.application_info().owner
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -128,7 +128,7 @@ async def user_notifs(ctx, *, item):
             print(user)
     else:
         print("{0} tried to call user_notifs!".format(ctx.message.author))
-        await bot.send_message(procUser, "{0} tried to call user_notifs!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call user_notifs!".format(ctx.message.author))
         await bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True)
@@ -146,7 +146,7 @@ async def notif_test(ctx):
                 await bot.send_message(member, "{0} is in stock!".format(item))
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
-        await bot.send_message(procUser, "{0} tried to call notif_test!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
         await bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
@@ -235,7 +235,7 @@ async def authorize(ctx, user: discord.Member):
         print("{0} authorized".format(user))
     else:
         print("{0} tried to call authorize!".format(ctx.message.author))
-        await bot.send_message(procUser, "{0} tried to call authorize!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call authorize!".format(ctx.message.author))
         await bot.say("This command isn't for you!")
 
 @bot.command(name='3amerch', category='memes')
