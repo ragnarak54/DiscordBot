@@ -79,12 +79,6 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
-@bot.command()
-async def channel_test():
-    channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
-    for channel in channels:
-        await bot.send_message(bot.procUser, str(channel))
-
 @bot.command(pass_context=True)
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
@@ -259,6 +253,15 @@ async def set_daily_channel(ctx, new_channel: discord.Channel):
         print("{0} tried to call set daily channel!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call set daily channel!".format(ctx.message.author))
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+
+@bot.command(pass_context=True, aliases=['channel', 'current_channel'])
+async def daily_channel(ctx):
+    if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
+        channel = userdb.get_current_channel(ctx.message.server)
+        if channel is not None:
+            await bot.say("Currently set to #" + (channel[0])[0].strip() + ".\nUse the `?set_daily_channel` command to change this.")
+        else:
+            await bot.say("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
 @bot.command(pass_context=True)
 async def suggestion(ctx, *, string):
