@@ -138,6 +138,24 @@ def update_channel(server, channel):
     conn.close()
     return new
 
+def remove_channel(server):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
+    data = cursor.fetchall()
+    if (data[0])[0] > 0:
+        cursor.execute("REMOVE FROM daily_message_channel WHERE server = %s", (str(server),))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    else:
+        cursor.close()
+        conn.close()
+        return False
+
 def get_all_channels():
     conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
                                                                                config.mysql['passwd'],

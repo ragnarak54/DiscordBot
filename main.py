@@ -24,7 +24,6 @@ description = '''A bot to help keep up with the Travelling Merchant's daily stoc
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
 bot = commands.Bot(command_prefix='?', description=description)
 
-
 @bot.event
 async def on_ready():
     appinfo = await bot.application_info()
@@ -68,24 +67,10 @@ async def daily_message():
         for item in items:
             await auto_user_notifs(item)
 
-        # get all the channels for daily messages, then loop through them
+        # get all the channels for daily messages, then loop through them to send messages
         channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
-
         for channel in channels:
-            await bot.send_message(bot.procUser, str(channel))
-            # await bot.send_file(channel, output.output_img, content=new_stock_string)
-
-        channel = bot.get_channel(config.leech_pvm_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to leechpvm chat
-
-        channel = bot.get_channel(config.oasis_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to oasis chat
-
-        channel = bot.get_channel(config.missfits_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to missfits chat
-
-        channel = bot.get_channel(config.reclusion_id)
-        await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to reclusion chat
+            await bot.send_file(channel, output.output_img, content=new_stock_string)
 
         await asyncio.sleep(60)
 
@@ -100,6 +85,17 @@ async def channel_test():
     for channel in channels:
         await bot.send_message(bot.procUser, str(channel))
 
+@bot.command(pass_context=True)
+async def toggle_daily(ctx):
+    if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
+        if userdb.remove_channel(ctx.message.server):
+            await bot.say("Daily messages toggled off")
+        else:
+            await bot.say("Use the `?set_daily_message` command to set which channel the daily message will be sent to")
+    else:
+        print("{0} tried to call toggle_daily!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call toggle_daily!".format(ctx.message.author))
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 # PMs users who have the item preference
 async def auto_user_notifs(item):
@@ -246,7 +242,7 @@ async def authorize(ctx, user: discord.Member):
     else:
         print("{0} tried to call authorize!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call authorize!".format(ctx.message.author))
-        await bot.say("This command isn't for you!")
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 @bot.command(pass_context=True)
 async def set_daily_channel(ctx, new_channel: discord.Channel):
@@ -257,6 +253,10 @@ async def set_daily_channel(ctx, new_channel: discord.Channel):
             await bot.say("Channel set")
         else:
             await bot.say("Channel settings updated")
+    else:
+        print("{0} tried to call set daily channel!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call set daily channel!".format(ctx.message.author))
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 @bot.command(pass_context=True)
 async def suggestion(ctx, *, string):
