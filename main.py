@@ -27,7 +27,8 @@ bot = commands.Bot(command_prefix='?', description=description)
 
 @bot.event
 async def on_ready():
-    bot.procUser = await bot.application_info().owner
+    appinfo = await bot.application_info()
+    bot.procUser = appinfo.owner
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
