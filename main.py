@@ -92,7 +92,7 @@ async def toggle_daily(ctx):
         if userdb.remove_channel(ctx.message.server):
             await bot.say("Daily messages toggled off")
         else:
-            await bot.say("Use the `?set_daily_message` command to set which channel the daily message will be sent to")
+            await bot.say("Use the `?set_daily_channel` command to set which channel the daily message will be sent to")
     else:
         print("{0} tried to call toggle_daily!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call toggle_daily!".format(ctx.message.author))
