@@ -105,5 +105,33 @@ def authorize_user(server, user):
                                                                                config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("INSERT INTO authorized_users (server, username) values (%s, %s)", (str(server), str(user)))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def is_authorized(server, user):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(username) from authorized_users WHERE server = %s AND username = %s", (str(server), str(user)))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return (data[0])[0] > 0
+
+def update_channel(server, channel):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
+    data = cursor.fetchall()
+    if (data[0])[0] > 0:
+        cursor.execute("UPDATE daily_message_channels SET channel = %s where server = %s", (str(channel), str(server)))
+
+    else:
+        cursor.execute("INSERT INTO daily_message_channels (server, channel) values (%s, %s)", (str(server), str(channel)))
+    conn.commit()
     cursor.close()
     conn.close()
