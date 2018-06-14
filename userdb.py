@@ -137,3 +137,14 @@ def update_channel(server, channel):
     cursor.close()
     conn.close()
     return new
+
+def get_all_channels():
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("select channel from daily_message_channels")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data

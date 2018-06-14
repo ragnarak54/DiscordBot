@@ -68,6 +68,11 @@ async def daily_message():
         for item in items:
             await auto_user_notifs(item)
 
+        channels = [channel_tuple[0].strip() for channel_tuple in userdb.get_all_channels()]
+
+        for channel in channels:
+            await bot.send_file(channel, output.output_img, content=new_stock_string)
+
         channel = bot.get_channel(config.chat_id)
         await bot.send_file(channel, output.output_img, content=new_stock_string)  # send new stock to bossbands chat
 
@@ -233,6 +238,7 @@ async def users(ctx, *, item):
 async def authorize(ctx, user: discord.Member):
     if ctx.message.author.id == config.proc:
         userdb.authorize_user(ctx.message.server, user)
+        bot.say("{0} authorized".format(user))
         print("{0} authorized".format(user))
     else:
         print("{0} tried to call authorize!".format(ctx.message.author))
@@ -244,10 +250,9 @@ async def set_daily_channel(ctx, new_channel: discord.Channel):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
         new = userdb.update_channel(ctx.message.server, new_channel.id)
         if new:
-            await bot.say("Channel settings updated")
-        else:
             await bot.say("Channel set")
-
+        else:
+            await bot.say("Channel settings updated")
 
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch():
