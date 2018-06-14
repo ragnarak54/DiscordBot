@@ -146,7 +146,7 @@ def remove_channel(server):
     cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
     data = cursor.fetchall()
     if (data[0])[0] > 0:
-        cursor.execute("DELETE FROM daily_message_channel WHERE server = %s", (str(server),))
+        cursor.execute("DELETE FROM daily_message_channels WHERE server = %s", (str(server),))
         conn.commit()
         cursor.close()
         conn.close()
