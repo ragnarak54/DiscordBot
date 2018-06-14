@@ -164,6 +164,7 @@ def get_current_channel(server):
     data = cursor.fetchall()
     if (data[0])[0] > 0:
         cursor.execute("SELECT channel FROM daily_message_channels where server = %s", (str(server),))
+        data = cursor.fetchall()
     else:
         cursor.close()
         conn.close()
