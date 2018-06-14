@@ -87,6 +87,7 @@ async def channel_test():
 
 @bot.command(pass_context=True)
 async def toggle_daily(ctx):
+    """Toggles the daily stock message on or off for your server"""
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
         if userdb.remove_channel(ctx.message.server):
             await bot.say("Daily messages toggled off")
