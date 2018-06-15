@@ -169,6 +169,10 @@ async def merchant(ctx):
             if chance < 0.1:
                 await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
     else:
+        await bot.say(
+            "Due to technically problems with retrieving the daily stock, the ?merch command doesn't work. I hope to be"
+            " back in service tomorrow! Sorry for the inconvenience")
+        return
         await bot.say("The new stock isn't out yet!")
 
 @bot.command(pass_context=True, aliases=['newnotif'])
