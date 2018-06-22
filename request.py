@@ -58,8 +58,7 @@ class MerchWebsiteParser(HTMLParser):
 
 def parse_merch_items():
     parser = MerchWebsiteParser()
-    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop', headers={'cache-control': 'no-cache'})
-    r.headers('cache-control')
+    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
     return parser.merch_items
 
@@ -88,6 +87,6 @@ class DateParser(HTMLParser):
 
 def parse_stock_date():
     parser = DateParser()
-    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop', headers={'cache-control': 'no-cache'})
+    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
     return parser.date[:2].strip()

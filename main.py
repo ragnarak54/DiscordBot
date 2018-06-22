@@ -12,6 +12,7 @@ import asyncio
 import request
 import itemlist
 import random
+import merch
 
 
 logger = logging.getLogger('discord')
@@ -79,6 +80,15 @@ async def on_at(message):
 
     await bot.process_commands(message)
 
+# ========= temp functions ========= #
+@bot.command(pass_context=True)
+async def daily_items(ctx, *, items):
+    if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
+        lst = [item.strip() for item in items.split(',')]
+        item1 = merch.MerchItem(name=lst[0])
+        item2 = merch.MerchItem(name=lst[1],)
+
+
 @bot.command(pass_context=True)
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
@@ -118,7 +128,7 @@ async def ah_test(ctx):
 @bot.command(pass_context=True)
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
-    if ctx.message.author.id == config.proc:
+    if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
         data = userdb.users(item)
         users = [user_tuple[0].strip() for user_tuple in data]
         for user in users:
