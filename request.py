@@ -24,7 +24,7 @@ class MerchWebsiteParser(HTMLParser):
             if tag == 'tr':
                 self.curr_attr = 0
             elif tag == 'td':
-                assert self.curr_attr < 4
+                assert self.curr_attr < 5
                 self.curr_attr += 1
             elif tag == 'img':
                 self.curr_img_key = [value for key, value in attrs if key == 'data-image-key'][0]
