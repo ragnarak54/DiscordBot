@@ -201,7 +201,7 @@ async def addnotif(ctx, *, item):
             itemstrv2 = ''.join(b)
             await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
             return
-    stritem = results[0][1]
+    stritem = results[0][0]
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
         await bot.say("Notification for {0} added!".format(item))
