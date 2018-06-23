@@ -54,7 +54,7 @@ async def daily_message():
 
         output.generate_merch_image()  # generate the new image
         items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
-        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%d-%m-%Y"))
+        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m-%d-%Y"))
 
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]  # get the roles for these items in AH discord
@@ -171,7 +171,7 @@ async def merchant(ctx):
         server = ctx.message.server
         logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
         print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-        date_message = "The stock for " + now.strftime("%d-%m-%Y") + ":"
+        date_message = "The stock for " + now.strftime("%m/%d/%Y") + ":"
         await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
         if not userdb.user_exists(ctx.message.author.id):
             print("user {0} doesn't have any preferences".format(ctx.message.author))
