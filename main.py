@@ -196,6 +196,11 @@ async def addnotif(ctx, *, item):
     print(results)
     if stritem not in lst:
         if results[0][1] - results[1][1] < 20:
+            if results[1][1] > 80:
+                suggestions = [x[0] for x in results if x[1] > 80]
+                b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
+                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:" + "".join(b))
+                return
             await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
             b = [item + '\n' for item in itemlist.item_list]
             itemstrv2 = ''.join(b)
@@ -209,7 +214,7 @@ async def addnotif(ctx, *, item):
     else:
         await bot.say("Already exists for this user")
 
-def get_matches(query, choices, limit=3):
+def get_matches(query, choices, limit=6):
     results = process.extract(query, choices, limit=limit)
     return results
 
