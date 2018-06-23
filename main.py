@@ -199,7 +199,7 @@ async def addnotif(ctx, *, item):
             if results[1][1] > 80:
                 suggestions = [x[0] for x in results if x[1] > 80]
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
-                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:" + "".join(b))
+                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n" + "".join(b))
                 return
             await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
             b = [item + '\n' for item in itemlist.item_list]
@@ -225,7 +225,10 @@ def get_matches(query, choices, limit=6):
 async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()
-    if not stritem.replace(' ', '').isalnum():
+    data = userdb.user_prefs(ctx.message.author.id)
+    notifs = [data_tuple[0].strip() for data_tuple in data]
+    results = get_matches(stritem, notifs)
+    if not stritem.replace(' ', '').replace('&', '').isalnum():
         await bot.say("Please enter the item in the proper format")
         return
     if userdb.pref_exists(ctx.message.author.id, stritem):
