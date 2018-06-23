@@ -229,6 +229,7 @@ async def removenotif(ctx, *, item):
     notifs = [data_tuple[0].strip() for data_tuple in data]
     results = get_matches(stritem, notifs)
     if not stritem.replace(' ', '').replace('&', '').isalnum():
+        print(stritem.replace(' ','').replace('&',''))
         await bot.say("Please enter the item in the proper format")
         return
     if userdb.pref_exists(ctx.message.author.id, stritem):
