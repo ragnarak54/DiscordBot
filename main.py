@@ -13,6 +13,8 @@ import request
 import itemlist
 import random
 import merch
+from fuzzywuzzy import process
+
 
 
 logger = logging.getLogger('discord')
@@ -190,12 +192,16 @@ async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
+    results = get_matches(stritem, lst)
+    print(results)
     if stritem not in lst:
-        await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
-        b = [item + '\n' for item in itemlist.item_list]
-        itemstrv2 = ''.join(b)
-        await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
-        return
+        if results[0][1] - results[1][1] < 20:
+            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
+            b = [item + '\n' for item in itemlist.item_list]
+            itemstrv2 = ''.join(b)
+            await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
+            return
+    stritem = results[0][1]
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
         await bot.say("Notification for {0} added!".format(item))
@@ -203,6 +209,9 @@ async def addnotif(ctx, *, item):
     else:
         await bot.say("Already exists for this user")
 
+def get_matches(query, choices, limit=3):
+    results = process.extract(query, choices, limit=limit)
+    return results
 
     #playerNotifs = open("playerNotifs.txt", "w")
     #await bot.say("Coming soon!")
