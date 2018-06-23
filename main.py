@@ -201,11 +201,11 @@ async def addnotif(ctx, *, item):
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
                 await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n" + "".join(b))
                 return
-            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
-            b = [item + '\n' for item in itemlist.item_list]
-            itemstrv2 = ''.join(b)
-            await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
-            return
+        await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
+        b = [item + '\n' for item in itemlist.item_list]
+        itemstrv2 = ''.join(b)
+        await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
+        return
     stritem = results[0][0]
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
@@ -228,6 +228,15 @@ async def removenotif(ctx, *, item):
     data = userdb.user_prefs(ctx.message.author.id)
     notifs = [data_tuple[0].strip() for data_tuple in data]
     results = get_matches(stritem, notifs)
+    if stritem not in notifs:
+        if results[0][1] - results[1][1] < 20:
+            if results[1][1] > 80:
+                suggestions = [x[0] for x in results if x[1] > 80]
+                b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
+                await bot.say("You don't have that preference. Maybe you meant:\n" + "".join(b))
+                return
+    if results[0][1] > 75:
+        stritem = results[0][0]
     if userdb.pref_exists(ctx.message.author.id, stritem):
         userdb.remove_pref(ctx.message.author.id, stritem)
         await bot.say("Notification for {0} removed!".format(stritem))
