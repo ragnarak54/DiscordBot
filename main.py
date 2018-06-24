@@ -102,7 +102,7 @@ async def help(command=None):
                           "  ?toggle_daily : toggles off the daily messages. Doesn't affect any other functionality\n" \
                           "\nThanks for using my merchant bot! if you have any suggestions you can use the " \
                           "\n?suggestion <your suggestion here> \n" \
-                          "and it'll send me a PM. Otherwise, feel free to contact" \
+                          "and it'll send me a PM. Otherwise, feel free to contact " \
                           "me at ragnarak54#9413!```"
         await bot.say(description + commands_string)
 
