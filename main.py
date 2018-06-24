@@ -315,9 +315,9 @@ async def unauthorize(ctx, user: discord.Member):
     if ctx.message.author == bot.procUser:
         if userdb.is_authorized(ctx.message.server, user):
             userdb.unauthorize_user(ctx.message.server, user)
-            await bot.say("{0} unauthorized.".format(ctx.message.author))
+            await bot.say("{0} unauthorized.".format(user))
         else:
-            await bot.say("{0} isn't authorized".format(ctx.message.author))
+            await bot.say("{0} isn't authorized".format(user))
     else:
         print("{0} tried to call unauthorize!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call unauthorize!".format(ctx.message.author))
