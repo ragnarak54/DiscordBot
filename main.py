@@ -108,8 +108,8 @@ async def help(command=None):
         await bot.say(description + commands_string)
     else:
         if command.__doc__ is not None:
-            command_string = getattr(sys.modules[__name__], command).__doc__
-            print(command_string)
+            command_string = globals()[command]
+            print(str(command_string))
             await bot.say(command_string)
 
 
