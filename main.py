@@ -91,7 +91,7 @@ async def help(command=None):
                           "?merch is the most basic command. Try it out and see what happens!" \
                           "\n\nThe bot can also notify you when certain items are in stock. Here are the useful " \
                           "commands for managing your notifications:\n" \
-                          "  ?addnotif <item> : adds the item to your person set of notifications\n" \
+                          "  ?addnotif <item> : adds the item to your personal set of notifications\n" \
                           "  ?delnotif <item> : removes the item from your list\n" \
                           "  ?shownotifs : shows you what items you've added\n\n" \
                           "If you're an authorized user, you can choose to get a daily message sent to your server " \
