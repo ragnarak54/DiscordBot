@@ -105,6 +105,9 @@ async def help(command=None):
                           "and it'll send me a PM. Otherwise, feel free to contact " \
                           "me at ragnarak54#9413!```"
         await bot.say(description + commands_string)
+    else:
+        if command.__doc__ is not None:
+            await bot.say(command.__doc__)
 
 
 
