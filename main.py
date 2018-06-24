@@ -210,7 +210,7 @@ async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
         await bot.send_file(ctx.message.channel, output.output_img, content="Stock updated. If this stock is still "
-                                                                            "incorrect, verify that"
+                                                                            "incorrect, verify that "
                                                                             "the wiki has the correct stock, then try "
                                                                             "again.")
     else:
