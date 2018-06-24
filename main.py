@@ -23,9 +23,11 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-description = '''A bot to help keep up with the Travelling Merchant's daily stock!
-Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413'''
+description = '''```A bot to help keep up with the Travelling Merchant's daily stock!
+Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413\nLets 
+get started!\n\n'''
 bot = commands.Bot(command_prefix='?', description=description)
+bot.remove_command("help")
 
 @bot.event
 async def on_ready():
@@ -81,6 +83,29 @@ async def daily_message():
 async def on_at(message):
 
     await bot.process_commands(message)
+
+@bot.command()
+async def help(command=None):
+    if command is None:
+        commands_string = "Try ?help <command> for more specific info and usage about individual commands!\n\n" \
+                          "?merch is the most basic command. Try it out and see what happens!" \
+                          "\n\nThe bot can also notify you when certain items are in stock. Here are the useful " \
+                          "commands for managing your notifications:\n" \
+                          "  ?addnotif <item> : adds the item to your person set of notifications\n" \
+                          "  ?delnotif <item> : removes the item from your list\n" \
+                          "  ?shownotifs : shows you what items you've added\n\n" \
+                          "If you're an authorized user, you can choose to get a daily message sent to your server" \
+                          "announcing when the new stock is out as soon as it's found after reset.\n" \
+                          "  ?set_daily_channel <#channelname> : sets #channelname as the channel the new stock gets" \
+                          "sent to.\n" \
+                          "  ?daily_channel : tells you what you've currently set as your daily channel\n" \
+                          "  ?toggle_daily : toggles off the daily messages. Doesn't affect any other functionality\n" \
+                          "\nThanks for using my merchant bot! if you have any suggestions you can use the " \
+                          "?suggestion <your suggestion here> and it'll send me a PM. Otherwise, feel free to contact" \
+                          "me at ragnarak54#9413!```"
+        await bot.say(description + commands_string)
+
+
 
 # ========= temp functions ========= #
 @bot.command(pass_context=True)
@@ -244,7 +269,7 @@ async def removenotif(ctx, *, item):
     else:
         await bot.say("user does not have this preference")
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, aliases=['notifs'])
 async def shownotifs(ctx):
     """Shows a user's notify list"""
     data = userdb.user_prefs(ctx.message.author.id)
