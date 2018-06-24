@@ -109,8 +109,8 @@ async def help(command=None):
     else:
         if command.__doc__ is not None:
             command_string = globals()[command]
-            print(str(command_string))
-            await bot.say(command_string)
+            print(str(command_string.__doc__))
+            await bot.say(str(command_string.__doc__))
 
 
 
