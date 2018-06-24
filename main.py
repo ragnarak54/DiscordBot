@@ -107,7 +107,9 @@ async def help(command=None):
         await bot.say(description + commands_string)
     else:
         if command.__doc__ is not None:
-            await bot.say("```" + str(globals()[command].__doc__) + "```")
+            command_string = "```" + str(globals()[command].__doc__) + "```"
+            print(command_string)
+            await bot.say(command_string)
 
 
 
