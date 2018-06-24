@@ -88,8 +88,7 @@ async def on_at(message):
 @bot.command()
 async def help(command=None):
     if command is None:
-        commands_string = "Try ?help <command> for more specific info and usage about individual commands!\n\n" \
-                          "?merch is the most basic command. Try it out and see what happens!" \
+        commands_string = "\n\n?merch is the most basic command. Try it out and see what happens!" \
                           "\n\nThe bot can also notify you when certain items are in stock. Here are the useful " \
                           "commands for managing your notifications:\n" \
                           "  ?addnotif <item> : adds the item to your personal set of notifications\n" \
@@ -111,16 +110,6 @@ async def help(command=None):
             command_string = globals()[command]
             print(str(command_string.__doc__))
             await bot.say(str(command_string.__doc__))
-
-
-
-# ========= temp functions ========= #
-@bot.command(pass_context=True)
-async def daily_items(ctx, *, items):
-    if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
-        lst = [item.strip() for item in items.split(',')]
-        item1 = merch.MerchItem(name=lst[0])
-        item2 = merch.MerchItem(name=lst[1],)
 
 
 @bot.command(pass_context=True)
