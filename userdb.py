@@ -113,7 +113,7 @@ def unauthorize_user(server, user):
                                                                                config.mysql['passwd'],
                                                                                config.mysql['host']))
     cursor = conn.cursor()
-    cursor.execute("delete from authorized_users where server = %s and username", str(server), str(user))
+    cursor.execute("delete from authorized_users where server = %s and username = %s", str(server), str(user))
     conn.commit()
     cursor.close()
     conn.close()
