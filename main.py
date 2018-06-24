@@ -34,6 +34,7 @@ bot.remove_command("help")
 async def on_ready():
     appinfo = await bot.application_info()
     bot.procUser = appinfo.owner
+    output.generate_merch_image()
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -88,7 +89,7 @@ async def on_at(message):
 @bot.command()
 async def help(command=None):
     if command is None:
-        commands_string = "\n\n?merch is the most basic command. Try it out and see what happens!" \
+        commands_string = "\n?merch is the most basic command. Try it out and see what happens!" \
                           "\n\nThe bot can also notify you when certain items are in stock. Here are the useful " \
                           "commands for managing your notifications:\n" \
                           "  ?addnotif <item> : adds the item to your personal set of notifications\n" \
@@ -187,7 +188,6 @@ async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
     now2 = datetime.datetime.today()
     if now2.day == int(request.parse_stock_date()):
-        output.generate_merch_image()
         now = datetime.datetime.now()
         member = ctx.message.author
         channel = ctx.message.channel
@@ -200,13 +200,23 @@ async def merchant(ctx):
             print("user {0} doesn't have any preferences".format(ctx.message.author))
             chance = random.random()
             if chance < 0.1:
-                await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't have to check the stock every day!")
+                await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't "
+                              "have to check the stock every day!")
     else:
-        # await bot.say(
-          #  "Due to technically problems with retrieving the daily stock, the ?merch command doesn't work. I hope to be"
-           # " back in service tomorrow! Sorry for the inconvenience")
-        # return
         await bot.say("The new stock isn't out yet!")
+
+@bot.command(pass_context=True)
+async def update(ctx):
+    if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
+        output.generate_merch_image()
+        await bot.send_file(ctx.message.channel, output.output_img, content="Stock updated. If this stock is still "
+                                                                            "incorrect, verify that"
+                                                                            "the wiki has the correct stock, then try "
+                                                                            "again.")
+    else:
+        print("{0} tried to call update!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call update!".format(ctx.message.author))
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 @bot.command(pass_context=True, aliases=['newnotif'])
 async def addnotif(ctx, *, item):
@@ -219,10 +229,12 @@ async def addnotif(ctx, *, item):
             if results[1][1] > 80:
                 suggestions = [x[0] for x in results if x[1] > 80]
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
-                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n" + "".join(b))
+                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
+                              + "".join(b))
                 return
         if results[0][1] < 75:
-            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct spellings, or refer to the wikia page.")
+            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
+                          "spellings, or refer to the wikia page.")
             b = [item + '\n' for item in itemlist.item_list]
             itemstrv2 = ''.join(b)
             await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
