@@ -96,7 +96,7 @@ async def help(command=None):
                           "  ?shownotifs : shows you what items you've added\n\n" \
                           "If you're an authorized user, you can choose to get a daily message sent to your server " \
                           "announcing when the new stock is out as soon as it's found after reset.\n" \
-                          "  ?set_daily_channel <#channelname> : sets #channelname as the channel the new stock gets" \
+                          "  ?set_daily_channel <#channelname> : sets #channelname as the channel the new stock gets " \
                           "sent to.\n" \
                           "  ?daily_channel : tells you what you've currently set as your daily channel\n" \
                           "  ?toggle_daily : toggles off the daily messages. Doesn't affect any other functionality\n" \
