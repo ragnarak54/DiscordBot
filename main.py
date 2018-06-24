@@ -24,8 +24,8 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 description = '''```A bot to help keep up with the Travelling Merchant's daily stock!
-Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413\nLets 
-get started!\n\n'''
+Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413.
+Lets get started!\n\n'''
 bot = commands.Bot(command_prefix='?', description=description)
 bot.remove_command("help")
 
@@ -94,14 +94,15 @@ async def help(command=None):
                           "  ?addnotif <item> : adds the item to your person set of notifications\n" \
                           "  ?delnotif <item> : removes the item from your list\n" \
                           "  ?shownotifs : shows you what items you've added\n\n" \
-                          "If you're an authorized user, you can choose to get a daily message sent to your server" \
+                          "If you're an authorized user, you can choose to get a daily message sent to your server " \
                           "announcing when the new stock is out as soon as it's found after reset.\n" \
                           "  ?set_daily_channel <#channelname> : sets #channelname as the channel the new stock gets" \
                           "sent to.\n" \
                           "  ?daily_channel : tells you what you've currently set as your daily channel\n" \
                           "  ?toggle_daily : toggles off the daily messages. Doesn't affect any other functionality\n" \
                           "\nThanks for using my merchant bot! if you have any suggestions you can use the " \
-                          "?suggestion <your suggestion here> and it'll send me a PM. Otherwise, feel free to contact" \
+                          "\n?suggestion <your suggestion here> \n" \
+                          "and it'll send me a PM. Otherwise, feel free to contact" \
                           "me at ragnarak54#9413!```"
         await bot.say(description + commands_string)
 
@@ -218,7 +219,6 @@ async def addnotif(ctx, *, item):
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
     results = get_matches(stritem, lst)
-    print(results)
     if stritem not in lst:
         if results[0][1] - results[1][1] < 20:
             if results[1][1] > 80:
