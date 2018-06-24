@@ -311,6 +311,20 @@ async def authorize(ctx, user: discord.Member):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 @bot.command(pass_context=True)
+async def unauthorize(ctx, user: discord.Member):
+    if ctx.message.author == bot.procUser:
+        if userdb.is_authorized(ctx.message.server, user):
+            userdb.unauthorize_user(ctx.message.server, user)
+            await bot.say("{0} unauthorized.".format(ctx.message.author))
+        else:
+            await bot.say("{0} isn't authorized".format(ctx.message.author))
+    else:
+        print("{0} tried to call unauthorize!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call unauthorize!".format(ctx.message.author))
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+
+
+@bot.command(pass_context=True)
 async def set_daily_channel(ctx, new_channel: discord.Channel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
