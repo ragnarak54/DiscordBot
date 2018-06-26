@@ -27,6 +27,12 @@ authorizes that user on your server
 
 Set what channel will receive a daily message with the updated stock. Make sure the bot has write permissions in this channel. Daily messages are toggled off by default, and can be turned back off at any time after having set a channel.
 
+```
+?update
+```
+
+If for some reason the stock isn't showing the correct day's stock (different from the "the new stock isn't out yet!" message), use this command to force an update.
+
 ### All users
 
 ```
@@ -35,47 +41,34 @@ Set what channel will receive a daily message with the updated stock. Make sure 
 
 is the most basic command. Returns an image with the day's stock (if it's been found). Aliases include `?merchant, ?shop, ?stock`
 
-
-
-### And coding style tests
-
-Explain what these tests test and why
-
 ```
-Give an example
+?addnotif <item>
+?removenotif <item>
+?shownotifs
 ```
 
-## Deployment
-
-Add additional notes about how to deploy this on a live system
+These help you manage what you get notified for by PM, every day. There are several aliases that are fairly intuitive, like `?newnotif, ?delnotif, ?notifs`, etc. The bot also is pretty lenient when it comes to item names--so don't be worried about memorizing everything!
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Python](https://www.python.org/) - The base language used
+* [discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper for Python
+* [postgreSQL](https://www.postgresql.org/) - Database used
+* [Digital Ocean](https://www.digitalocean.com/) - Sever hosting service
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+Any questions can be PM'd to me @ragnarak54#9413 on discord, or you can use the `?suggestion` command to send me a suggestion.
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Colton Sowers (Proclivity)** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* My two frenchy friends who made it all possible
+* The loving support of BOSSBANDS
+* 
 
