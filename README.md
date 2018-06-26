@@ -1,6 +1,6 @@
 # Travelling Merchant Discord Bot
 
-This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](add link) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
+This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
 
 ## Getting Started
 
@@ -65,8 +65,6 @@ Any questions can be PM'd to me @ragnarak54#9413 on discord, or you can use the 
 * **Colton Sowers (Proclivity)** - *Initial work* - [github](https://github.com/ragnarak54)
 * **Ming Zhang** - *HTML Parsing for items* - [website](https://mingzhang.me/)
 * **Yijin Kang** - *Image generation* - [github](https://github.com/yijkan)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 ## Acknowledgments
 
