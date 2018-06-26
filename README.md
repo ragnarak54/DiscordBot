@@ -62,7 +62,9 @@ Any questions can be PM'd to me @ragnarak54#9413 on discord, or you can use the 
 
 ## Authors
 
-* **Colton Sowers (Proclivity)** - *Initial work* - [ragnarak54](https://github.com/ragnarak54)
+* **Colton Sowers (Proclivity)** - *Initial work* - [github](https://github.com/ragnarak54)
+* **Ming Zhang** - *HTML Parsing for items* - [website](https://mingzhang.me/)
+* **Yijin Kang** - *Image generation* - [github](https://github.com/yijkan)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
