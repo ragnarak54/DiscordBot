@@ -62,7 +62,7 @@ Any questions can be PM'd to me @ragnarak54#9413 on discord, or you can use the 
 
 ## Authors
 
-* **Colton Sowers (Proclivity)** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Colton Sowers (Proclivity)** - *Initial work* - [ragnarak54](https://github.com/ragnarak54)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
@@ -70,5 +70,5 @@ See also the list of [contributors](https://github.com/your/project/contributors
 
 * My two frenchy friends who made it all possible
 * The loving support of BOSSBANDS
-* 
+* Discord.py Discord server
 
