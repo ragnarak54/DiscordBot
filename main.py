@@ -60,13 +60,15 @@ async def daily_message():
 
         output.generate_merch_image()  # generate the new image
         items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
-        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m-%d-%Y"))
+        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]  # get the roles for these items in AH discord
         # format the string to be sent
-        b = [role + '\n' for role in roles]
-        tag_string = "Tags: \n" + ''.join(b)
+        tag_string = ""
+        if roles is not None:
+            b = [role + '\n' for role in roles]
+            tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
 
@@ -301,7 +303,7 @@ async def users(ctx, *, item):
 
 @bot.command(pass_context=True)
 async def authorize(ctx, user: discord.Member):
-    if ctx.message.author.id == config.proc:
+    if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
         userdb.authorize_user(ctx.message.server, user)
         await bot.say("{0} authorized".format(user))
         print("{0} authorized".format(user))
