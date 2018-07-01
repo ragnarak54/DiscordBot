@@ -63,7 +63,8 @@ async def daily_message():
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
         data = userdb.ah_roles(items)
-        roles = [role_tuple[0].strip() for role_tuple in data]  # get the roles for these items in AH discord
+        roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
+
         # format the string to be sent
         tag_string = ""
         if roles is not None:
