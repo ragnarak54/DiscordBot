@@ -268,7 +268,7 @@ def get_matches(query, choices, limit=6):
     #playerNotifs = open("playerNotifs.txt", "w")
     #await bot.say("Coming soon!")
 
-@bot.command(pass_context=True, aliases=['delnotif', 'remnotif'])
+@bot.command(pass_context=True, aliases=['delnotif', 'remnotif', 'deletenotif'])
 async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()
@@ -290,7 +290,7 @@ async def removenotif(ctx, *, item):
     else:
         await bot.say("user does not have this preference")
 
-@bot.command(pass_context=True, aliases=['notifs'])
+@bot.command(pass_context=True, aliases=['notifs', 'mynotifs'])
 async def shownotifs(ctx):
     """Shows a user's notify list"""
     data = userdb.user_prefs(ctx.message.author.id)
