@@ -297,7 +297,7 @@ async def shownotifs(ctx):
     if not data:
         await bot.say("No notifications added for this user")
         return
-    notifs = [data_tuple[0].strip() for data_tuple in data]
+    notifs = sorted([data_tuple[0].strip() for data_tuple in data])
     b = [':small_blue_diamond:' + x + '\n' for x in notifs]
     # check if called in a direct message with the bot
     if not ctx.message.server or not ctx.message.author.nick:
