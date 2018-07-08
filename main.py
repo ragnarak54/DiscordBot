@@ -1,20 +1,17 @@
 import discord
 from discord.ext import commands
-import random
 import output
 from datetime import timedelta
 import datetime
 import logging
 import config
 import userdb
-import psycopg2
 import asyncio
 import request
 import itemlist
 import random
 import merch
 from fuzzywuzzy import process
-import sys
 
 
 
@@ -203,7 +200,7 @@ async def merchant(ctx):
             print("user {0} doesn't have any preferences".format(ctx.message.author))
             chance = random.random()
             if chance < 0.1:
-                await bot.say("Don't forget to try out the new ?addnotif <item> function so you don't "
+                await bot.say("Don't forget to try out the ?addnotif <item> function so you don't "
                               "have to check the stock every day!")
     else:
         await bot.say("The new stock isn't out yet!")
@@ -244,7 +241,10 @@ async def addnotif(ctx, *, item):
             return
     stritem = results[0][0]
     if not userdb.pref_exists(ctx.message.author.id, stritem):
-        userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
+        if ctx.message.server is None:
+            userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, "direct message")
+        else:
+            userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
         await bot.say("Notification for {0} added!".format(stritem))
         print("{0} added notification for {1} in {2}".format(ctx.message.author, item, ctx.message.server))
     else:
@@ -255,7 +255,10 @@ async def adnotif(ctx, *, item):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author == bot.procUser:
         stritem = str(item)
         if not userdb.pref_exists(ctx.message.author.id, stritem):
-            userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
+            if ctx.message.server is None:
+                userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, "direct message")
+            else:
+                userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
             await bot.say("Notification for {0} added!".format(stritem))
         else:
             await bot.say("Already exists for this user")
