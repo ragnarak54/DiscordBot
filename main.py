@@ -238,7 +238,7 @@ async def addnotif(ctx, *, item):
         if results[0][1] < 75:
             await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
                           "spellings, or refer to the wikia page.")
-            b = [item + '\n' for item in itemlist.item_list]
+            b = sorted([item + '\n' for item in itemlist.item_list])
             itemstrv2 = ''.join(b)
             await bot.send_message(ctx.message.author, 'Possible items:\n'+itemstrv2)
             return
