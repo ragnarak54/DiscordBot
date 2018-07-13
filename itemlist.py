@@ -25,5 +25,6 @@ item_list = ['Small goebie burial charm',
              'Harmonic dust',
              'Crystal triskelion',
              'Deathtouched dart',
-             'Unfocused reward enhancer']
+             'Unfocused reward enhancer',
+             'Uncharted island map']
 
