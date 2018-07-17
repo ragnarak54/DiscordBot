@@ -132,6 +132,8 @@ async def auto_user_notifs(item):
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
         member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
+        if item == "uncharted island map":
+            await bot.send_file(member, output.output_img, content="the new stock is out!")
         await bot.send_message(member, "{0} is in stock!".format(item))
         print(user)
 
