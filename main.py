@@ -26,6 +26,7 @@ Made by Proclivity. If you have any questions or want the bot on your server, pm
 Lets get started!\n\n'''
 bot = commands.Bot(command_prefix='?', description=description)
 bot.remove_command("help")
+daily_messages = []
 
 @bot.event
 async def on_ready():
@@ -75,9 +76,11 @@ async def daily_message():
             await auto_user_notifs(item)
 
         # get all the channels for daily messages, then loop through them to send messages
+        # also, store them in daily_messages in case of a bad wiki update
+        daily_messages.clear()
         channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
-            await bot.send_file(channel, output.output_img, content=new_stock_string)
+            daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
 
         await asyncio.sleep(60)
 
@@ -218,6 +221,22 @@ async def update(ctx):
     else:
         print("{0} tried to call update!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call update!".format(ctx.message.author))
+        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+
+@bot.command(pass_context=True, aliases=["fix_daily_messages"])
+async def fix_daily_message(ctx):
+    if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
+        output.generate_merch_image()
+        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
+        channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
+        if daily_messages is not None:
+            for message in daily_messages:
+                await bot.delete_message(message)
+        for channel in channels:
+            await bot.send_file(channel, output.output_img, content=new_stock_string)
+    else:
+        print("{0} tried to call fix daily messages!".format(ctx.message.author))
+        await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 @bot.command(pass_context=True, aliases=['newnotif'])
