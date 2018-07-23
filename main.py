@@ -65,7 +65,7 @@ async def daily_message():
 
         # format the string to be sent
         tag_string = ""
-        if roles is not None:
+        if roles != set([]):
             b = [role + '\n' for role in roles]
             tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
