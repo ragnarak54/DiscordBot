@@ -24,7 +24,7 @@ logger.addHandler(handler)
 description = '''```A bot to help keep up with the Travelling Merchant's daily stock!
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413.
 Lets get started!\n\n'''
-bot = commands.Bot(command_prefix='?', description=description)
+bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
 daily_messages = []
 
