@@ -12,7 +12,7 @@ import itemlist
 import random
 import merch
 from fuzzywuzzy import process
-
+import error_handler
 
 
 logger = logging.getLogger('discord')
@@ -26,6 +26,7 @@ Made by Proclivity. If you have any questions or want the bot on your server, pm
 Lets get started!\n\n'''
 bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
+bot.add_cog(error_handler.CommandErrorHandler(bot))
 daily_messages = []
 
 @bot.event
