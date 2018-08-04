@@ -39,6 +39,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+
 # background task for automatic notifications each day
 async def daily_message():
     await bot.wait_until_ready()
@@ -81,7 +82,10 @@ async def daily_message():
         daily_messages.clear()
         channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
-            daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
+            try:
+                daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
+            except discord.Forbidden:
+                pass
 
         await asyncio.sleep(60)
 
@@ -135,11 +139,16 @@ async def auto_user_notifs(item):
     data = userdb.users(item)
     users = [user_tuple[0].strip() for user_tuple in data]
     for user in users:
-        member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
-        if item == "uncharted island map":
-            await bot.send_file(member, output.output_img, content="the new stock is out!")
-        await bot.send_message(member, "{0} is in stock!".format(item))
-        print(user)
+        try:
+            member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
+            if item == "uncharted island map":
+                await bot.send_file(member, output.output_img, content="the new stock is out!")
+            else:
+                await bot.send_message(member, "{0} is in stock!".format(item))
+            print(user)
+        except discord.InvalidArgument:
+            print(user + "left their server!")
+
 
 @bot.command(pass_context=True, name='ah_merch')
 async def ah_test(ctx):
@@ -239,6 +248,12 @@ async def fix_daily_message(ctx):
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+
+@bot.command(pass_context=True)
+async def restart_background(ctx):
+    if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
+        await daily_message().close()
+        bot.loop.create_task(daily_message())
 
 @bot.command(pass_context=True, aliases=['newnotif'])
 async def addnotif(ctx, *, item):
@@ -392,10 +407,13 @@ async def suggestion(ctx, *, string):
     await bot.send_message(bot.procUser, "{0} says: ".format(ctx.message.author) + string)
     bot.say("Thanks for the suggestion!")
 
-@bot.command(name='3amerch', category='memes')
-async def third_age_merch():
+@bot.command(pass_context=True, name='3amerch', category='memes')
+async def third_age_merch(ctx):
     """:("""
-    await bot.say("-500m")
+    if ctx.message.author == bot.procUser:
+        await bot.say("-500m")
+    else:
+        await bot.say("!kms")
 
 @bot.command()
 async def add(left : int, right : int):
