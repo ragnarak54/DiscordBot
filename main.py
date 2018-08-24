@@ -137,14 +137,15 @@ async def toggle_daily(ctx):
 # PMs users who have the item preference
 async def auto_user_notifs(item):
     data = userdb.users(item)
+    all_users = bot.get_all_members()
     users = [user_tuple[0].strip() for user_tuple in data]
-    for user in users:
+    userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
+    for user in userlist:
         try:
-            member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
             if item == "uncharted island map":
-                await bot.send_file(member, output.output_img, content="the new stock is out!")
+                await bot.send_file(user, output.output_img, content="the new stock is out!")
             else:
-                await bot.send_message(member, "{0} is in stock!".format(item))
+                await bot.send_message(user, "{0} is in stock!".format(item))
             print(user)
         except discord.InvalidArgument:
             print(user + "left their server!")
@@ -188,13 +189,16 @@ async def notif_test(ctx):
     if ctx.message.author.id == config.proc:
         items = [item.name.lower() for item in request.parse_merch_items()]
         print(items)
+        all_users = bot.get_all_members()
         for item in items:
             data = userdb.users(item)
-            users = [user_tuple[0].strip() for user_tuple in data]
+            userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
             print(users)
-            for user in users:
-                member = bot.get_server(userdb.user_server(user)).get_member(user_id=user)
-                await bot.send_message(member, "{0} is in stock!".format(item))
+            for user in userlist:
+                try:
+                    await bot.send_message(user, "{0} is in stock!".format(item))
+                except AttributeError:
+                    print(user + " left server!")
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
