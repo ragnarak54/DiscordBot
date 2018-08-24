@@ -138,9 +138,10 @@ async def toggle_daily(ctx):
 async def auto_user_notifs(item):
     data = userdb.users(item)
     all_users = bot.get_all_members()
-    users = [user_tuple[0].strip() for user_tuple in data]
     userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
     for user in userlist:
+        if user is None:
+            userdb.remove_pref(user.id, item)
         try:
             if item == "uncharted island map":
                 await bot.send_file(user, output.output_img, content="the new stock is out!")
@@ -149,6 +150,7 @@ async def auto_user_notifs(item):
             print(user)
         except discord.InvalidArgument:
             print(user + "left their server!")
+
         except AttributeError:
             print(user + " left their server!")
 
@@ -267,6 +269,11 @@ async def addnotif(ctx, *, item):
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
     results = get_matches(stritem, lst)
+    if ctx.message.server is None:
+        if discord.utils.get(bot.get_all_members(), id=ctx.message.author.id) is None:
+            await bot.say("Bots aren't allowed to send DMs to users who aren't in a shared server with the bot. "
+                          "Try adding a notification in a server instead of DM.\n"
+                          "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
     if stritem not in lst:
         if results[0][1] - results[1][1] < 20:
             if results[1][1] > 80:
@@ -285,6 +292,8 @@ async def addnotif(ctx, *, item):
     stritem = results[0][0]
     if not userdb.pref_exists(ctx.message.author.id, stritem):
         if ctx.message.server is None:
+            await bot.say("Warning: if you leave all servers that you share with the bot, you will no longer be able"
+                          " to receive DMs and your notification list will be deleted!")
             userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, "direct message")
         else:
             userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
