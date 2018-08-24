@@ -16,7 +16,7 @@ import error_handler
 
 
 logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.CRITICAL)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -148,6 +148,8 @@ async def auto_user_notifs(item):
             print(user)
         except discord.InvalidArgument:
             print(user + "left their server!")
+        except AttributeError:
+            print(user + " left their server!")
 
 
 @bot.command(pass_context=True, name='ah_merch')
