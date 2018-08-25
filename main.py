@@ -140,8 +140,8 @@ async def auto_user_notifs(item):
     all_users = bot.get_all_members()
     userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
     for user in userlist:
-        if user is None:
-            userdb.remove_pref(user.id, item)
+        # if user is None:
+            # userdb.remove_pref(user.id, item)
         try:
             if item == "uncharted island map":
                 await bot.send_file(user, output.output_img, content="the new stock is out!")
