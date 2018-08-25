@@ -140,7 +140,7 @@ async def auto_user_notifs(item):
     all_users = bot.get_all_members()
     userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
     for user in userlist:
-        # if user is None:
+        # chif user is None:
             # userdb.remove_pref(user.id, item)
         try:
             if item == "uncharted island map":
@@ -198,9 +198,14 @@ async def notif_test(ctx):
             print(users)
             for user in userlist:
                 try:
-                    await bot.send_message(user, "{0} is in stock!".format(item))
+                    if item == "uncharted island map":
+                        await bot.send_file(user, output.output_img, content="the new stock is out!")
+                    else:
+                        await bot.send_message(user, "{0} is in stock!".format(item))
                 except AttributeError:
                     print(user + " left server!")
+                except discord.InvalidArgument:
+                    print(user + "left their server!")
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
