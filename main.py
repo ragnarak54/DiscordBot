@@ -149,10 +149,10 @@ async def auto_user_notifs(item):
                 await bot.send_message(user, "{0} is in stock!".format(item))
             print(user)
         except discord.InvalidArgument:
-            print(user + "left their server!")
+            print("left their server!")
 
         except AttributeError:
-            print(user + " left their server!")
+            print("left their server!")
 
 
 @bot.command(pass_context=True, name='ah_merch')
@@ -206,6 +206,7 @@ async def notif_test(ctx):
                     print(user + " left server!")
                 except discord.InvalidArgument:
                     print("left their server!")
+            userlist.clear()
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
