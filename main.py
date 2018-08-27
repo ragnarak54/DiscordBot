@@ -138,10 +138,15 @@ async def toggle_daily(ctx):
 async def auto_user_notifs(item):
     data = userdb.users(item)
     all_users = bot.get_all_members()
-    userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
+    userlist = []
+    for user_tuple in data:
+        user = discord.utils.get(all_users, id=user_tuple[0].strip())
+        if user is None:
+            userdb.remove_pref(user_tuple[0].strip(), item)
+        else:
+            userlist.append(user)
+    print("users for {0}: {1}".format(item, userlist))
     for user in userlist:
-        # chif user is None:
-            # userdb.remove_pref(user.id, item)
         try:
             if item == "uncharted island map":
                 await bot.send_file(user, output.output_img, content="the new stock is out!")
@@ -150,7 +155,6 @@ async def auto_user_notifs(item):
             print(user)
         except discord.InvalidArgument:
             print("left their server!")
-
         except AttributeError:
             print("left their server!")
 
@@ -193,6 +197,8 @@ async def notif_test(ctx):
         print(items)
         all_users = bot.get_all_members()
         for item in items:
+            auto_user_notifs(item)
+            '''
             data = userdb.users(item)
             userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
             print(users)
@@ -207,6 +213,7 @@ async def notif_test(ctx):
                 except discord.InvalidArgument:
                     print("left their server!")
             userlist.clear()
+            '''
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
