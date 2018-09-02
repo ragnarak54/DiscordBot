@@ -142,6 +142,7 @@ async def auto_user_notifs(item):
     for user_tuple in data:
         user = discord.utils.get(all_users, id=user_tuple[0].strip())
         if user is None:
+            print("{0} wasn't found! pref for {1} removed".format(user_tuple[0], item))
             userdb.remove_pref(user_tuple[0].strip(), item)
         else:
             userlist.append(user)
