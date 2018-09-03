@@ -137,7 +137,7 @@ async def toggle_daily(ctx):
 # PMs users who have the item preference
 async def auto_user_notifs(item):
     data = userdb.users(item)
-    all_users = bot.get_all_members()
+    all_users = list(bot.get_all_members())
     userlist = []
     for user_tuple in data:
         user = discord.utils.get(all_users, id=user_tuple[0].strip())
