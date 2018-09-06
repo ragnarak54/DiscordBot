@@ -191,30 +191,12 @@ async def user_notifs(ctx, *, item):
         await bot.say("This command isn't for you!")
 
 @bot.command(pass_context=True)
-async def notif_test(ctx):
+async def force_notifs(ctx):
     """Notifies users for today's stock"""
     if ctx.message.author.id == config.proc:
         items = [item.name.lower() for item in request.parse_merch_items()]
-        print(items)
-        all_users = bot.get_all_members()
         for item in items:
-            auto_user_notifs(item)
-            '''
-            data = userdb.users(item)
-            userlist = [discord.utils.get(all_users, id=user_tuple[0].strip()) for user_tuple in data]
-            print(users)
-            for user in userlist:
-                try:
-                    if item == "uncharted island map":
-                        await bot.send_file(user, output.output_img, content="the new stock is out!")
-                    else:
-                        await bot.send_message(user, "{0} is in stock!".format(item))
-                except AttributeError:
-                    print(user + " left server!")
-                except discord.InvalidArgument:
-                    print("left their server!")
-            userlist.clear()
-            '''
+            await auto_user_notifs(item)
     else:
         print("{0} tried to call notif_test!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
