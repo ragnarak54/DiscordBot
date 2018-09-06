@@ -158,6 +158,8 @@ async def auto_user_notifs(item):
             print("left their server!")
         except AttributeError:
             print("left their server!")
+        except discord.Forbidden:
+            print("forbidden: cannot send message to {0}".format(user))
 
 
 @bot.command(pass_context=True, name='ah_merch')
