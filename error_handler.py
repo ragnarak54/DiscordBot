@@ -14,7 +14,7 @@ class CommandErrorHandler:
         if hasattr(ctx.command, 'on_error'):
             return
 
-        ignored = (commands.CommandNotFound, commands.UserInputError)
+        ignored = (commands.CommandNotFound, commands.UserInputError, commands.errors.CheckFailure)
         error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
