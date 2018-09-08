@@ -29,6 +29,13 @@ bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
 daily_messages = []
 
+
+def owner_check():
+    def predicate(ctx):
+        return ctx.message.author == bot.procUser
+    return commands.check(predicate)
+
+
 @bot.event
 async def on_ready():
     appinfo = await bot.application_info()
@@ -261,6 +268,37 @@ async def restart_background(ctx):
         await daily_message().close()
         bot.loop.create_task(daily_message())
 
+
+@bot.command()
+@owner_check()
+async def message_channels(*, string):
+    channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
+    mass_messages = []
+    for channel in channels:
+        try:
+            mass_messages.append(await bot.send_message(channel, string))
+        except discord.Forbidden:
+            print("cant send message to channel {0}!".format(channel))
+            pass
+
+
+@bot.command()
+@owner_check()
+async def message_users(*, string):
+    all_ids = [user_tuple[0] for user_tuple in userdb.get_all_users()]
+    all_users = []
+    members = list(bot.get_all_members())
+    for id_ in all_ids:
+        user = discord.utils.get(members, id=id_)
+        if user is not None:
+            all_users.append(user)
+    for user in all_users:
+        try:
+            await bot.send_message(user, string)
+        except discord.Forbidden:
+            print("cant send message to {0}".format(user))
+
+
 @bot.command(pass_context=True, aliases=['newnotif'])
 async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
@@ -317,9 +355,6 @@ async def adnotif(ctx, *, item):
 def get_matches(query, choices, limit=6):
     results = process.extract(query, choices, limit=limit)
     return results
-
-    #playerNotifs = open("playerNotifs.txt", "w")
-    #await bot.say("Coming soon!")
 
 @bot.command(pass_context=True, aliases=['delnotif', 'remnotif', 'deletenotif'])
 async def removenotif(ctx, *, item):
@@ -460,6 +495,7 @@ async def _bot():
 async def _proc():
     """Is proc cool?"""
     await bot.say('Yes, proc is cool.')
+
 
 bot.loop.create_task(daily_message())
 bot.run(config.token)
