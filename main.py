@@ -98,7 +98,6 @@ async def daily_message():
 
 @bot.event
 async def on_at(message):
-
     await bot.process_commands(message)
 
 @bot.command()
@@ -274,9 +273,12 @@ async def restart_background(ctx):
 async def message_channels(*, string):
     channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
     mass_messages = []
+    embed = discord.Embed()
+    embed.description = string
+    embed.colour = discord.Colour.dark_blue()
     for channel in channels:
         try:
-            mass_messages.append(await bot.send_message(channel, string))
+            mass_messages.append(await bot.send_message(channel, embed=embed))
         except discord.Forbidden:
             print("cant send message to channel {0}!".format(channel))
             pass
