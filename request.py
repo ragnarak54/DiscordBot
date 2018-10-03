@@ -20,23 +20,30 @@ class MerchWebsiteParser(HTMLParser):
         assert self.recording_table >= 0
         if self.recording_table:
             if tag != 'img':
+                # print("inc !img: ", tag)
                 self.recording_table += 1
+                # print(self.recording_table)
+            if tag == 'tbody':
+                self.recording_table += 2
             if tag == 'tr':
                 self.curr_attr = 0
             elif tag == 'td':
                 assert self.curr_attr < 5
                 self.curr_attr += 1
             elif tag == 'img':
-                self.curr_img_key = [value for key, value in attrs if key == 'data-image-key'][0]
+                self.curr_img_key = [value for key, value in attrs if key == 'alt'][0]
         elif self.in_stock_section and tag == 'table':
+            # print("inc table")
             self.recording_table += 1
 
     def handle_endtag(self, tag):
         assert self.recording_table >= 0
         if self.recording_table:
+            # print(self.recording_table)
             self.recording_table -= 1
             if tag == 'tr':
-                print("tr found")
+                # print("tr found")
+                print(self.skipped_head)
                 if self.skipped_head:
                     assert all(value is not None for value in self.curr_merch_attrs)
                     assert len(self.curr_merch_attrs) == 5
@@ -45,7 +52,7 @@ class MerchWebsiteParser(HTMLParser):
                 else:
                     self.skipped_head = True
             elif tag == 'td':
-                print("td found")
+                # print("td found")
                 self.curr_merch_attrs.append(self.curr_img_key if self.curr_attr == 1 else self.curr_data)
             if self.recording_table == 0:
                 self.in_stock_section = False
@@ -60,7 +67,7 @@ class MerchWebsiteParser(HTMLParser):
 
 def parse_merch_items():
     parser = MerchWebsiteParser()
-    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
+    r = requests.get('https://runescape.wiki/w/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
     return parser.merch_items
 
@@ -89,6 +96,8 @@ class DateParser(HTMLParser):
 
 def parse_stock_date():
     parser = DateParser()
-    r = requests.get('http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop')
+    r = requests.get('https://runescape.wiki/w/Travelling_Merchant%27s_Shop')
     parser.feed(r.text)
     return parser.date[:2].strip()
+
+parse_merch_items()
