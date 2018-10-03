@@ -152,7 +152,7 @@ async def auto_user_notifs(item):
             userdb.remove_pref(user_tuple[0].strip(), item)
         else:
             userlist.append(user)
-    print("users for {0}: {1}".format(item, userlist))
+    print("users for {0}: ".format(item))
     for user in userlist:
         try:
             if item == "uncharted island map":
