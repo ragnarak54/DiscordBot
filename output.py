@@ -54,10 +54,10 @@ def generate_merch_image():
 test_colors = ['red', 'green', 'blue']
 test_sizes = [ (32, 25), (30, 32) ]
     
-def test(items):
-    for i in range(0, len(items)):
-        img = Image.new('RGB', test_sizes[i % 2], color = test_colors[i % 3])
-        img.save(items[i].image_key)
-    image(items)
+# def test(items):
+#     for i in range(0, len(items)):
+#         img = Image.new('RGB', test_sizes[i % 2], color = test_colors[i % 3])
+#         img.save(items[i].image_key)
+#     image(items)
 
 # test([ merch.MerchItem('img' + str(x) + '.png', 'Item ' + str(x), str(1000000 * x), str(1000000 * x)) for x in range(0, 12) ])
