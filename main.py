@@ -256,6 +256,16 @@ async def fix_daily_message(ctx):
                 await bot.delete_message(message)
         for channel in channels:
             await bot.send_file(channel, output.output_img, content=new_stock_string)
+        items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
+        data = userdb.ah_roles(items)
+        roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
+        # format the string to be sent
+        tag_string = ""
+        if roles != set([]):
+            b = [role + '\n' for role in roles]
+            tag_string = "Tags: \n" + ''.join(b)
+        ah_channel = bot.get_channel(config.ah_chat_id)
+        await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
     else:
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
