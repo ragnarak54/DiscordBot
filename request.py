@@ -43,7 +43,6 @@ class MerchWebsiteParser(HTMLParser):
             self.recording_table -= 1
             if tag == 'tr':
                 # print("tr found")
-                print(self.skipped_head)
                 if self.skipped_head:
                     assert all(value is not None for value in self.curr_merch_attrs)
                     assert len(self.curr_merch_attrs) == 5
