@@ -31,7 +31,7 @@ Set what channel will receive a daily message with the updated stock. Make sure 
 ?update
 ```
 
-If for some reason the stock isn't showing the correct day's stock (different from the "the new stock isn't out yet!" message), use this command to force an update.
+If for some reason the stock isn't showing the correct day's stock (note: this is not the same thing as the "the new stock isn't out yet!" message), use this command to force an update.
 
 ### All users
 
@@ -39,7 +39,7 @@ If for some reason the stock isn't showing the correct day's stock (different fr
 ?merch
 ```
 
-is the most basic command. Returns an image with the day's stock (if it's been found). Aliases include `?merchant, ?shop, ?stock`
+is the most basic command. Returns an image with the day's stock (if it's been found). The merchant bot pulls its stock from the official RS wiki's page for the travelling merchant, so if that page hasn't been updated then the bot won't know the stock! Aliases include `?merchant, ?shop, ?stock`
 
 ```
 ?addnotif <item>
