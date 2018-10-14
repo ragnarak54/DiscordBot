@@ -1,6 +1,6 @@
 # Travelling Merchant Discord Bot
 
-This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
+This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](https://runescape.wiki/w/Travelling_Merchant%27s_Shop) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
 
 ## Getting Started
 
