@@ -1,6 +1,6 @@
 # Travelling Merchant Discord Bot
 
-This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](http://runescape.wikia.com/wiki/Travelling_Merchant%27s_Shop) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
+This is a bot for Discord that can be used to keep up with the [Travelling Merchant's](https://runescape.wiki/w/Travelling_Merchant%27s_Shop) stock. Get the current stock at any time, automatic messages to channels on your server as soon as the new stock is found, and interactive notification management for all users.
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ Set what channel will receive a daily message with the updated stock. Make sure 
 ?update
 ```
 
-If for some reason the stock isn't showing the correct day's stock (different from the "the new stock isn't out yet!" message), use this command to force an update.
+If for some reason the stock isn't showing the correct day's stock (note: this is not the same thing as the "the new stock isn't out yet!" message), use this command to force an update.
 
 ### All users
 
@@ -39,7 +39,7 @@ If for some reason the stock isn't showing the correct day's stock (different fr
 ?merch
 ```
 
-is the most basic command. Returns an image with the day's stock (if it's been found). Aliases include `?merchant, ?shop, ?stock`
+is the most basic command. Returns an image with the day's stock (if it's been found). The merchant bot pulls its stock from the official RS wiki's page for the travelling merchant, so if that page hasn't been updated then the bot won't know the stock! Aliases include `?merchant, ?shop, ?stock`
 
 ```
 ?addnotif <item>
