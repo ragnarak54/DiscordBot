@@ -52,9 +52,9 @@ async def daily_message():
     await bot.wait_until_ready()
     while not bot.is_closed:
         now = datetime.datetime.now()
-        schedule_time = now.replace(hour=0, minute=2) + timedelta(days=1)
+        schedule_time = now.replace(hour=0, minute=1) + timedelta(days=1)
         time_left = schedule_time - now
-        sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:02
+        sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
         print(sleep_time)
         await asyncio.sleep(sleep_time)
 
@@ -79,6 +79,11 @@ async def daily_message():
             tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
+
+        reaperscapes_role = '<@&488630912729350145>'
+        reaperscapes_channel = bot.get_channel('488636897070153738')
+
+        await bot.send_file(reaperscapes_channel, output.output_img, contet= new_stock_string + reaperscapes_role)
 
         # notify users for each item in today's stock
         for item in items:
@@ -266,6 +271,11 @@ async def fix_daily_message(ctx):
             tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
+
+        reaperscapes_role = '<@&488630912729350145>'
+        reaperscapes_channel = bot.get_channel('488636897070153738')
+
+        await bot.send_file(reaperscapes_channel, output.output_img, contet=new_stock_string + reaperscapes_role)
     else:
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
