@@ -83,7 +83,7 @@ async def daily_message():
         reaperscapes_role = '<@&488630912729350145>'
         reaperscapes_channel = bot.get_channel('488636897070153738')
 
-        await bot.send_file(reaperscapes_channel, output.output_img, contet= new_stock_string + reaperscapes_role)
+        await bot.send_file(reaperscapes_channel, output.output_img, content= new_stock_string + reaperscapes_role)
 
         # notify users for each item in today's stock
         for item in items:
@@ -275,7 +275,7 @@ async def fix_daily_message(ctx):
         reaperscapes_role = '<@&488630912729350145>'
         reaperscapes_channel = bot.get_channel('488636897070153738')
 
-        await bot.send_file(reaperscapes_channel, output.output_img, contet=new_stock_string + reaperscapes_role)
+        await bot.send_file(reaperscapes_channel, output.output_img, content=new_stock_string + reaperscapes_role)
     else:
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
