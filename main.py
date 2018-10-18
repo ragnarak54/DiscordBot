@@ -163,7 +163,11 @@ async def auto_user_notifs(item):
             if item == "uncharted island map":
                 await bot.send_file(user, output.output_img, content="the new stock is out!")
             else:
-                await bot.send_message(user, "{0} is in stock!".format(item))
+                if item == "livid plant":
+                    await bot.send_message(user, "{0} is in stock! It won't be back in stock until November"
+                                                 "23rd, so get it while you can!".format(item))
+                else:
+                    await bot.send_message(user, "{0} is in stock!".format(item))
             print(user)
         except discord.InvalidArgument:
             print("left their server!")
