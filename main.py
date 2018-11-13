@@ -493,6 +493,17 @@ async def add(left : int, right : int):
 @bot.command(description='For when you wanna settle the score some other way')
 async def choose(*choices : str):
     """Chooses between multiple choices."""
+
+    for choice in choices:
+        if "proc" in choice:
+            await bot.say(choice)
+            return
+        if "nex" in choice:
+            await bot.say(choice)
+            return
+        if "kk" in choices:
+            await bot.say(choice)
+            return
     await bot.say(random.choice(choices))
 
 @bot.command()
