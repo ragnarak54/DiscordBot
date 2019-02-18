@@ -107,7 +107,8 @@ async def daily_message():
             try:
                 daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
             except discord.Forbidden:
-                pass
+                await bot.send_message(bot.procUser, f'Forbidden to send daily message to {channel.name} of '
+                                                     f'{channel.server.name}')
 
         await asyncio.sleep(60)
 
@@ -269,12 +270,12 @@ async def update(ctx):
 
 
 @bot.command(pass_context=True, aliases=["fix_daily_messages"])
-async def fix_daily_message(ctx):
+async def fix_daily_message(ctx, delete):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
         channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
-        if daily_messages is not None:
+        if delete == "delete" and daily_messages is not None:
             for message in daily_messages:
                 await bot.delete_message(message)
         for channel in channels:
@@ -300,11 +301,14 @@ async def fix_daily_message(ctx):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
-@bot.command(pass_context=True)
-async def restart_background(ctx):
-    if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
-        await daily_message().close()
-        bot.loop.create_task(daily_message())
+@bot.command()
+@owner_check()
+async def restart_background():
+    try:
+        bot.daily_background.cancel()
+    except asyncio.CancelledError:
+        await bot.send_message(bot.procUser, "couldn't cancel background task")
+    bot.daily_background = bot.loop.create_task(daily_message())
 
 
 @bot.command()
@@ -565,5 +569,5 @@ async def _proc():
     await bot.say('Yes, proc is cool.')
 
 
-bot.loop.create_task(daily_message())
+bot.daily_background = bot.loop.create_task(daily_message())
 bot.run(config.token)
