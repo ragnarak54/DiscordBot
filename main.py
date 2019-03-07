@@ -87,13 +87,11 @@ async def daily_message():
         if roles != set([]):
             b = [role + '\n' for role in roles]
             tag_string = "Tags: \n" + ''.join(b)
-        ah_channel = bot.get_channel(config.ah_chat_id)
-        await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
-
-        reaperscapes_role = '<@&488630912729350145>'
-        reaperscapes_channel = bot.get_channel('488636897070153738')
-
-        await bot.send_file(reaperscapes_channel, output.output_img, content=new_stock_string + reaperscapes_role)
+        try:
+            ah_channel = bot.get_channel(config.ah_chat_id)
+            await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
+        except Exception as e:
+            await bot.send_message(bot.procUser, f"Couldn't send message to AH: {e}")
 
         # notify users for each item in today's stock
         for item in items:
@@ -107,8 +105,7 @@ async def daily_message():
             try:
                 daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
             except discord.Forbidden:
-                await bot.send_message(bot.procUser, f'Forbidden to send daily message to {channel.name} of '
-                                                     f'{channel.server.name}')
+                await bot.send_message(bot.procUser, f'cant send message to {channel.name} of {channel.server.name}')
 
         await asyncio.sleep(60)
 
@@ -291,10 +288,6 @@ async def fix_daily_message(ctx, delete):
         ah_channel = bot.get_channel(config.ah_chat_id)
         await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
 
-        reaperscapes_role = '<@&488630912729350145>'
-        reaperscapes_channel = bot.get_channel('488636897070153738')
-
-        await bot.send_file(reaperscapes_channel, output.output_img, content=new_stock_string + reaperscapes_role)
     else:
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call fix daily messages!".format(ctx.message.author))
@@ -304,11 +297,15 @@ async def fix_daily_message(ctx, delete):
 @bot.command()
 @owner_check()
 async def restart_background():
+    bot.daily_background.cancel()
     try:
-        bot.daily_background.cancel()
+        await bot.daily_background
     except asyncio.CancelledError:
-        await bot.send_message(bot.procUser, "couldn't cancel background task")
+        await bot.send_message(bot.procUser, "successfully canceled previous task before restarting")
+    else:
+        await bot.send_message(bot.procUser, "No background tasks to cancel")
     bot.daily_background = bot.loop.create_task(daily_message())
+    await bot.send_message(bot.procUser, "Task restarted")
 
 
 @bot.command()
