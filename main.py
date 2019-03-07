@@ -267,7 +267,7 @@ async def update(ctx):
 
 
 @bot.command(pass_context=True, aliases=["fix_daily_messages"])
-async def fix_daily_message(ctx, delete):
+async def fix_daily_message(ctx, delete=None):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
