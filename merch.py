@@ -40,4 +40,3 @@ def get_item():
     return items[output_item_id]
 
 
-print(get_item())
