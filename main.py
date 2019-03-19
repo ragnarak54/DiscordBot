@@ -7,7 +7,6 @@ import logging
 import config
 import userdb
 import asyncio
-import request
 import itemlist
 import random
 import merch
@@ -41,6 +40,7 @@ async def on_ready():
     appinfo = await bot.application_info()
     bot.procUser = appinfo.owner
     output.generate_merch_image()
+    output.generate_merch_image(1)
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -69,14 +69,9 @@ async def daily_message():
         await asyncio.sleep(sleep_time)
 
         now2 = datetime.datetime.today()
-        # Check the wiki's date to see if it's current. If not, try again in 60 seconds
-        while not now2.day == int(request.parse_stock_date()):
-            print(now2.day)
-            print(request.parse_stock_date())
-            await asyncio.sleep(60)
 
-        output.generate_merch_image()  # generate the new image
-        items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
+        output.generate_merch_image()  # generate the new image for today
+        items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
         data = userdb.ah_roles(items)
@@ -89,7 +84,7 @@ async def daily_message():
             tag_string = "Tags: \n" + ''.join(b)
         try:
             ah_channel = bot.get_channel(config.ah_chat_id)
-            await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
+            await bot.send_file(ah_channel, output.today_img, content=new_stock_string + tag_string)
         except Exception as e:
             await bot.send_message(bot.procUser, f"Couldn't send message to AH: {e}")
 
@@ -98,12 +93,12 @@ async def daily_message():
             await auto_user_notifs(item)
 
         # get all the channels for daily messages, then loop through them to send messages
-        # also, store them in daily_messages in case of a bad wiki update
+        # also, store them in daily_messages in case of a bad update
         daily_messages.clear()
         channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
             try:
-                daily_messages.append(await bot.send_file(channel, output.output_img, content=new_stock_string))
+                daily_messages.append(await bot.send_file(channel, output.today_img, content=new_stock_string))
             except discord.Forbidden:
                 await bot.send_message(bot.procUser, f'cant send message to {channel.name} of {channel.server.name}')
 
@@ -172,7 +167,7 @@ async def auto_user_notifs(item):
     for user in userlist:
         try:
             if item == "uncharted island map":
-                await bot.send_file(user, output.output_img, content="the new stock is out!")
+                await bot.send_file(user, output.today_img, content="the new stock is out!")
             else:
                 await bot.send_message(user, "{0} is in stock!".format(item))
             print(user)
@@ -189,7 +184,7 @@ async def ah_test(ctx):
     """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.message.author.top_role >= discord.utils.get(ctx.message.server.roles, id=config.ah_mod_role) \
             or ctx.message.author.id == config.proc:
-        items = [item.name for item in request.parse_merch_items()]
+        items = [item.name for item in merch.get_stock()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
@@ -220,7 +215,7 @@ async def user_notifs(ctx, *, item):
 async def force_notifs(ctx):
     """Notifies users for today's stock"""
     if ctx.message.author.id == config.proc:
-        items = [item.name.lower() for item in request.parse_merch_items()]
+        items = [item.name.lower() for item in merch.get_stock()]
         for item in items:
             await auto_user_notifs(item)
     else:
@@ -232,34 +227,29 @@ async def force_notifs(ctx):
 @bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
-    now2 = datetime.datetime.today()
-    if now2.day == int(request.parse_stock_date()):
-        now = datetime.datetime.now()
-        member = ctx.message.author
-        channel = ctx.message.channel
-        server = ctx.message.server
-        logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-        print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-        date_message = "The stock for " + now.strftime("%m/%d/%Y") + ":"
-        await bot.send_file(ctx.message.channel, output.output_img, content=date_message)
-        if not userdb.user_exists(ctx.message.author.id):
-            print("user {0} doesn't have any preferences".format(ctx.message.author))
-            chance = random.random()
-            if chance < 0.1:
-                await bot.say("Don't forget to try out the ?addnotif <item> function so you don't "
-                              "have to check the stock every day!")
-    else:
-        await bot.say("The new stock isn't out yet!")
+    now = datetime.datetime.now()
+    member = ctx.message.author
+    channel = ctx.message.channel
+    server = ctx.message.server
+    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
+    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
+    date_message = "The stock for " + now.strftime("%m/%d/%Y") + ":"
+    await bot.send_file(ctx.message.channel, output.today_img, content=date_message)
+    if not userdb.user_exists(ctx.message.author.id):
+        print("user {0} doesn't have any preferences".format(ctx.message.author))
+        chance = random.random()
+        if chance < 0.1:
+            await bot.say("Don't forget to try out the ?addnotif <item> function so you don't "
+                          "have to check the stock every day!")
 
 
 @bot.command(pass_context=True)
 async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
-        await bot.send_file(ctx.message.channel, output.output_img, content="Stock updated. If this stock is still "
-                                                                            "incorrect, verify that "
-                                                                            "the wiki has the correct stock, then try "
-                                                                            "again.")
+        await bot.send_file(ctx.message.channel, output.today_img, content="Stock updated. If this stock is still "
+                                                                            "incorrect, send my owner @ragnarak54"
+                                                                           "#9413 a message.")
     else:
         print("{0} tried to call update!".format(ctx.message.author))
         await bot.send_message(bot.procUser, "{0} tried to call update!".format(ctx.message.author))
@@ -276,8 +266,8 @@ async def fix_daily_message(ctx, delete=None):
             for message in daily_messages:
                 await bot.delete_message(message)
         for channel in channels:
-            await bot.send_file(channel, output.output_img, content=new_stock_string)
-        items = [item.name.lower() for item in request.parse_merch_items()]  # get a lowercase list of today's stock
+            await bot.send_file(channel, output.today_img, content=new_stock_string)
+        items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         data = userdb.ah_roles(items)
         roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
         # format the string to be sent
@@ -286,7 +276,7 @@ async def fix_daily_message(ctx, delete=None):
             b = [role + '\n' for role in roles]
             tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
-        await bot.send_file(ah_channel, output.output_img, content=new_stock_string + tag_string)
+        await bot.send_file(ah_channel, output.today_img, content=new_stock_string + tag_string)
 
     else:
         print("{0} tried to call fix daily messages!".format(ctx.message.author))
