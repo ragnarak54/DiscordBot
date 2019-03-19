@@ -1,10 +1,12 @@
 # https://code-maven.com/create-images-with-python-pil-pillow
 # https://stackoverflow.com/questions/2563822/how-do-you-composite-an-image-onto-another-image-with-pil-in-python?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 from PIL import Image, ImageDraw, ImageFont
-import request
 import merch
 
-output_img = "res_img.png"
+today_img = "res_img.png"
+tomorrow_img = "tomorrow_img.png"
+custom_img = "custom_date_img.png"
+
 img_bg = (54, 57, 62)
 img_text = (255,255,255)
 
@@ -14,13 +16,16 @@ y_space = 25
 title_fnt = ImageFont.truetype('./fonts/roboto/Roboto-Regular.ttf', 20)
 fnt = ImageFont.truetype('./fonts/roboto/Roboto-Regular.ttf', 15)
 
+
 def write_title(draw, coord, text):
     draw.text(coord, text, font=title_fnt, fill=img_text)
+
 
 def write(draw, coord, text):
     draw.text(coord, text, font=fnt, fill=img_text)
 
-def image(items):
+
+def image(items, output_img="res_img.png"):
     """creates an image named res_img.png that displays items with icons and costs"""
 
     # pre-compute icon sizes to get the overall image formatted nicely
@@ -46,8 +51,14 @@ def image(items):
         write(d, (x_cost, y), items[i].cost)
     img.save(output_img)
 
-def generate_merch_image():
-    image(request.parse_merch_items())
+
+def generate_merch_image(days=0):
+    if days == 0:
+        image(merch.get_stock(days))
+    elif days == 1:
+        image(merch.get_stock(days), tomorrow_img)
+    else:
+        image(merch.get_stock(days), custom_img)
 
 ### below this is for testing purposes
 
