@@ -58,7 +58,10 @@ class MerchItem:
 def get_stock(days=0):
     # https://runescape.wiki/w/Travelling_Merchant%27s_Shop/Details
 
-    stock = []
+    stock = [MerchItem('Uncharted island map (Deep Sea Fishing).png', 'Uncharted island map', '800,000', 1,
+                       "Allows travel to an [[uncharted island]] with the chance of 3-6 special resources at the cost "
+                       "of no supplies<br />In addition, players may also rarely receive a [[Uncharted island map ("
+                       "red)|red uncharted island map]].")]
     now = datetime.datetime.now(pytz.utc) + datetime.timedelta(days=days)
 
     a_b_rotation = (now - datetime.datetime(2018, 3, 11, 0, 0, 0, tzinfo=pytz.utc)).days % 120 + 1
