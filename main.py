@@ -246,12 +246,12 @@ async def merchant(ctx):
 @bot.command(pass_context=True, aliases=['tmrw', 'tommorow'])
 async def tomorrow(ctx):
     tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
-    date_message = "The stock for tomorrow," + tmrw.strftime("%m/%d/%Y") + ":"
+    date_message = "The stock for tomorrow, " + tmrw.strftime("%m/%d/%Y") + ":"
     await bot.send_file(ctx.message.channel, output.tomorrow_img, content=date_message)
 
 
 @bot.command(pass_context=True)
-async def future(ctx, days):
+async def future(ctx, days: int):
     day = datetime.datetime.now() + datetime.timedelta(days=days)
     date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
     if days > 1:
