@@ -243,6 +243,22 @@ async def merchant(ctx):
                           "have to check the stock every day!")
 
 
+@bot.command(pass_context=True, aliases=['tmrw', 'tommorow'])
+async def tomorrow(ctx):
+    tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
+    date_message = "The stock for tomorrow," + tmrw.strftime("%m/%d/%Y") + ":"
+    await bot.send_file(ctx.message.channel, output.tomorrow_img, content=date_message)
+
+
+@bot.command(pass_context=True)
+async def future(ctx, days):
+    day = datetime.datetime.now() + datetime.timedelta(days=days)
+    date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
+    if days > 1:
+        output.generate_merch_image(days)
+    await bot.send_file(ctx.message.channel, output.custom_img, content=date_message)
+
+
 @bot.command(pass_context=True)
 async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
