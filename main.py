@@ -281,14 +281,13 @@ async def next(ctx, *, item):
             await bot.send_message(ctx.message.author, 'Possible items:\n' + itemstrv2)
             return
     stritem = results[0][0]
-
     i = 1
     while i < 200:
         stock = merch.get_stock(i)
         for x in stock:
-            if x.name.replace(" (Deep Sea Fishing)", "") == stritem:
+            if x.name.lower() == stritem:
                 time = datetime.datetime.now() + datetime.timedelta(days=i)
-                await bot.say(f'{stritem} is next in stock {i} days from now, on {time.strftime("%A, %B %d")}.')
+                await bot.say(f'{x.name} is next in stock {i} days from now, on {time.strftime("%A, %B %d")}.')
                 return
         i += 1
     await bot.say(f"Couldn't find {stritem} in the next 200 days!")
