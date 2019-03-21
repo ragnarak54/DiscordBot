@@ -290,6 +290,7 @@ async def next(ctx, *, item):
                 time = datetime.datetime.now() + datetime.timedelta(days=i)
                 await bot.say(f'{stritem} is next in stock {i} days from now, on {time.strftime("%A, %B %d")}.')
                 return
+        i += 1
     await bot.say(f"Couldn't find {stritem} in the next 200 days!")
 
 
