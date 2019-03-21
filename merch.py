@@ -5,12 +5,12 @@ import items
 
 images_dir = "images/"
 
-a_b_items = ['Barrel of bait', 'Tangled fishbowl', 'Broken fishing rod', 'Message in a bottle (Deep Sea Fishing)',
+a_b_items = ['Barrel of bait', 'Tangled fishbowl', 'Broken fishing rod', 'Message in a bottle',
              'Small goebie burial charm', 'Goebie burial charm', 'Large goebie burial charm',
              'Menaphite gift offering (small)', 'Menaphite gift offering (medium)', 'Menaphite gift offering (large)',
              'D&D token (daily)', 'D&D token (weekly)', 'D&D token (monthly)',
              'Unstable air rune', 'Anima crystal', 'Taijitu', 'Gift for the Reaper', 'Slayer VIP Coupon',
-             'Shattered anima', 'Livid plant (Deep Sea Fishing)', 'Sacred clay (Deep Sea Fishing)',
+             'Shattered anima', 'Livid plant', 'Sacred clay',
              'Unfocused damage enhancer', 'Unfocused reward enhancer',
              'Silverhawk down', 'Advanced pulse core', 'Dungeoneering Wildcard',
              'Dragonkin lamp', 'Starved ancient effigy', 'Harmonic dust',
@@ -35,7 +35,7 @@ rotation_order = [1, 1, 2, 1, 3, 4, 3, 1, 5, 6, 6, 6, 5, 7, 8, 5, 7, 9, 1, 2,
 initial_ids = [1, 8, 3, 7, 4, 11, 10, 13, 12, 2, 9, 5, 6]
 c_items = ['Dragonkin lamp', 'D&D token (weekly)', 'Deathtouched dart',
            'Menaphite gift offering (large)', 'Starved ancient effigy', 'Large goebie burial charm',
-           'Crystal triskelion', 'Taijitu', 'Message in a bottle (Deep Sea Fishing)',
+           'Crystal triskelion', 'Taijitu', 'Message in a bottle',
            'Unfocused reward enhancer', 'Dungeoneering Wildcard', 'Harmonic dust',
            'D&D token (monthly)']
 
@@ -66,7 +66,6 @@ def get_stock(days=0):
 
     a_b_rotation = (now - datetime.datetime(2018, 3, 11, 0, 0, 0, tzinfo=pytz.utc)).days % 120 + 1
     slot_a = a_b_items[a_rotation[a_b_rotation-1]-1]
-    print(slot_a)
     stock.append(MerchItem(f'{slot_a}.png', slot_a, *items.get_attrs(slot_a)))
 
     slot_b = a_b_items[b_rotation[a_b_rotation-1]-1]
