@@ -260,6 +260,40 @@ async def future(ctx, days: int):
 
 
 @bot.command(pass_context=True)
+async def next(ctx, *, item):
+    await bot.send_typing(ctx.message.channel)
+    stritem = str(item).lower()
+    lst = [item.lower() for item in itemlist.item_list]
+    results = get_matches(stritem, lst)
+    if stritem not in lst:
+        if results[0][1] - results[1][1] < 20:
+            if results[1][1] > 80:
+                suggestions = [x[0] for x in results if x[1] > 80]
+                b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
+                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
+                              + "".join(b))
+                return
+        if results[0][1] < 75:
+            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
+                          "spellings, or refer to the wikia page.")
+            b = sorted([item + '\n' for item in itemlist.item_list])
+            itemstrv2 = ''.join(b)
+            await bot.send_message(ctx.message.author, 'Possible items:\n' + itemstrv2)
+            return
+    stritem = results[0][0]
+
+    i = 1
+    while i < 200:
+        stock = merch.get_stock(i)
+        for x in stock:
+            if x.name.replace(" (Deep Sea Fishing)", "") == stritem:
+                time = datetime.datetime.now() + datetime.timedelta(days=i)
+                await bot.say(f'{stritem} is next in stock {i} days from now, on {time.strftime("%A, %B %d")}.')
+                return
+    await bot.say(f"Couldn't find {stritem} in the next 200 days!")
+
+
+@bot.command(pass_context=True)
 async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
