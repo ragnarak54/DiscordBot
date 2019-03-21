@@ -49,6 +49,14 @@ is the most basic command. Returns an image with the day's stock (if it's been f
 
 These help you manage what you get notified for by PM, every day. There are several aliases that are fairly intuitive, like `?newnotif, ?delnotif, ?notifs`, etc. The bot also is pretty lenient when it comes to item names--so don't be worried about memorizing everything!
 
+```
+?tomorrow
+?future <number>
+?next <item name>
+```
+
+These commands deal with what's coming up. `?tomorrow` (and `?tmrw`), as you might guess, shows you tomorrow's stock. `?future 10` would show you the stock 10 days from now. `?next air rune` would tell you how long before the next unstable air rune is in stock.
+
 ## Built With
 
 * [Python](https://www.python.org/) - The base language used
