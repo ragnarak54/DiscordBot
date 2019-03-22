@@ -70,7 +70,8 @@ async def daily_message():
 
         now2 = datetime.datetime.today()
 
-        output.generate_merch_image()  # generate the new image for today
+        output.generate_merch_image()  # generate the new image for today and tomorrow
+        output.generate_merch_image(1)
         items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
@@ -297,6 +298,7 @@ async def next(ctx, *, item):
 async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
+        output.generate_merch_image(1)
         await bot.send_file(ctx.message.channel, output.today_img, content="Stock updated. If this stock is still "
                                                                             "incorrect, send my owner @ragnarak54"
                                                                            "#9413 a message.")
