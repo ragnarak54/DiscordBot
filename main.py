@@ -253,10 +253,13 @@ async def tomorrow(ctx):
 
 @bot.command(pass_context=True)
 async def future(ctx, days: int):
+    assert days > 0, "Negative days entered"
     day = datetime.datetime.now() + datetime.timedelta(days=days)
     date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
-    if days > 1:
-        output.generate_merch_image(days)
+    if days == 1:
+        await bot.send_file(ctx.message.channel, output.tomorrow_img, content=date_message)
+        return
+    output.generate_merch_image(days)
     await bot.send_file(ctx.message.channel, output.custom_img, content=date_message)
 
 
