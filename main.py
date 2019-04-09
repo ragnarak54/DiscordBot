@@ -14,6 +14,7 @@ import merch
 import output
 import userdb
 from notifs import get_matches
+import notifs
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.CRITICAL)
@@ -27,6 +28,7 @@ Lets get started!\n\n'''
 bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
+bot.add_cog(notifs.Notifications(bot))
 daily_messages = []
 
 
@@ -85,7 +87,7 @@ async def daily_message():
             tag_string = "Tags: \n" + ''.join(b)
         try:
             ah_channel = bot.get_channel(config.ah_chat_id)
-            await ah_channel.send_file(file=output.today_img, content=new_stock_string + tag_string)
+            await ah_channel.send_file(file=discord.File(output.today_img), content=new_stock_string + tag_string)
         except Exception as e:
             await bot.procUser.send(f"Couldn't send message to AH: {e}")
 
@@ -100,7 +102,7 @@ async def daily_message():
         channels = [bot.get_channel(channel_tuple[0]) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
             try:
-                daily_messages.append(await channel.send(file=output.today_img, content=new_stock_string))
+                daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
             except discord.Forbidden:
                 await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
 
@@ -230,7 +232,7 @@ async def merchant(ctx):
     guild = ctx.guild
     print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
     date_message = f'The stock for {now.strftime("%m/%d/%Y")}:'
-    await ctx.send(file=output.today_img, content=date_message)
+    await ctx.send(content=date_message, file=discord.File(output.today_img))
     if not userdb.user_exists(ctx.author.id):
         print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
@@ -297,9 +299,9 @@ async def update(ctx):
     if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         output.generate_merch_image()
         output.generate_merch_image(1)
-        await ctx.send(file=output.today_img, content="Stock updated. If this stock is still "
-                                                      "incorrect, send my owner @ragnarak54"
-                                                      "#9413 a message.")
+        await ctx.send(file=discord.File(output.today_img), content="Stock updated. If this stock is still "
+                                                                    "incorrect, send my owner @ragnarak54"
+                                                                    "#9413 a message.")
     else:
         print(f"{ctx.author} tried to call update!")
         await bot.procUser.send(f"{ctx.author} tried to call update!")
