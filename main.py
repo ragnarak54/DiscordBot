@@ -138,7 +138,7 @@ async def help(command=None):
             await bot.say(str(command_string.__doc__))
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
@@ -180,7 +180,7 @@ async def auto_user_notifs(item):
             print("forbidden: cannot send message to {0}".format(user))
 
 
-@bot.command(pass_context=True, name='ah_merch')
+@bot.command(name='ah_merch')
 async def ah_test(ctx):
     """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.message.author.top_role >= discord.utils.get(ctx.message.server.roles, id=config.ah_mod_role) \
@@ -195,7 +195,7 @@ async def ah_test(ctx):
         return
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
     if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
@@ -212,7 +212,7 @@ async def user_notifs(ctx, *, item):
         await bot.say("This command isn't for you!")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def force_notifs(ctx):
     """Notifies users for today's stock"""
     if ctx.message.author.id == config.proc:
@@ -225,7 +225,7 @@ async def force_notifs(ctx):
         await bot.say("This command isn't for you!")
 
 
-@bot.command(pass_context=True, name='merch', aliases=['merchant', 'shop', 'stock'])
+@bot.command(name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
     now = datetime.datetime.now()
@@ -244,14 +244,14 @@ async def merchant(ctx):
                           "have to check the stock every day!")
 
 
-@bot.command(pass_context=True, aliases=['tmrw', 'tommorow'])
+@bot.command(aliases=['tmrw', 'tommorow'])
 async def tomorrow(ctx):
     tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
     date_message = "The stock for tomorrow, " + tmrw.strftime("%m/%d/%Y") + ":"
     await bot.send_file(ctx.message.channel, output.tomorrow_img, content=date_message)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def future(ctx, days: int):
     assert days > 0, "Negative days entered"
     day = datetime.datetime.now() + datetime.timedelta(days=days)
@@ -263,7 +263,7 @@ async def future(ctx, days: int):
     await bot.send_file(ctx.message.channel, output.custom_img, content=date_message)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def next(ctx, *, item):
     await bot.send_typing(ctx.message.channel)
     stritem = str(item).lower()
@@ -297,7 +297,7 @@ async def next(ctx, *, item):
     await bot.say(f"Couldn't find {stritem} in the next 200 days!")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def update(ctx):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
@@ -311,7 +311,7 @@ async def update(ctx):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
-@bot.command(pass_context=True, aliases=["fix_daily_messages"])
+@bot.command(aliases=["fix_daily_messages"])
 async def fix_daily_message(ctx, delete=None):
     if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
         output.generate_merch_image()
@@ -341,7 +341,7 @@ async def fix_daily_message(ctx, delete=None):
 
 @bot.command()
 @owner_check()
-async def restart_background():
+async def restart_background(ctx):
     bot.daily_background.cancel()
     try:
         await bot.daily_background
@@ -355,7 +355,7 @@ async def restart_background():
 
 @bot.command()
 @owner_check()
-async def message_channels(*, string):
+async def message_channels(ctx, *, string):
     channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
     mass_messages = []
     embed = discord.Embed()
@@ -371,7 +371,7 @@ async def message_channels(*, string):
 
 @bot.command()
 @owner_check()
-async def message_users(*, string):
+async def message_users(ctx, *, string):
     all_ids = [user_tuple[0] for user_tuple in userdb.get_all_users()]
     all_users = []
     members = list(bot.get_all_members())
@@ -386,7 +386,7 @@ async def message_users(*, string):
             print("cant send message to {0}".format(user))
 
 
-@bot.command(pass_context=True, aliases=['newnotif'])
+@bot.command(aliases=['newnotif'])
 async def addnotif(ctx, *, item):
     """Adds an item to a user's notify list."""
     stritem = str(item).lower()
@@ -426,7 +426,7 @@ async def addnotif(ctx, *, item):
         await bot.say("Already exists for this user")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def adnotif(ctx, *, item):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author == bot.procUser:
         stritem = str(item)
@@ -445,7 +445,7 @@ def get_matches(query, choices, limit=6):
     return results
 
 
-@bot.command(pass_context=True, aliases=['delnotif', 'remnotif', 'deletenotif'])
+@bot.command(aliases=['delnotif', 'remnotif', 'deletenotif'])
 async def removenotif(ctx, *, item):
     """Removes an item from a user's notify list."""
     stritem = str(item).lower()
@@ -468,7 +468,7 @@ async def removenotif(ctx, *, item):
         await bot.say("user does not have this preference")
 
 
-@bot.command(pass_context=True, aliases=['notifs', 'mynotifs'])
+@bot.command(aliases=['notifs', 'mynotifs'])
 async def shownotifs(ctx):
     """Shows a user's notify list"""
     data = userdb.user_prefs(ctx.message.author.id)
@@ -486,14 +486,14 @@ async def shownotifs(ctx):
     await bot.say(string)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def users(ctx, *, item):
     if ctx.message.author.id == config.proc:
         userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
         await bot.say(userlist)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def authorize(ctx, user: discord.Member):
     if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
         userdb.authorize_user(ctx.message.server, user)
@@ -505,7 +505,7 @@ async def authorize(ctx, user: discord.Member):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def unauthorize(ctx, user: discord.Member):
     if ctx.message.author == bot.procUser:
         if userdb.is_authorized(ctx.message.server, user):
@@ -519,7 +519,7 @@ async def unauthorize(ctx, user: discord.Member):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def set_daily_channel(ctx, new_channel: discord.Channel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
@@ -534,7 +534,7 @@ async def set_daily_channel(ctx, new_channel: discord.Channel):
         await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
-@bot.command(pass_context=True, aliases=['channel', 'current_channel'])
+@bot.command(aliases=['channel', 'current_channel'])
 async def daily_channel(ctx):
     if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
         channel = userdb.get_current_channel(ctx.message.server)
@@ -545,14 +545,14 @@ async def daily_channel(ctx):
             await bot.say("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def suggestion(ctx, *, string):
     """Sends a message to me with your suggestion!"""
     await bot.send_message(bot.procUser, "{0} says: ".format(ctx.message.author) + string)
     bot.say("Thanks for the suggestion!")
 
 
-@bot.command(pass_context=True, name='3amerch', category='memes')
+@bot.command(name='3amerch', category='memes')
 async def third_age_merch(ctx):
     """:("""
     if ctx.message.author == bot.procUser:
@@ -561,14 +561,8 @@ async def third_age_merch(ctx):
         await bot.say("!kms")
 
 
-@bot.command()
-async def add(left: int, right: int):
-    """Adds two numbers together."""
-    await bot.say(left + right)
-
-
 @bot.command(description='For when you wanna settle the score some other way')
-async def choose(*choices: str):
+async def choose(ctx, *choices: str):
     """Chooses between multiple choices."""
 
     for choice in choices:
@@ -585,12 +579,12 @@ async def choose(*choices: str):
 
 
 @bot.command()
-async def joined(member: discord.Member):
+async def joined(ctx, member: discord.Member):
     """Says when a member joined."""
     await bot.say('{0.name} joined in {0.joined_at}'.format(member))
 
 
-@bot.group(pass_context=True)
+@bot.group()
 async def cool(ctx):
     """Says if a user is cool.
     In reality this just checks if a subcommand is being invoked.
@@ -600,13 +594,13 @@ async def cool(ctx):
 
 
 @cool.command(name='bot')
-async def _bot():
+async def _bot(ctx):
     """Is the bot cool?"""
     await bot.say('Yes, the bot is cool.')
 
 
 @cool.command(name='proc')
-async def _proc():
+async def _proc(ctx):
     """Is proc cool?"""
     await bot.say('Yes, proc is cool.')
 
