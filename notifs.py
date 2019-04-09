@@ -4,7 +4,6 @@ from fuzzywuzzy import process
 
 import itemlist
 import userdb
-from main import bot
 
 
 class Notifications(commands.Cog):
@@ -16,9 +15,9 @@ class Notifications(commands.Cog):
         """Adds an item to a user's notify list."""
         stritem = str(item).lower()
         lst = [item.lower() for item in itemlist.item_list]
-        results = self.get_matches(stritem, lst)
+        results = get_matches(stritem, lst)
         if ctx.guild is None:
-            if discord.utils.get(bot.get_all_members(), id=ctx.message.author.id) is None:
+            if discord.utils.get(self.bot.get_all_members(), id=ctx.message.author.id) is None:
                 await ctx.send("Bots aren't allowed to send DMs to users who aren't in a shared server with the bot. "
                                "Try adding a notification in a server instead of DM.\n"
                                "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
@@ -61,7 +60,7 @@ class Notifications(commands.Cog):
         stritem = str(item).lower()
         data = userdb.user_prefs(ctx.author.id)
         notifs = [data_tuple[0].strip() for data_tuple in data]
-        results = self.get_matches(stritem, notifs)
+        results = get_matches(stritem, notifs)
         if stritem not in notifs:
             if results[0][1] - results[1][1] < 20:
                 if results[1][1] > 80:
@@ -79,7 +78,7 @@ class Notifications(commands.Cog):
 
     @commands.command()
     async def adnotif(self, ctx, *, item):
-        if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
+        if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == self.bot.procUser:
             stritem = str(item)
             if not userdb.pref_exists(ctx.author.id, stritem):
                 if ctx.guild is None:
@@ -107,6 +106,7 @@ class Notifications(commands.Cog):
         string = user_string + ''.join(b)
         await ctx.send(string)
 
-    def get_matches(self, query, choices, limit=6):
-        results = process.extract(query, choices, limit=limit)
-        return results
+
+def get_matches(query, choices, limit=6):
+    results = process.extract(query, choices, limit=limit)
+    return results
