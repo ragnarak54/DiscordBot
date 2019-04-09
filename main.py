@@ -53,7 +53,7 @@ async def on_guild_join(guild):
         for channel in [x for x in guild.channels if x.type == discord.ChannelType.text]:
             if channel.permissions_for(guild.me).send_messages:
                 await channel.send("Please first invite my creator, ragnarak54#9413 so he can"
-                                                " help set the bot up for you!")
+                                   " help set the bot up for you!")
         await guild.leave()
 
 
@@ -139,7 +139,8 @@ async def toggle_daily(ctx):
         if userdb.remove_channel(ctx.guild):
             await ctx.send("Daily messages toggled off")
         else:
-            await ctx.send("Use the `?set_daily_channel` command to set which channel the daily message will be sent to")
+            await ctx.send(
+                "Use the `?set_daily_channel` command to set which channel the daily message will be sent to")
     else:
         print(f"{ctx.author} tried to call toggle_daily!")
         await bot.procUser.send(f"{ctx.author} tried to call toggle_daily!")
@@ -255,8 +256,8 @@ async def future(ctx, days: int):
     await ctx.send(output.custom_img, content=date_message)
 
 
-@bot.command()
-async def next(ctx, *, item):
+@bot.command(name="next")
+async def _next(ctx, *, item):
     await ctx.trigger_typing()
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
@@ -267,11 +268,11 @@ async def next(ctx, *, item):
                 suggestions = [x[0] for x in results if x[1] > 80]
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
                 await ctx.send("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
-                              + "".join(b))
+                               + "".join(b))
                 return
         if results[0][1] < 75:
             await ctx.send("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
-                          "spellings, or refer to the wikia page.")
+                           "spellings, or refer to the wikia page.")
             b = sorted([item + '\n' for item in itemlist.item_list])
             itemstrv2 = ''.join(b)
             await ctx.author.send('Possible items:\n' + itemstrv2)
@@ -387,19 +388,19 @@ async def addnotif(ctx, *, item):
     if ctx.guild is None:
         if discord.utils.get(bot.get_all_members(), id=ctx.message.author.id) is None:
             await ctx.send("Bots aren't allowed to send DMs to users who aren't in a shared server with the bot. "
-                          "Try adding a notification in a server instead of DM.\n"
-                          "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
+                           "Try adding a notification in a server instead of DM.\n"
+                           "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
     if stritem not in lst:
         if results[0][1] - results[1][1] < 20:
             if results[1][1] > 80:
                 suggestions = [x[0] for x in results if x[1] > 80]
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
                 await ctx.send("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
-                              + "".join(b))
+                               + "".join(b))
                 return
         if results[0][1] < 75:
             await ctx.send("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
-                          "spellings, or refer to the wikia page.")
+                           "spellings, or refer to the wikia page.")
             b = sorted([item + '\n' for item in itemlist.item_list])
             itemstrv2 = ''.join(b)
             await ctx.author.send(f'Possible items:\n{itemstrv2}')
@@ -408,7 +409,7 @@ async def addnotif(ctx, *, item):
     if not userdb.pref_exists(ctx.author.id, stritem):
         if ctx.guild is None:
             await ctx.send("Warning: if you leave all servers that you share with the bot, you will no longer be able"
-                          " to receive DMs and your notification list will be deleted!")
+                           " to receive DMs and your notification list will be deleted!")
             userdb.new_pref(ctx.author.id, ctx.author, stritem, "direct message")
         else:
             userdb.new_pref(ctx.author.id, ctx.author, stritem, ctx.guild.id)
