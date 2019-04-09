@@ -31,7 +31,6 @@ daily_messages = []
 def owner_check():
     def predicate(ctx):
         return ctx.message.author == bot.procUser
-
     return commands.check(predicate)
 
 
