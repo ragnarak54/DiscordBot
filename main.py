@@ -30,7 +30,8 @@ daily_messages = []
 
 def owner_check():
     def predicate(ctx):
-        return ctx.message.author == bot.procUser
+        return ctx.author == bot.procUser
+
     return commands.check(predicate)
 
 
@@ -59,15 +60,13 @@ async def on_guild_join(guild):
 # background task for automatic notifications each day
 async def daily_message():
     await bot.wait_until_ready()
-    while not bot.is_closed:
+    while not bot.is_closed():
         now = datetime.datetime.now()
         schedule_time = now.replace(hour=0, minute=1) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
         print(sleep_time)
         await asyncio.sleep(sleep_time)
-
-        now2 = datetime.datetime.today()
 
         output.generate_merch_image()  # generate the new image for today and tomorrow
         output.generate_merch_image(1)
@@ -84,9 +83,9 @@ async def daily_message():
             tag_string = "Tags: \n" + ''.join(b)
         try:
             ah_channel = bot.get_channel(config.ah_chat_id)
-            await bot.send_file(ah_channel, output.today_img, content=new_stock_string + tag_string)
+            await ah_channel.send_file(file=output.today_img, content=new_stock_string + tag_string)
         except Exception as e:
-            await bot.send_message(bot.procUser, f"Couldn't send message to AH: {e}")
+            await bot.procUser.send(f"Couldn't send message to AH: {e}")
 
         # notify users for each item in today's stock
         for item in items:
@@ -95,19 +94,15 @@ async def daily_message():
         # get all the channels for daily messages, then loop through them to send messages
         # also, store them in daily_messages in case of a bad update
         daily_messages.clear()
-        channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
+        # TODO update DB table
+        channels = [bot.get_channel(channel_tuple[0]) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
             try:
-                daily_messages.append(await bot.send_file(channel, output.today_img, content=new_stock_string))
+                daily_messages.append(await channel.send(file=output.today_img, content=new_stock_string))
             except discord.Forbidden:
-                await bot.send_message(bot.procUser, f'cant send message to {channel.name} of {channel.server.name}')
+                await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
 
         await asyncio.sleep(60)
-
-
-@bot.event
-async def on_at(message):
-    await bot.process_commands(message)
 
 
 @bot.command()
@@ -157,9 +152,10 @@ async def auto_user_notifs(item):
     all_users = list(bot.get_all_members())
     userlist = []
     for user_tuple in data:
-        user = discord.utils.get(all_users, id=user_tuple[0].strip())
+        # TODO db typing
+        user = discord.utils.get(all_users, id=int(user_tuple[0].strip()))
         if user is None:
-            print("{0} wasn't found! pref for {1} removed".format(user_tuple[0], item))
+            print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
             userdb.remove_pref(user_tuple[0].strip(), item)
         else:
             userlist.append(user)
@@ -176,7 +172,7 @@ async def auto_user_notifs(item):
         except AttributeError:
             print("left their server!")
         except discord.Forbidden:
-            print("forbidden: cannot send message to {0}".format(user))
+            print(f"forbidden: cannot send message to {user}")
 
 
 @bot.command(name='ah_merch')
@@ -213,33 +209,31 @@ async def user_notifs(ctx, *, item):
 @bot.command()
 async def force_notifs(ctx):
     """Notifies users for today's stock"""
-    if ctx.message.author.id == config.proc:
+    if ctx.author == bot.procUser:
         items = [item.name.lower() for item in merch.get_stock()]
         for item in items:
             await auto_user_notifs(item)
     else:
-        print("{0} tried to call notif_test!".format(ctx.message.author))
-        await bot.send_message(bot.procUser, "{0} tried to call notif_test!".format(ctx.message.author))
-        await bot.say("This command isn't for you!")
+        await bot.procUser.send(f"{ctx.author} tried to call notif_test!")
+        await ctx.send("This command isn't for you!")
 
 
 @bot.command(name='merch', aliases=['merchant', 'shop', 'stock'])
 async def merchant(ctx):
     """Displays the daily Traveling merchant stock."""
     now = datetime.datetime.now()
-    member = ctx.message.author
-    channel = ctx.message.channel
-    server = ctx.message.server
-    logger.info("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-    print("called at " + now.strftime("%H:%M") + ' by {0} in {1} of {2}'.format(member, channel, server))
-    date_message = "The stock for " + now.strftime("%m/%d/%Y") + ":"
-    await bot.send_file(ctx.message.channel, output.today_img, content=date_message)
-    if not userdb.user_exists(ctx.message.author.id):
-        print("user {0} doesn't have any preferences".format(ctx.message.author))
+    member = ctx.author
+    channel = ctx.channel
+    guild = ctx.guild
+    print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
+    date_message = f'The stock for {now.strftime("%m/%d/%Y")}:'
+    await ctx.send(file=output.today_img, content=date_message)
+    if not userdb.user_exists(ctx.author.id):
+        print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
         if chance < 0.1:
-            await bot.say("Don't forget to try out the ?addnotif <item> function so you don't "
-                          "have to check the stock every day!")
+            await ctx.send("Don't forget to try out the ?addnotif <item> function so you don't "
+                           "have to check the stock every day!")
 
 
 @bot.command(aliases=['tmrw', 'tommorow'])
@@ -297,16 +291,16 @@ async def next(ctx, *, item):
 
 @bot.command()
 async def update(ctx):
-    if ctx.message.author == bot.procUser or userdb.is_authorized(ctx.message.server, ctx.message.author):
+    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         output.generate_merch_image()
         output.generate_merch_image(1)
-        await bot.send_file(ctx.message.channel, output.today_img, content="Stock updated. If this stock is still "
-                                                                            "incorrect, send my owner @ragnarak54"
-                                                                           "#9413 a message.")
+        await ctx.send(file=output.today_img, content="Stock updated. If this stock is still "
+                                                      "incorrect, send my owner @ragnarak54"
+                                                      "#9413 a message.")
     else:
-        print("{0} tried to call update!".format(ctx.message.author))
-        await bot.send_message(bot.procUser, "{0} tried to call update!".format(ctx.message.author))
-        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+        print(f"{ctx.author} tried to call update!")
+        await bot.procUser.send(f"{ctx.author} tried to call update!")
+        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
 @bot.command(aliases=["fix_daily_messages"])
@@ -344,26 +338,26 @@ async def restart_background(ctx):
     try:
         await bot.daily_background
     except asyncio.CancelledError:
-        await bot.send_message(bot.procUser, "successfully canceled previous task before restarting")
+        await bot.procUser.send("successfully canceled previous task before restarting")
     else:
-        await bot.send_message(bot.procUser, "No background tasks to cancel")
+        await bot.procUser.send("No background tasks to cancel")
     bot.daily_background = bot.loop.create_task(daily_message())
-    await bot.send_message(bot.procUser, "Task restarted")
+    await bot.procUser.send("Task restarted")
 
 
 @bot.command()
 @owner_check()
 async def message_channels(ctx, *, string):
-    channels = [bot.get_channel(channel_tuple[0].strip()) for channel_tuple in userdb.get_all_channels()]
+    channels = [bot.get_channel(int(channel_tuple[0].strip())) for channel_tuple in userdb.get_all_channels()]
     mass_messages = []
     embed = discord.Embed()
     embed.description = string
     embed.colour = discord.Colour.dark_blue()
     for channel in channels:
         try:
-            mass_messages.append(await bot.send_message(channel, embed=embed))
+            mass_messages.append(await channel.send(embed=embed))
         except discord.Forbidden:
-            print("cant send message to channel {0}!".format(channel))
+            print(f"cant send message to channel {channel}!")
             pass
 
 
@@ -390,9 +384,9 @@ async def addnotif(ctx, *, item):
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
     results = get_matches(stritem, lst)
-    if ctx.message.server is None:
+    if ctx.guild is None:
         if discord.utils.get(bot.get_all_members(), id=ctx.message.author.id) is None:
-            await bot.say("Bots aren't allowed to send DMs to users who aren't in a shared server with the bot. "
+            await ctx.send("Bots aren't allowed to send DMs to users who aren't in a shared server with the bot. "
                           "Try adding a notification in a server instead of DM.\n"
                           "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
     if stritem not in lst:
@@ -400,28 +394,28 @@ async def addnotif(ctx, *, item):
             if results[1][1] > 80:
                 suggestions = [x[0] for x in results if x[1] > 80]
                 b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
-                await bot.say("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
+                await ctx.send("Make sure you're spelling your item correctly! Maybe you meant to type one of these:\n"
                               + "".join(b))
                 return
         if results[0][1] < 75:
-            await bot.say("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
+            await ctx.send("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
                           "spellings, or refer to the wikia page.")
             b = sorted([item + '\n' for item in itemlist.item_list])
             itemstrv2 = ''.join(b)
-            await bot.send_message(ctx.message.author, 'Possible items:\n' + itemstrv2)
+            await ctx.author.send(f'Possible items:\n{itemstrv2}')
             return
     stritem = results[0][0]
-    if not userdb.pref_exists(ctx.message.author.id, stritem):
-        if ctx.message.server is None:
-            await bot.say("Warning: if you leave all servers that you share with the bot, you will no longer be able"
+    if not userdb.pref_exists(ctx.author.id, stritem):
+        if ctx.guild is None:
+            await ctx.send("Warning: if you leave all servers that you share with the bot, you will no longer be able"
                           " to receive DMs and your notification list will be deleted!")
-            userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, "direct message")
+            userdb.new_pref(ctx.author.id, ctx.author, stritem, "direct message")
         else:
-            userdb.new_pref(ctx.message.author.id, ctx.message.author, stritem, ctx.message.server.id)
-        await bot.say("Notification for {0} added!".format(stritem))
-        print("{0} added notification for {1} in {2}".format(ctx.message.author, item, ctx.message.server))
+            userdb.new_pref(ctx.author.id, ctx.author, stritem, ctx.guild.id)
+        await ctx.send(f"Notification for {stritem} added!")
+        print(f"{ctx.author} added notification for {item} in {ctx.guild}")
     else:
-        await bot.say("Already exists for this user")
+        await ctx.send("Already exists for this user")
 
 
 @bot.command()
@@ -493,14 +487,14 @@ async def users(ctx, *, item):
 
 @bot.command()
 async def authorize(ctx, user: discord.Member):
-    if ctx.message.author.id == config.proc or userdb.is_authorized(ctx.message.server, ctx.message.author):
+    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         userdb.authorize_user(ctx.message.server, user)
-        await bot.say("{0} authorized".format(user))
-        print("{0} authorized".format(user))
+        await ctx.send(f"{user} authorized")
+        print(f"{user} authorized")
     else:
-        print("{0} tried to call authorize!".format(ctx.message.author))
-        await bot.send_message(bot.procUser, "{0} tried to call authorize!".format(ctx.message.author))
-        await bot.say("You aren't authorized to do that. If there's been a mistake send me a PM!")
+        print(f"{ctx.author} tried to call authorize!")
+        await bot.procUser.send(f"{ctx.author} tried to call authorize!")
+        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
 @bot.command()
@@ -534,29 +528,29 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
 
 @bot.command(aliases=['channel', 'current_channel'])
 async def daily_channel(ctx):
-    if userdb.is_authorized(ctx.message.server, ctx.message.author) or ctx.message.author.id == config.proc:
-        channel = userdb.get_current_channel(ctx.message.server)
+    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
+        channel = userdb.get_current_channel(ctx.guild)
         if channel is not None:
-            await bot.say("Currently set to <#" + str(
-                (channel[0])[0].strip()) + ">.\nUse the `?set_daily_channel` command to change this.")
+            await ctx.send(f"Currently set to <#{(channel[0])[0].strip()}>.\nUse the `?set_daily_channel` command to "
+                           f"change this.")
         else:
-            await bot.say("No channel currently set. Use the `?set_daily_channel` command to change this.")
+            await ctx.send("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
 
 @bot.command()
 async def suggestion(ctx, *, string):
     """Sends a message to me with your suggestion!"""
-    await bot.send_message(bot.procUser, "{0} says: ".format(ctx.message.author) + string)
-    bot.say("Thanks for the suggestion!")
+    await bot.procUser.send(f"{ctx.author} says: {string}")
+    await ctx.send("Thanks for the suggestion!")
 
 
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch(ctx):
     """:("""
-    if ctx.message.author == bot.procUser:
-        await bot.say("-500m")
+    if ctx.author == bot.procUser:
+        await ctx.send("-500m")
     else:
-        await bot.say("!kms")
+        await ctx.send("!kms")
 
 
 @bot.command(description='For when you wanna settle the score some other way')
@@ -565,15 +559,15 @@ async def choose(ctx, *choices: str):
 
     for choice in choices:
         if "proc" in choice:
-            await bot.say(choice)
+            await ctx.send(choice)
             return
         if "nex" in choice:
-            await bot.say(choice)
+            await ctx.send(choice)
             return
         if "kk" in choices:
-            await bot.say(choice)
+            await ctx.send(choice)
             return
-    await bot.say(random.choice(choices))
+    await ctx.send(random.choice(choices))
 
 
 @bot.command()
@@ -594,13 +588,13 @@ async def cool(ctx):
 @cool.command(name='bot')
 async def _bot(ctx):
     """Is the bot cool?"""
-    await bot.say('Yes, the bot is cool.')
+    await ctx.send('Yes, the bot is cool.')
 
 
 @cool.command(name='proc')
 async def _proc(ctx):
     """Is proc cool?"""
-    await bot.say('Yes, proc is cool.')
+    await ctx.send('Yes, proc is cool.')
 
 
 bot.daily_background = bot.loop.create_task(daily_message())
