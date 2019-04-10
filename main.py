@@ -139,7 +139,7 @@ async def help(ctx, command=None):
 @bot.command()
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author.id == config.proc:
+    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
         if userdb.remove_channel(ctx.guild):
             await ctx.send("Daily messages toggled off")
         else:
@@ -183,7 +183,7 @@ async def auto_user_notifs(item):
 async def ah_test(ctx):
     """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.author.top_role >= discord.utils.get(ctx.guild.roles, id=config.ah_mod_role) \
-            or ctx.author.id == config.proc:
+            or ctx.author == bot.procUser:
         items = [item.name for item in merch.get_stock()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
@@ -195,7 +195,7 @@ async def ah_test(ctx):
 @bot.command()
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
-    if ctx.author.id == config.proc or userdb.is_authorized(ctx.guild, ctx.author):
+    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         data = userdb.users(item)
         users = [user_tuple[0].strip() for user_tuple in data]
         for user in users:
@@ -384,7 +384,7 @@ async def message_users(ctx, *, string):
 
 @bot.command()
 async def users(ctx, *, item):
-    if ctx.author.id == config.proc:
+    if ctx.author == bot.procUser:
         userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
         await ctx.send(userlist)
 
@@ -418,7 +418,7 @@ async def unauthorize(ctx, user: discord.Member):
 @bot.command()
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author.id == config.proc:
+    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
         new = userdb.update_channel(ctx.guild, new_channel.id)
         if new:
             await ctx.send("Channel set")
