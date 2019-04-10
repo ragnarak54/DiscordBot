@@ -392,7 +392,7 @@ async def users(ctx, *, item):
 @bot.command()
 async def authorize(ctx, user: discord.Member):
     if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
-        userdb.authorize_user(ctx.message.server, user)
+        userdb.authorize_user(ctx.guild, user)
         await ctx.send(f"{user} authorized")
         print(f"{user} authorized")
     else:
