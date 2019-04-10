@@ -99,7 +99,7 @@ async def daily_message():
         # also, store them in daily_messages in case of a bad update
         daily_messages.clear()
         # TODO update DB table
-        channels = [bot.get_channel(channel_tuple[0]) for channel_tuple in userdb.get_all_channels()]
+        channels = [bot.get_channel(int(channel_tuple[0])) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
             try:
                 daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
@@ -157,7 +157,6 @@ async def auto_user_notifs(item):
     all_users = list(bot.get_all_members())
     userlist = []
     for user_tuple in data:
-        # TODO db typing
         user = discord.utils.get(all_users, id=int(user_tuple[0].strip()))
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
@@ -168,9 +167,9 @@ async def auto_user_notifs(item):
     for user in userlist:
         try:
             if item == "uncharted island map":
-                await bot.send_file(user, output.today_img, content="the new stock is out!")
+                await user.send(content="the new stock is out!", file=discord.File(output.today_img))
             else:
-                await bot.send_message(user, "{0} is in stock!".format(item))
+                await user.send(f"{item} is in stock!")
             print(user)
         except discord.InvalidArgument:
             print("left their server!")
