@@ -154,10 +154,9 @@ async def toggle_daily(ctx):
 # PMs users who have the item preference
 async def auto_user_notifs(item):
     data = userdb.users(item)
-    all_users = list(bot.get_all_members())
     userlist = []
     for user_tuple in data:
-        user = discord.utils.get(all_users, id=int(user_tuple[0].strip()))
+        user = bot.get_user(int(user_tuple[0].strip()))
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
             userdb.remove_pref(user_tuple[0].strip(), item)
@@ -197,12 +196,10 @@ async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
     if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         data = userdb.users(item)
-        users = [user_tuple[0].strip() for user_tuple in data]
+        users = [bot.get_user(int(user_tuple[0].strip())) for user_tuple in data]
         for user in users:
             print(user)
-            # TODO: update DB table
-            member = bot.get_guild(userdb.user_server(user)).get_member(user_id=user)
-            await member.send(f"{item} is in stock!")
+            await user.send(f"{item} is in stock!")
             print(user)
     else:
         print(f"{ctx.author} tried to call user_notifs!")
