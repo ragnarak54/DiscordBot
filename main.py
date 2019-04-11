@@ -241,7 +241,7 @@ async def merchant(ctx):
 async def tomorrow(ctx):
     tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
     date_message = "The stock for tomorrow, " + tmrw.strftime("%m/%d/%Y") + ":"
-    await ctx.send(output.tomorrow_img, content=date_message)
+    await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
 
 
 @bot.command()
@@ -250,7 +250,7 @@ async def future(ctx, days: int):
     day = datetime.datetime.now() + datetime.timedelta(days=days)
     date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
     if days == 1:
-        await ctx.send(output.tomorrow_img, content=date_message)
+        await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
         return
     output.generate_merch_image(days)
     await ctx.send(output.custom_img, content=date_message)
