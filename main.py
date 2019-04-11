@@ -139,7 +139,7 @@ async def help(ctx, command=None):
 @bot.command()
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author.id == config.proc:
+    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
         if userdb.remove_channel(ctx.guild):
             await ctx.send("Daily messages toggled off")
         else:
@@ -154,10 +154,9 @@ async def toggle_daily(ctx):
 # PMs users who have the item preference
 async def auto_user_notifs(item):
     data = userdb.users(item)
-    all_users = list(bot.get_all_members())
     userlist = []
     for user_tuple in data:
-        user = discord.utils.get(all_users, id=int(user_tuple[0].strip()))
+        user = bot.get_user(int(user_tuple[0].strip()))
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
             userdb.remove_pref(user_tuple[0].strip(), item)
@@ -183,26 +182,24 @@ async def auto_user_notifs(item):
 async def ah_test(ctx):
     """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.author.top_role >= discord.utils.get(ctx.guild.roles, id=config.ah_mod_role) \
-            or ctx.author.id == config.proc:
-        items = [item.name for item in merch.get_stock()]
+            or ctx.author == bot.procUser:
+        items = [item.name.lower() for item in merch.get_stock()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
         tag_string = "Tags: " + ''.join(b)
-        await ctx.send(discord.Object(id=config.ah_chat_id), tag_string)
+        await bot.get_channel(config.ah_chat_id).send(content=tag_string, file=discord.File(output.today_img))
 
 
 @bot.command()
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
-    if ctx.author.id == config.proc or userdb.is_authorized(ctx.guild, ctx.author):
+    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
         data = userdb.users(item)
-        users = [user_tuple[0].strip() for user_tuple in data]
+        users = [bot.get_user(int(user_tuple[0].strip())) for user_tuple in data]
         for user in users:
             print(user)
-            # TODO: update DB table
-            member = bot.get_guild(userdb.user_server(user)).get_member(user_id=user)
-            await member.send(f"{item} is in stock!")
+            await user.send(f"{item} is in stock!")
             print(user)
     else:
         print(f"{ctx.author} tried to call user_notifs!")
@@ -244,7 +241,7 @@ async def merchant(ctx):
 async def tomorrow(ctx):
     tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
     date_message = "The stock for tomorrow, " + tmrw.strftime("%m/%d/%Y") + ":"
-    await ctx.send(output.tomorrow_img, content=date_message)
+    await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
 
 
 @bot.command()
@@ -253,7 +250,7 @@ async def future(ctx, days: int):
     day = datetime.datetime.now() + datetime.timedelta(days=days)
     date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
     if days == 1:
-        await ctx.send(output.tomorrow_img, content=date_message)
+        await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
         return
     output.generate_merch_image(days)
     await ctx.send(output.custom_img, content=date_message)
@@ -384,7 +381,7 @@ async def message_users(ctx, *, string):
 
 @bot.command()
 async def users(ctx, *, item):
-    if ctx.author.id == config.proc:
+    if ctx.author == bot.procUser:
         userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
         await ctx.send(userlist)
 
@@ -392,7 +389,7 @@ async def users(ctx, *, item):
 @bot.command()
 async def authorize(ctx, user: discord.Member):
     if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
-        userdb.authorize_user(ctx.message.server, user)
+        userdb.authorize_user(ctx.guild, user)
         await ctx.send(f"{user} authorized")
         print(f"{user} authorized")
     else:
@@ -418,7 +415,7 @@ async def unauthorize(ctx, user: discord.Member):
 @bot.command()
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author.id == config.proc:
+    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
         new = userdb.update_channel(ctx.guild, new_channel.id)
         if new:
             await ctx.send("Channel set")
