@@ -183,12 +183,12 @@ async def ah_test(ctx):
     """Tags the relevant roles in AH discord for the daily stock"""
     if ctx.author.top_role >= discord.utils.get(ctx.guild.roles, id=config.ah_mod_role) \
             or ctx.author == bot.procUser:
-        items = [item.name for item in merch.get_stock()]
+        items = [item.name.lower() for item in merch.get_stock()]
         data = userdb.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
         tag_string = "Tags: " + ''.join(b)
-        await ctx.send(discord.Object(id=config.ah_chat_id), tag_string)
+        await bot.get_channel(config.ah_chat_id).send(content=tag_string, file=discord.File(output.today_img))
 
 
 @bot.command()
