@@ -33,9 +33,9 @@ class Monitor(commands.Cog):
     async def on_message(self, message):
         if message.channel.id in self.id_table:
             try:
-                self.bot.get_channel(self.id_table[message.channel.id]).send(message)
+                await self.bot.get_channel(self.id_table[message.channel.id]).send(message)
             except Exception as e:
-                self.bot.get_channel(self.id_table[message.channel.id]).send(f"Couldn't send a message: {e}")
+                await self.bot.get_channel(self.id_table[message.channel.id]).send(f"Couldn't send a message: {e}")
 
     async def create_channel(self, new=False, ctx=None, ):
         if new:
