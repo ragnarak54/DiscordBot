@@ -204,3 +204,22 @@ def get_all_users():
     cursor.close()
     conn.close()
     return data
+
+def get_id_table():
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("select origin_id, monitor_id from monitor_mappings")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
+
+def insert_new_mapping(origin, name, mapping):
+    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
+                                                                               config.mysql['passwd'],
+                                                                               config.mysql['host']))
+    cursor = conn.cursor()
+    cursor.execute("insert into monitor_mappings values (%s, %s)", (str(origin), name, str(mapping)))
+
