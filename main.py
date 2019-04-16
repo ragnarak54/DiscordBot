@@ -258,7 +258,7 @@ async def future(ctx, days: int):
         await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
         return
     output.generate_merch_image(days)
-    await ctx.send(output.custom_img, content=date_message)
+    await ctx.send(file=discord.File(output.custom_img), content=date_message)
 
 
 @bot.command(name="next")
