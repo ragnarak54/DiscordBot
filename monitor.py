@@ -13,7 +13,11 @@ class Monitor(commands.Cog):
         for channel in channels:
             if channel not in mapped_channels:
                 self.bot.loop.create_task(self.create_channel(ctx=self.bot.get_channel(channel)))
-        self.id_table = userdb.get_id_table()
+        table = userdb.get_id_table()
+        self.id_table = {}
+        for mapping in table:
+            print(f'mapping {mapping[0]} to {mapping[1]}')
+            self.id_table[mapping[0]] = mapping[1]
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx):
