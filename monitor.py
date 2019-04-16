@@ -5,14 +5,14 @@ import userdb
 
 class Monitor(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot, server):
         self.bot = bot
-        self.server = await self.bot.fetch_guild(566048042323804160)
+        self.server = server
         mapped_channels = [x[0] for x in userdb.get_id_table()]
         channels = [int(channel_tuple[0]) for channel_tuple in userdb.get_all_channels()]
         for channel in channels:
             if channel not in mapped_channels:
-                await self.create_channel(ctx=self.bot.get_channel(channel))
+                self.bot.loop.create_task(self.create_channel(ctx=self.bot.get_channel(channel)))
         self.id_table = userdb.get_id_table()
 
     @commands.Cog.listener()
