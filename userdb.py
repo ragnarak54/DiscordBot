@@ -222,4 +222,6 @@ def insert_new_mapping(origin, name, mapping):
                                                                                config.mysql['host']))
     cursor = conn.cursor()
     cursor.execute("insert into monitor_mappings values (%s, %s, %s)", (str(origin), str(name), str(mapping)))
+    cursor.close()
+    conn.close()
 
