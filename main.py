@@ -15,6 +15,7 @@ import output
 import userdb
 from notifs import get_matches
 import notifs
+import monitor
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.CRITICAL)
@@ -29,6 +30,7 @@ bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
 bot.add_cog(notifs.Notifications(bot))
+bot.add_cog(monitor.Monitor(bot))
 daily_messages = []
 
 
@@ -87,7 +89,7 @@ async def daily_message():
             tag_string = "Tags: \n" + ''.join(b)
         try:
             ah_channel = bot.get_channel(config.ah_chat_id)
-            await ah_channel.send_file(file=discord.File(output.today_img), content=new_stock_string + tag_string)
+            await ah_channel.send(file=discord.File(output.today_img), content=new_stock_string + tag_string)
         except Exception as e:
             await bot.procUser.send(f"Couldn't send message to AH: {e}")
 
