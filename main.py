@@ -29,9 +29,9 @@ Lets get started!\n\n'''
 bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
-server = await bot.fetch_guild(566048042323804160)
+
 bot.add_cog(notifs.Notifications(bot))
-bot.add_cog(monitor.Monitor(bot, server))
+
 daily_messages = []
 
 
@@ -48,6 +48,8 @@ async def on_ready():
     bot.procUser = appinfo.owner
     output.generate_merch_image()
     output.generate_merch_image(1)
+    server = await bot.fetch_guild(566048042323804160)
+    bot.add_cog(monitor.Monitor(bot, server))
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
