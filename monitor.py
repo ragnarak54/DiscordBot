@@ -16,12 +16,11 @@ class Monitor(commands.Cog):
         table = userdb.get_id_table()
         self.id_table = {}
         for mapping in table:
-            print(f'mapping {mapping[0]} to {mapping[1]}')
             self.id_table[mapping[0]] = mapping[1]
+        print('mappings updated')
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx):
-        print(ctx.guild.channels)
         if ctx.command.name == "set_daily_channel":
 
             server = self.server
