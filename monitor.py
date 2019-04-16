@@ -31,9 +31,17 @@ class Monitor(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if message.author.bot and message.author != self.bot.user:
+            return
         if message.channel.id in self.id_table:
             try:
-                await self.bot.get_channel(self.id_table[message.channel.id]).send(message)
+                channel = self.bot.get_channel(self.id_table[message.channel.id])
+                if message.author == self.bot.user:
+                    await channel.send("I replied!")
+                elif message.content == '':
+                    await channel.send(f'{message.author.nick}: non-text message')
+                else:
+                    await channel.send(f'{message.author.nick}: {message.content}')
             except Exception as e:
                 await self.bot.get_channel(self.id_table[message.channel.id]).send(f"Couldn't send a message: {e}")
 
