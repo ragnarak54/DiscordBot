@@ -450,6 +450,14 @@ async def suggestion(ctx, *, string):
     await ctx.send("Thanks for the suggestion!")
 
 
+@bot.command()
+async def split(ctx, price: float, percent_tip=1):
+    tip = price * (percent_tip / 100)
+    to_split = (price - 2 * tip) / 7
+    base_hammer = to_split + tip
+    await ctx.send(f"Base/hammer: {round(base_hammer, 2)}m\nOthers: {round(to_split, 2)}")
+
+
 @bot.command(name='3amerch', category='memes')
 async def third_age_merch(ctx):
     """:("""
