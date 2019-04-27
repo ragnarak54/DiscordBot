@@ -450,12 +450,22 @@ async def suggestion(ctx, *, string):
     await ctx.send("Thanks for the suggestion!")
 
 
-@bot.command()
-async def split(ctx, price: float, percent_tip=1):
-    tip = price * (percent_tip / 100)
-    to_split = (price - 2 * tip) / 7
-    base_hammer = to_split + tip
-    await ctx.send(f"Base/hammer: {round(base_hammer, 2)}m\nOthers: {round(to_split, 2)}")
+@bot.command(aliases=['splits'])
+async def split(ctx, price, percent_tip: int = 1):
+    try:
+        price = price.replace('m', '').replace(',', '')
+        price = float(price)
+        if len(str(int(price))) == 9:
+            price /= 1000000
+        elif len(str(int(price))) != 3:
+            raise ValueError
+        tip = price * (percent_tip / 100)
+        to_split = (price - 2 * tip) / 7
+        base_hammer = to_split + tip
+        await ctx.send(f"*{percent_tip}% tip splits:*\n"
+                       f"Base/hammer: {round(base_hammer, 2)}m\nOthers: {round(to_split, 2)}m")
+    except ValueError:
+        await ctx.send("Something's wrong with your input! Expected format is `?split 545.2`")
 
 
 @bot.command(name='3amerch', category='memes')
