@@ -1,4 +1,5 @@
 import asyncio
+import asyncpg
 import datetime
 import logging
 import random
@@ -16,6 +17,7 @@ import userdb
 from notifs import get_matches
 import notifs
 import monitor
+import domie_backup
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.CRITICAL)
@@ -29,8 +31,10 @@ Lets get started!\n\n'''
 bot = commands.Bot(command_prefix=['?', '!'], description=description)
 bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
-
+bot.pool = bot.loop.run_until_complete(asyncpg.create_pool(config.psql))
+bot.db = userdb.DB(bot)
 bot.add_cog(notifs.Notifications(bot))
+
 
 daily_messages = []
 
@@ -49,6 +53,7 @@ async def on_ready():
     output.generate_merch_image()
     output.generate_merch_image(1)
     server = await bot.fetch_guild(566048042323804160)
+    bot.add_cog(domie_backup.DomieV2(bot))
     bot.add_cog(monitor.Monitor(bot, server))
     print('Logged in as')
     print(bot.user.name)
@@ -82,7 +87,7 @@ async def daily_message():
         items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
-        data = userdb.ah_roles(items)
+        data = await bot.db.ah_roles(items)
         roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
 
         # format the string to be sent
@@ -104,7 +109,7 @@ async def daily_message():
         # also, store them in daily_messages in case of a bad update
         daily_messages.clear()
         # TODO update DB table
-        channels = [bot.get_channel(int(channel_tuple[0])) for channel_tuple in userdb.get_all_channels()]
+        channels = await bot.db.get_all_channels()
         for channel in channels:
             try:
                 daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
@@ -144,12 +149,12 @@ async def help(ctx, command=None):
 @bot.command()
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
-        if userdb.remove_channel(ctx.guild):
+    if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
+        if not await bot.db.toggle(ctx):
             await ctx.send("Daily messages toggled off")
         else:
             await ctx.send(
-                "Use the `?set_daily_channel` command to set which channel the daily message will be sent to")
+                f"Daily messages toggled on. Current channel is <#{await bot.db.current_channel(ctx.guild)}>")
     else:
         print(f"{ctx.author} tried to call toggle_daily!")
         await bot.procUser.send(f"{ctx.author} tried to call toggle_daily!")
@@ -157,14 +162,15 @@ async def toggle_daily(ctx):
 
 
 # PMs users who have the item preference
+# TODO holy god fix it
 async def auto_user_notifs(item):
-    data = userdb.users(item)
+    data = await bot.db.users(item)
     userlist = []
     for user_tuple in data:
         user = bot.get_user(int(user_tuple[0].strip()))
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
-            userdb.remove_pref(user_tuple[0].strip(), item)
+            await bot.db.remove_pref(user_tuple[0].strip(), item)
         else:
             userlist.append(user)
     print("users for {0}: ".format(item))
@@ -189,7 +195,7 @@ async def ah_test(ctx):
     if ctx.author.top_role >= discord.utils.get(ctx.guild.roles, id=config.ah_mod_role) \
             or ctx.author == bot.procUser:
         items = [item.name.lower() for item in merch.get_stock()]
-        data = userdb.ah_roles(items)
+        data = await bot.db.ah_roles(items)
         roles = [role_tuple[0].strip() for role_tuple in data]
         b = [role + '\n' for role in roles]
         tag_string = "Tags: " + ''.join(b)
@@ -199,8 +205,8 @@ async def ah_test(ctx):
 @bot.command()
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
-    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
-        data = userdb.users(item)
+    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
+        data = await bot.db.users(item)
         users = [bot.get_user(int(user_tuple[0].strip())) for user_tuple in data]
         for user in users:
             print(user)
@@ -234,7 +240,7 @@ async def merchant(ctx):
     print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
     date_message = f'The stock for {now.strftime("%m/%d/%Y")}:'
     await ctx.send(content=date_message, file=discord.File(output.today_img))
-    if not userdb.user_exists(ctx.author.id):
+    if not await bot.db.user_exists(ctx.author.id):
         print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
         if chance < 0.1:
@@ -297,7 +303,7 @@ async def _next(ctx, *, item):
 
 @bot.command()
 async def update(ctx):
-    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
+    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
         output.generate_merch_image()
         output.generate_merch_image(1)
         await ctx.send(file=discord.File(output.today_img), content="Stock updated. If this stock is still "
@@ -309,19 +315,20 @@ async def update(ctx):
         await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
+# TODO make userdb do id->object
 @bot.command(aliases=["fix_daily_messages"])
 async def fix_daily_message(ctx, delete=None):
-    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
+    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
         output.generate_merch_image()
         new_stock_string = f'The new stock for {datetime.datetime.now().strftime("%m/%d/%Y")} is out!\n'
-        channels = [bot.get_channel(int(channel_tuple[0].strip())) for channel_tuple in userdb.get_all_channels()]
+        channels = await bot.db.get_all_channels()
         if delete == "delete" and daily_messages is not None:
             for message in daily_messages:
                 await message.delete()
         for channel in channels:
             await channel.send(output.today_img, content=new_stock_string)
         items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
-        data = userdb.ah_roles(items)
+        data = await bot.db.ah_roles(items)
         roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
         # format the string to be sent
         tag_string = ""
@@ -354,7 +361,7 @@ async def restart_background(ctx):
 @bot.command()
 @owner_check()
 async def message_channels(ctx, *, string):
-    channels = [bot.get_channel(int(channel_tuple[0].strip())) for channel_tuple in userdb.get_all_channels()]
+    channels = await bot.db.get_all_channels()
     mass_messages = []
     embed = discord.Embed()
     embed.description = string
@@ -370,13 +377,7 @@ async def message_channels(ctx, *, string):
 @bot.command()
 @owner_check()
 async def message_users(ctx, *, string):
-    all_ids = [user_tuple[0] for user_tuple in userdb.get_all_users()]
-    all_users = []
-    members = list(bot.get_all_members())
-    for id_ in all_ids:
-        user = discord.utils.get(members, id=id_)
-        if user is not None:
-            all_users.append(user)
+    all_users = [x for x in await bot.db.get_all_users() if x]
     for user in all_users:
         try:
             await user.send(string)
@@ -387,16 +388,19 @@ async def message_users(ctx, *, string):
 @bot.command()
 async def users(ctx, *, item):
     if ctx.author == bot.procUser:
-        userlist = [user_tuple[0].strip() for user_tuple in userdb.users(item)]
+        userlist = [bot.get_user(x) for x in await bot.db.users(item)]
         await ctx.send(userlist)
 
 
 @bot.command()
 async def authorize(ctx, user: discord.Member):
-    if ctx.author == bot.procUser or userdb.is_authorized(ctx.guild, ctx.author):
-        userdb.authorize_user(ctx.guild, user)
-        await ctx.send(f"{user} authorized")
-        print(f"{user} authorized")
+    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
+        if not await bot.db.is_authorized(user):
+            await bot.db.authorize_user(user)
+            await ctx.send(f"{user} authorized")
+            print(f"{user} authorized")
+        else:
+            await ctx.send(f"{user} is already authorized")
     else:
         print(f"{ctx.author} tried to call authorize!")
         await bot.procUser.send(f"{ctx.author} tried to call authorize!")
@@ -406,11 +410,11 @@ async def authorize(ctx, user: discord.Member):
 @bot.command()
 async def unauthorize(ctx, user: discord.Member):
     if ctx.author == bot.procUser:
-        if userdb.is_authorized(ctx.guild, user):
-            userdb.unauthorize_user(ctx.guild, user)
+        if await bot.db.is_authorized(user):
+            await bot.db.unauthorize_user(user)
             await ctx.send(f"{user} unauthorized.")
         else:
-            await ctx.send("{user} isn't authorized")
+            await ctx.send(f"{user} isn't authorized")
     else:
         print(f"{ctx.author} tried to call unauthorize!")
         await bot.procUser.send(f"{ctx.author} tried to call unauthorize!")
@@ -420,8 +424,8 @@ async def unauthorize(ctx, user: discord.Member):
 @bot.command()
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
-        new = userdb.update_channel(ctx.guild, new_channel.id)
+    if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
+        new = await bot.bot.db.set_channel(new_channel)
         if new:
             await ctx.send("Channel set")
         else:
@@ -434,14 +438,22 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
 
 @bot.command(aliases=['channel', 'current_channel'])
 async def daily_channel(ctx):
-    if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == bot.procUser:
-        channel = userdb.get_current_channel(ctx.guild)
-        if channel is not None:
-            await ctx.send(f"Currently set to <#{(channel[0])[0].strip()}>.\nUse the `?set_daily_channel` command to "
-                           f"change this.")
-        else:
-            await ctx.send("No channel currently set. Use the `?set_daily_channel` command to change this.")
+    channel = await bot.bot.db.current_channel(ctx.guild)
+    if channel is not None:
+        await ctx.send(f"Currently set to <#{(channel[0])[0].strip()}>.\nUse the `?set_daily_channel` command to "
+                       f"change this.")
+    else:
+        await ctx.send("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
+
+@bot.command()
+async def daily_tag(ctx, role: discord.Role):
+    try:
+        await bot.db.add_role_tag(ctx.guild, role)
+    except Exception as e:
+        await ctx.send(f"Couldn't set daily tag role: {e}")
+        return
+    await ctx.send(f"Successfully updated daily role tag to `{role.name}` for {ctx.guild.name}")
 
 @bot.command()
 async def suggestion(ctx, *, string):

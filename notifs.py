@@ -41,14 +41,14 @@ class Notifications(commands.Cog):
                 return
 
         stritem = results[0][0]
-        if not userdb.pref_exists(ctx.author.id, stritem):
+        if not await self.bot.db.pref_exists(ctx.author.id, stritem):
             if ctx.guild is None:
                 await ctx.send(
                     "Warning: if you leave all servers that you share with the bot, you will no longer be able"
                     " to receive DMs and your notification list will be deleted!")
-                userdb.new_pref(ctx.author.id, ctx.author, stritem, "direct message")
+                await self.bot.db.new_pref(ctx.author, stritem, "direct message")
             else:
-                userdb.new_pref(ctx.author.id, ctx.author, stritem, ctx.guild.id)
+                await self.bot.db.new_pref(ctx.author, stritem, ctx.guild.id)
             await ctx.send(f"Notification for {stritem} added!")
             print(f"{ctx.author} added notification for {item} in {ctx.guild}")
         else:
@@ -58,7 +58,7 @@ class Notifications(commands.Cog):
     async def removenotif(self, ctx, *, item):
         """Removes an item from a user's notify list."""
         stritem = str(item).lower()
-        data = userdb.user_prefs(ctx.author.id)
+        data = await self.bot.db.user_prefs(ctx.author.id)
         notifs = [data_tuple[0].strip() for data_tuple in data]
         results = get_matches(stritem, notifs)
         if stritem not in notifs:
@@ -70,21 +70,21 @@ class Notifications(commands.Cog):
                     return
         if results[0][1] > 75:
             stritem = results[0][0]
-        if userdb.pref_exists(ctx.author.id, stritem):
-            userdb.remove_pref(ctx.author.id, stritem)
+        if await self.bot.db.pref_exists(ctx.author.id, stritem):
+            await self.bot.db.remove_pref(ctx.author.id, stritem)
             await ctx.send(f"Notification for {stritem} removed!")
         else:
             await ctx.send("user does not have this preference")
 
     @commands.command()
     async def adnotif(self, ctx, *, item):
-        if userdb.is_authorized(ctx.guild, ctx.author) or ctx.author == self.bot.procUser:
+        if await self.bot.db.is_authorized(ctx.author) or ctx.author == self.bot.procUser:
             stritem = str(item)
-            if not userdb.pref_exists(ctx.author.id, stritem):
+            if not await self.bot.db.pref_exists(ctx.author.id, stritem):
                 if ctx.guild is None:
-                    userdb.new_pref(ctx.author.id, ctx.author, stritem, "direct message")
+                    await self.bot.db.new_pref(ctx.author, stritem, "direct message")
                 else:
-                    userdb.new_pref(ctx.author.id, ctx.guild, stritem, ctx.guild.id)
+                    await self.bot.db.new_pref(ctx.author, stritem, ctx.guild.id)
                 await ctx.send(f"Notification for {stritem} added!")
             else:
                 await ctx.send("Already exists for this user")
@@ -92,7 +92,7 @@ class Notifications(commands.Cog):
     @commands.command(aliases=['notifs', 'mynotifs'])
     async def shownotifs(self, ctx):
         """Shows a user's notify list"""
-        data = userdb.user_prefs(ctx.author.id)
+        data = await self.bot.db.user_prefs(ctx.author.id)
         if not data:
             await ctx.send("No notifications added for this user")
             return
