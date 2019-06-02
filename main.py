@@ -326,7 +326,7 @@ async def fix_daily_message(ctx, delete=None):
             for message in daily_messages:
                 await message.delete()
         for channel in channels:
-            await channel.send(output.today_img, content=new_stock_string)
+            await channel.send(file=discord.File(output.today_img), content=new_stock_string)
         items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         data = await bot.db.ah_roles(items)
         roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
@@ -336,7 +336,7 @@ async def fix_daily_message(ctx, delete=None):
             b = [role + '\n' for role in roles]
             tag_string = "Tags: \n" + ''.join(b)
         ah_channel = bot.get_channel(config.ah_chat_id)
-        await ah_channel.send(output.today_img, content=new_stock_string + tag_string)
+        await ah_channel.send(file=discord.File(output.today_img), content=new_stock_string + tag_string)
 
     else:
         print(f"{ctx.author} tried to call fix daily messages!")
