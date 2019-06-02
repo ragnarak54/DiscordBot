@@ -31,7 +31,8 @@ class DB(commands.Cog):
         return results[0].strip()
 
     async def user_exists(self, userID) -> bool:
-        return await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1)", str(userID))[0]
+        result = await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1)", str(userID))
+        return result[0]
 
     async def ah_roles(self, items):
         items = [item.lower() for item in items]
