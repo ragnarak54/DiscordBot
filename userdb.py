@@ -1,228 +1,109 @@
-import psycopg2
 import config
-
-# test function called at the start f the program to see if the DB connection is successful
-def create_table():
-    try:
-        conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-        cursor = conn.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS user_prefs(discordID char(50), username char(50), item char(50))')
-        cursor.close()
-        conn.close()
-        print("DB connection successful")
-    except Exception as e:
-        print(e)
-
-def new_pref(userID, username, item, server):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO user_prefs (discordID, username, item, server) VALUES (%s, %s, %s, %s)", (str(userID), str(username), str(item), str(server)))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-def remove_pref(userID, item):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM user_prefs WHERE item = %s AND discordID = %s", (str(item), str(userID)))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-# returns if an item is in a user's notify list
-def pref_exists(userID, item):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(item) from user_prefs where discordID = %s and item = %s", (str(userID), str(item)))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return (data[0])[0] > 0
+import discord
+from discord.ext import commands
 
 
-# returns the list of preferences for a user
-def user_prefs(userID):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'], config.mysql['passwd'], config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT item FROM user_prefs WHERE discordID = %s", (str(userID),))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+# noinspection SqlResolve
+class DB(commands.Cog):
+    def __init__(self, bot):
+        self.conn = bot.pool
+        self.bot = bot
 
-# returns the list of users for an item
-def users(item):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT discordID from user_prefs WHERE item = %s", (str(item),))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    async def new_pref(self, author, item):
+        await self.conn.execute("insert into user_prefs values ($1, $2, $3, $4)", str(author.id), str(author), item,
+                                "direct message" if not isinstance(author, discord.Member) else str(author.guild.id))
 
-# gets the server that a user is in
-def user_server(discordID):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT server from user_prefs WHERE discordID = %s", (str(discordID),))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    print(data[0])
-    return (data[0])[0].strip()
+    async def remove_pref(self, userID, item):
+        await self.conn.execute("delete from user_prefs where item=$1 and discordID=$2", item, userID)
 
-def user_exists(discordID):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(discordID) from user_prefs WHERE discordID = %s", (str(discordID),))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return (data[0])[0] > 0
+    async def pref_exists(self, userID, item):
+        return await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1 and item = $2)",
+                                        str(userID), str(item))[0]
 
-# gets the id for the AH discord role for an item
-def ah_roles(items):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT role from ah_roles where (item = %s or item = %s or item = %s)", (str(items[1]).lower(), str(items[2]).lower(), str(items[3]).lower()))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    async def user_prefs(self, userID):
+        return await self.conn.fetch("select item from user_prefs where discordID = $1", str(userID))
 
-def authorize_user(server, user):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO authorized_users (server, username) values (%s, %s)", (str(server), str(user)))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    async def users(self, item):
+        return await self.conn.fetch("SELECT DISTINCT discordID from user_prefs WHERE item = $1", str(item))
 
-def unauthorize_user(server, user):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("delete from authorized_users where server = %s and username = %s", (str(server), str(user)))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    async def user_server(self, userID) -> str:
+        results = await self.conn.fetchrow("SELECT DISTINCT server from user_prefs WHERE discordID = $1", str(userID))
+        return results[0].strip()
 
-def is_authorized(server, user):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(username) from authorized_users WHERE server = %s AND username = %s", (str(server), str(user)))
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return (data[0])[0] > 0
+    async def user_exists(self, userID) -> bool:
+        return await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1)", str(userID))[0]
 
-def update_channel(server, channel):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
-    data = cursor.fetchall()
-    if (data[0])[0] > 0:
-        cursor.execute("UPDATE daily_message_channels SET channel = %s where server = %s", (str(channel), str(server)))
-        new = False
-    else:
-        cursor.execute("INSERT INTO daily_message_channels (server, channel) values (%s, %s)", (str(server), str(channel)))
-        new = True
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return new
+    async def ah_roles(self, items):
+        items = [item.lower() for item in items]
+        return await self.conn.fetch("SELECT role from ah_roles where (item = $1 or item = $2 or item = $3)", *items)
 
-def remove_channel(server):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
-    data = cursor.fetchall()
-    if (data[0])[0] > 0:
-        cursor.execute("DELETE FROM daily_message_channels WHERE server = %s", (str(server),))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return True
-    else:
-        cursor.close()
-        conn.close()
-        return False
+    # disallow double authorizations
+    async def authorize_user(self, user: discord.Member):
+        attrs = [user.guild.id, user.guild.name, user.id, str(user)]
+        return await self.conn.execute("INSERT INTO authorized_users values ($1, $2, $3, $4)", *attrs)
 
-def get_current_channel(server):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("SELECT count(server) from daily_message_channels where server = %s", (str(server),))
-    data = cursor.fetchall()
-    if (data[0])[0] > 0:
-        cursor.execute("SELECT channel FROM daily_message_channels where server = %s", (str(server),))
-        data = cursor.fetchall()
-    else:
-        cursor.close()
-        conn.close()
-        return None
-    cursor.close()
-    conn.close()
-    return data
+    async def unauthorize_user(self, user: discord.Member):
+        return await self.conn.execute("delete from authorized_users where guild_id=$1 and user_id=$2",
+                                       user.guild.id, user.id)
 
-def get_all_channels():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("select channel from daily_message_channels")
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    async def is_authorized(self, user: discord.Member):
+        return await self.conn.fetchrow(
+            "select exists(select 1 from authorized_users where guild_id=$1 and user_id=$2)",
+            user.guild.id, user.id)
 
-def get_all_users():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("select distinct discordid from user_prefs")
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    async def set_channel(self, channel: discord.TextChannel) -> bool:
+        """"Returns False if updating channel, True if new server"""
+        new = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
+                                       channel.guild.id)
+        if new:
+            await self.conn.execute(
+                "insert into daily_message_channels (guild_id, guild_name, channel_id) values ($1, $2, $3)",
+                channel.guild.id, channel.guild.name, channel.id)
+        else:
+            await self.conn.execute("update daily_message_channels set channel_id=$1 where guild_id=$2",
+                                    channel.id, channel.guild.id)
+        return new
 
-def get_id_table():
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("select origin_id, monitor_id from monitor_mappings")
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    async def toggle(self, ctx):
+        """Returns False if toggled off successfully, returns daily channel if toggled on"""
+        new = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
+                                       ctx.guild.id)
+        if new:
+            await self.set_channel(ctx.channel)
+            return ctx.channel
+        on_off = await self.conn.fetchrow("select toggle from daily_message_channels where server_id=$1", ctx.guild.id)
+        await self.conn.execute("update daily_message_channels set toggle=$1", not on_off)
+        return not on_off
 
-def insert_new_mapping(origin, name, mapping):
-    conn = psycopg2.connect("dbname={0} user={1} password={2} host={3}".format(config.mysql['db'], config.mysql['user'],
-                                                                               config.mysql['passwd'],
-                                                                               config.mysql['host']))
-    cursor = conn.cursor()
-    cursor.execute("insert into monitor_mappings values (%s, %s, %s)", (str(origin), str(name), str(mapping)))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    async def current_channel(self, server: discord.Guild) -> discord.TextChannel:
+        return self.bot.get_channel(
+            await self.conn.fetchrow("select channel_id from daily_message_channels where guild_id=$1", server.id))
 
+    async def get_all_channels(self):
+        return [self.bot.get_channel(x[0]) for x in
+                await self.conn.fetch("select channel_id from daily_message_channels where toggle=true")]
+
+    async def get_all_users(self):
+        return [self.bot.get_user(int(x[0])) for x in
+                await self.conn.fetch("select distinct discordid from user_prefs")]
+
+    async def get_id_table(self):
+        return await self.conn.fetch("select origin_id, monitor_id from monitor_mappings")
+
+    async def insert_new_mapping(self, origin: int, name: str, mapping: int):
+        return await self.conn.execute("insert into monitor_mappings values ($1, $2, $3)", origin, name, mapping)
+
+    async def remove_mapping(self, origin: int):
+        return await self.conn.execute("delete from monitor_mappings where origin_id=$1", origin)
+
+    async def add_role_tag(self, server: discord.Guild, tag: discord.Role):
+        new = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
+                                       server.id)
+        if new:
+            await self.conn.execute(
+                "insert into daily_message_channels (guild_id, guild_name, daily_role_id) values ($1, $2, $3)",
+                server.id, server.name, tag.id)
+        else:
+            await self.conn.execute("update daily_message_channels set daily_role_id=$1 where guild_id=$2", tag.id,
+                                    server.id)
+        return new
