@@ -14,7 +14,7 @@ class DB(commands.Cog):
                                 "direct message" if not isinstance(author, discord.Member) else str(author.guild.id))
 
     async def remove_pref(self, userID, item):
-        await self.conn.execute("delete from user_prefs where item=$1 and discordID=$2", item, userID)
+        await self.conn.execute("delete from user_prefs where item=$1 and discordID=$2", item, str(userID))
 
     async def pref_exists(self, userID, item):
         results = await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1 and item = $2)",
