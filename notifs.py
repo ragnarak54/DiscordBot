@@ -46,9 +46,9 @@ class Notifications(commands.Cog):
                 await ctx.send(
                     "Warning: if you leave all servers that you share with the bot, you will no longer be able"
                     " to receive DMs and your notification list will be deleted!")
-                await self.bot.db.new_pref(ctx.author, stritem, "direct message")
+                await self.bot.db.new_pref(ctx.author, stritem)
             else:
-                await self.bot.db.new_pref(ctx.author, stritem, ctx.guild.id)
+                await self.bot.db.new_pref(ctx.author, stritem)
             await ctx.send(f"Notification for {stritem} added!")
             print(f"{ctx.author} added notification for {item} in {ctx.guild}")
         else:
