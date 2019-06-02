@@ -153,8 +153,9 @@ async def toggle_daily(ctx):
         if not await bot.db.toggle(ctx):
             await ctx.send("Daily messages toggled off")
         else:
+            current = await bot.db.current_channel(ctx.guild)
             await ctx.send(
-                f"Daily messages toggled on. Current channel is <#{await bot.db.current_channel(ctx.guild)}>")
+                f"Daily messages toggled on. Current channel is {current.mention}")
     else:
         print(f"{ctx.author} tried to call toggle_daily!")
         await bot.procUser.send(f"{ctx.author} tried to call toggle_daily!")
