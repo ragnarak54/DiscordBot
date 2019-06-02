@@ -46,9 +46,7 @@ class Notifications(commands.Cog):
                 await ctx.send(
                     "Warning: if you leave all servers that you share with the bot, you will no longer be able"
                     " to receive DMs and your notification list will be deleted!")
-                await self.bot.db.new_pref(ctx.author, stritem)
-            else:
-                await self.bot.db.new_pref(ctx.author, stritem)
+            await self.bot.db.new_pref(ctx.author, stritem)
             await ctx.send(f"Notification for {stritem} added!")
             print(f"{ctx.author} added notification for {item} in {ctx.guild}")
         else:
@@ -81,10 +79,7 @@ class Notifications(commands.Cog):
         if await self.bot.db.is_authorized(ctx.author) or ctx.author == self.bot.procUser:
             stritem = str(item)
             if not await self.bot.db.pref_exists(ctx.author.id, stritem):
-                if ctx.guild is None:
-                    await self.bot.db.new_pref(ctx.author, stritem, "direct message")
-                else:
-                    await self.bot.db.new_pref(ctx.author, stritem, ctx.guild.id)
+                await self.bot.db.new_pref(ctx.author, stritem)
                 await ctx.send(f"Notification for {stritem} added!")
             else:
                 await ctx.send("Already exists for this user")
