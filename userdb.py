@@ -17,8 +17,9 @@ class DB(commands.Cog):
         await self.conn.execute("delete from user_prefs where item=$1 and discordID=$2", item, userID)
 
     async def pref_exists(self, userID, item):
-        return await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1 and item = $2)",
-                                        str(userID), str(item))[0]
+        results = await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1 and item = $2)",
+                                        str(userID), str(item))
+        return results[0]
 
     async def user_prefs(self, userID):
         return await self.conn.fetch("select item from user_prefs where discordID = $1", str(userID))
