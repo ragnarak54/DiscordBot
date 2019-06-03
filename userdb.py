@@ -36,7 +36,7 @@ class DB(commands.Cog):
         return result[0]
 
     async def ah_roles(self, items):
-        items = [item.lower() for item in items]
+        items = [item.lower() for item in items][1:]
         return await self.conn.fetch("SELECT role from ah_roles where (item = $1 or item = $2 or item = $3)", *items)
 
     # disallow double authorizations
