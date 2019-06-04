@@ -112,6 +112,9 @@ async def daily_message():
         channels = await bot.db.get_all_channels()
         for channel in channels:
             try:
+                tag = channel.guild.get_role(bot.db.get_tag(channel.guild))
+                if tag:
+                    new_stock_string += tag.mention
                 daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
             except discord.Forbidden:
                 await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
@@ -426,7 +429,7 @@ async def unauthorize(ctx, user: discord.Member):
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
-        new = await bot.bot.db.set_channel(new_channel)
+        new = await bot.db.set_channel(new_channel)
         if new:
             await ctx.send("Channel set")
         else:
@@ -439,7 +442,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
 
 @bot.command(aliases=['channel', 'current_channel'])
 async def daily_channel(ctx):
-    channel = await bot.bot.db.current_channel(ctx.guild)
+    channel = await bot.db.current_channel(ctx.guild)
     if channel is not None:
         await ctx.send(f"Currently set to <#{(channel[0])[0].strip()}>.\nUse the `?set_daily_channel` command to "
                        f"change this.")
@@ -448,13 +451,21 @@ async def daily_channel(ctx):
 
 
 @bot.command()
-async def daily_tag(ctx, role: discord.Role):
+async def daily_tag(ctx, role: discord.Role = None):
+    if not role:
+        tag = await bot.db.get_tag(ctx.guild)
+        if tag:
+            await ctx.send(f"The {tag.name} role is currently set as your daily tag role")
+        else:
+            await ctx.send(f"Your server doesn't currently have a daily tag role. Set one with `?daily_tag @role`.")
+        return
     try:
         await bot.db.add_role_tag(ctx.guild, role)
     except Exception as e:
         await ctx.send(f"Couldn't set daily tag role: {e}")
         return
     await ctx.send(f"Successfully updated daily role tag to `{role.name}` for {ctx.guild.name}")
+
 
 @bot.command()
 async def suggestion(ctx, *, string):

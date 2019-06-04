@@ -109,3 +109,7 @@ class DB(commands.Cog):
             await self.conn.execute("update daily_message_channels set daily_role_id=$1 where guild_id=$2", tag.id,
                                     server.id)
         return new
+
+    async def get_tag(self, server):
+        tag = await self.conn.fetchrow("select daily_role_id from daily_message_channels where guild_id=$1", server.id)
+        return tag if not tag else tag[0]
