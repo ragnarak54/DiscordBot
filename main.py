@@ -112,7 +112,7 @@ async def daily_message():
         channels = await bot.db.get_all_channels()
         for channel in channels:
             try:
-                tag = channel.guild.get_role(bot.db.get_tag(channel.guild))
+                tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
                 if tag:
                     new_stock_string += tag.mention
                 daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
@@ -455,6 +455,7 @@ async def daily_tag(ctx, role: discord.Role = None):
     if not role:
         tag = await bot.db.get_tag(ctx.guild)
         if tag:
+            tag = ctx.guild.get_role(tag)
             await ctx.send(f"The {tag.name} role is currently set as your daily tag role")
         else:
             await ctx.send(f"Your server doesn't currently have a daily tag role. Set one with `?daily_tag @role`.")
