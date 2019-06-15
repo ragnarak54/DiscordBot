@@ -59,8 +59,8 @@ class DB(commands.Cog):
                                        channel.guild.id)
         if new:
             await self.conn.execute(
-                "insert into daily_message_channels (guild_id, guild_name, channel_id) values ($1, $2, $3)",
-                channel.guild.id, channel.guild.name, channel.id)
+                "insert into daily_message_channels (guild_id, guild_name, channel_id, toggle) values ($1, $2, $3, $4)",
+                channel.guild.id, channel.guild.name, channel.id, True)
         else:
             await self.conn.execute("update daily_message_channels set channel_id=$1 where guild_id=$2",
                                     channel.id, channel.guild.id)
