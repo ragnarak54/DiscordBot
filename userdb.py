@@ -82,8 +82,15 @@ class DB(commands.Cog):
             await self.conn.fetchrow("select channel_id from daily_message_channels where guild_id=$1", server.id))
 
     async def get_all_channels(self):
-        return [self.bot.get_channel(x[0]) for x in
-                await self.conn.fetch("select channel_id from daily_message_channels where toggle=true")]
+        fetched = await self.conn.fetch("select channel_id from daily_message_channels where toggle=true")
+        channels = []
+        for id_tup in fetched:
+            channel = self.bot.get_channel(id_tup[0])
+            if channel:
+                channels.append(channel)
+            else:
+                await self.bot.procUser.send(f"Couldn't fetch channel id {id_tup[0]}!")
+        return channels
 
     async def get_all_users(self):
         return [self.bot.get_user(int(x[0])) for x in

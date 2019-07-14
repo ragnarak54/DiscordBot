@@ -329,8 +329,12 @@ async def fix_daily_message(ctx, delete=None):
         if delete == "delete" and daily_messages is not None:
             for message in daily_messages:
                 await message.delete()
+        daily_messages.clear()
         for channel in channels:
-            await channel.send(file=discord.File(output.today_img), content=new_stock_string)
+            try:
+                daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
+            except Exception:
+                await bot.procUser.send(f"Failed to send daily message to a channel!")
         items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
         data = await bot.db.ah_roles(items)
         roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
