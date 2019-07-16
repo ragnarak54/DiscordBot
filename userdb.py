@@ -51,7 +51,7 @@ class DB(commands.Cog):
     async def is_authorized(self, user: discord.Member):
         return await self.conn.fetchrow(
             "select exists(select 1 from authorized_users where guild_id=$1 and user_id=$2)",
-            user.guild.id, user.id)
+            user.guild.id, user.id)[0]
 
     async def set_channel(self, channel: discord.TextChannel) -> bool:
         """"Returns False if updating channel, True if new server"""
