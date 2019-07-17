@@ -16,8 +16,8 @@ import output
 import userdb
 from notifs import get_matches
 import notifs
-import monitor
-import domie_backup
+# import monitor
+# import domie_backup
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.CRITICAL)
@@ -53,8 +53,8 @@ async def on_ready():
     output.generate_merch_image()
     output.generate_merch_image(1)
     server = await bot.fetch_guild(566048042323804160)
-    bot.add_cog(domie_backup.DomieV2(bot))
-    bot.add_cog(monitor.Monitor(bot, server))
+    # bot.add_cog(domie_backup.DomieV2(bot))
+    # bot.add_cog(monitor.Monitor(bot, server))
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -548,6 +548,11 @@ async def _bot(ctx):
 async def _proc(ctx):
     """Is proc cool?"""
     await ctx.send('Yes, proc is cool.')
+
+
+@bot.check
+def check_channel(ctx):
+    return ctx.channel.id != 523161748866596884
 
 
 bot.daily_background = bot.loop.create_task(daily_message())
