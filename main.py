@@ -435,9 +435,9 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
         new = await bot.db.set_channel(new_channel)
         if new:
-            await ctx.send("Channel set")
+            await ctx.send(f"Daily message channel set to {new_channel.mention}")
         else:
-            await ctx.send("Channel settings updated")
+            await ctx.send(f"Daily message channel updated to {new_channel.mention}")
     else:
         print(f"{ctx.author} tried to call set daily channel!")
         await bot.procUser.send(f"{ctx.author} tried to call set daily channel!")
