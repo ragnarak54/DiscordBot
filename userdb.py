@@ -58,7 +58,7 @@ class DB(commands.Cog):
         """"Returns False if updating channel, True if new server"""
         r = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
                                      channel.guild.id)
-        new = r[0]
+        new = not r[0]
         if new:
             await self.conn.execute(
                 "insert into daily_message_channels (guild_id, guild_name, channel_id, toggle) values ($1, $2, $3, $4)",
