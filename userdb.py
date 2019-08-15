@@ -70,12 +70,14 @@ class DB(commands.Cog):
 
     async def toggle(self, ctx):
         """Returns False if toggled off successfully, returns daily channel if toggled on"""
-        new = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
+        r = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
                                        ctx.guild.id)
+        new = not r[0]
         if new:
             await self.set_channel(ctx.channel)
             return ctx.channel
-        on_off = await self.conn.fetchrow("select toggle from daily_message_channels where server_id=$1", ctx.guild.id)
+        r = await self.conn.fetchrow("select toggle from daily_message_channels where guild_id=$1", ctx.guild.id)
+        on_off = r[0]
         await self.conn.execute("update daily_message_channels set toggle=$1", not on_off)
         return not on_off
 

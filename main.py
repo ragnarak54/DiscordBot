@@ -153,7 +153,8 @@ async def help(ctx, command=None):
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
-        if not await bot.db.toggle(ctx):
+        new_toggle_state = await bot.db.toggle(ctx)
+        if not new_toggle_state:
             await ctx.send("Daily messages toggled off")
         else:
             current = await bot.db.current_channel(ctx.guild)
