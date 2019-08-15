@@ -78,12 +78,12 @@ class DB(commands.Cog):
             return ctx.channel
         r = await self.conn.fetchrow("select toggle from daily_message_channels where guild_id=$1", ctx.guild.id)
         on_off = r[0]
-        await self.conn.execute("update daily_message_channels set toggle=$1", not on_off)
+        await self.conn.execute("update daily_message_channels set toggle=$1 where guild_id=$2", not on_off, ctx.guild.id)
         return not on_off
 
     async def current_channel(self, server: discord.Guild) -> discord.TextChannel:
-        return self.bot.get_channel(
-            await self.conn.fetchrow("select channel_id from daily_message_channels where guild_id=$1", server.id))
+        r = await self.conn.fetchrow("select channel_id from daily_message_channels where guild_id=$1", server.id)
+        return None if not r else self.bot.get_channel(r[0])
 
     async def get_all_channels(self):
         fetched = await self.conn.fetch("select channel_id from daily_message_channels where toggle=true")
