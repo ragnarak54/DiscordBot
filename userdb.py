@@ -110,8 +110,9 @@ class DB(commands.Cog):
         return await self.conn.execute("delete from monitor_mappings where origin_id=$1", origin)
 
     async def add_role_tag(self, server: discord.Guild, tag: discord.Role):
-        new = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
+        r = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
                                        server.id)
+        new = not r[0]
         if new:
             await self.conn.execute(
                 "insert into daily_message_channels (guild_id, guild_name, daily_role_id) values ($1, $2, $3)",

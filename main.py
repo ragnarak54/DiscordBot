@@ -16,6 +16,7 @@ import output
 import userdb
 from notifs import get_matches
 import notifs
+
 # import monitor
 # import domie_backup
 
@@ -34,7 +35,6 @@ bot.add_cog(error_handler.CommandErrorHandler(bot))
 bot.pool = bot.loop.run_until_complete(asyncpg.create_pool(config.psql))
 bot.db = userdb.DB(bot)
 bot.add_cog(notifs.Notifications(bot))
-
 
 daily_messages = []
 
@@ -113,9 +113,8 @@ async def daily_message():
         for channel in channels:
             try:
                 tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
-                if tag:
-                    new_stock_string += tag.mention
-                daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
+                daily_messages.append(await channel.send(file=discord.File(output.today_img),
+                                                         content=new_stock_string if not tag else new_stock_string + tag.mention))
             except discord.Forbidden:
                 await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
 
@@ -449,7 +448,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
 async def daily_channel(ctx):
     channel = await bot.db.current_channel(ctx.guild)
     if channel is not None:
-        await ctx.send(f"Currently set to <#{(channel[0])[0].strip()}>.\nUse the `?set_daily_channel` command to "
+        await ctx.send(f"Currently set to {channel.mention}.\nUse the `?set_daily_channel` command to "
                        f"change this.")
     else:
         await ctx.send("No channel currently set. Use the `?set_daily_channel` command to change this.")
