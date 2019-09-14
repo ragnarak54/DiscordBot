@@ -550,6 +550,24 @@ async def _proc(ctx):
     await ctx.send('Yes, proc is cool.')
 
 
+@bot.command()
+@owner_check()
+async def pyval(ctx, *, expr):
+    env = {
+        'ctx': ctx,
+        'bot': bot,
+        'channel': ctx.channel,
+        'author': ctx.author,
+        'guild': ctx.guild,
+        'message': ctx.message
+    }
+    try:
+        ret = eval(expr, env)
+    except Exception as e:
+        ret = e
+    await ctx.send(ret)
+
+
 @bot.check
 def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
