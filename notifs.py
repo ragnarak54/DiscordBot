@@ -56,7 +56,7 @@ class Notifications(commands.Cog):
     async def removenotif(self, ctx, *, item):
         """Removes an item from a user's notify list."""
         stritem = str(item).lower()
-        data = await self.bot.db.user_prefs(ctx.author.id)
+        data = await self.bot.db.user_prefs(ctx.author)
         notifs = [data_tuple[0].strip() for data_tuple in data]
         results = get_matches(stritem, notifs)
         if stritem not in notifs:
@@ -87,7 +87,7 @@ class Notifications(commands.Cog):
     @commands.command(aliases=['notifs', 'mynotifs'])
     async def shownotifs(self, ctx):
         """Shows a user's notify list"""
-        data = await self.bot.db.user_prefs(ctx.author.id)
+        data = await self.bot.db.user_prefs(ctx.author)
         if not data:
             await ctx.send("No notifications added for this user")
             return

@@ -10,29 +10,30 @@ class DB(commands.Cog):
         self.bot = bot
 
     async def new_pref(self, author, item):
-        await self.conn.execute("insert into user_prefs values ($1, $2, $3, $4)", str(author.id), str(author), item,
-                                "direct message" if not isinstance(author, discord.Member) else str(author.guild.id))
+        print(author.id)
+        await self.conn.execute("insert into user_prefs values ($1, $2, $3, $4)", author.id, str(author), item,
+                                0 if not isinstance(author, discord.Member) else author.guild.id)
 
     async def remove_pref(self, userID, item):
-        await self.conn.execute("delete from user_prefs where item=$1 and discordID=$2", item, str(userID))
+        await self.conn.execute("delete from user_prefs where item=$1 and user_id=$2", item, userID)
 
     async def pref_exists(self, userID, item):
-        results = await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1 and item = $2)",
-                                        str(userID), str(item))
+        results = await self.conn.fetchrow("select exists(select 1 from user_prefs where user_id = $1 and item = $2)",
+                                           userID, str(item))
         return results[0]
 
-    async def user_prefs(self, userID):
-        return await self.conn.fetch("select item from user_prefs where discordID = $1", str(userID))
+    async def user_prefs(self, author):
+        return await self.conn.fetch("select item from user_prefs where user_id = $1", author.id)
 
     async def users(self, item):
-        return await self.conn.fetch("SELECT DISTINCT discordID from user_prefs WHERE item = $1", str(item))
+        return await self.conn.fetch("SELECT DISTINCT user_id from user_prefs WHERE item = $1", str(item))
 
     async def user_server(self, userID) -> str:
-        results = await self.conn.fetchrow("SELECT DISTINCT server from user_prefs WHERE discordID = $1", str(userID))
+        results = await self.conn.fetchrow("SELECT DISTINCT server from user_prefs WHERE user_id = $1", userID)
         return results[0].strip()
 
     async def user_exists(self, userID) -> bool:
-        result = await self.conn.fetchrow("select exists(select 1 from user_prefs where discordID = $1)", str(userID))
+        result = await self.conn.fetchrow("select exists(select 1 from user_prefs where user_id = $1)", userID)
         return result[0]
 
     async def ah_roles(self, items):
@@ -71,14 +72,15 @@ class DB(commands.Cog):
     async def toggle(self, ctx):
         """Returns False if toggled off successfully, returns daily channel if toggled on"""
         r = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
-                                       ctx.guild.id)
+                                     ctx.guild.id)
         new = not r[0]
         if new:
             await self.set_channel(ctx.channel)
             return ctx.channel
         r = await self.conn.fetchrow("select toggle from daily_message_channels where guild_id=$1", ctx.guild.id)
         on_off = r[0]
-        await self.conn.execute("update daily_message_channels set toggle=$1 where guild_id=$2", not on_off, ctx.guild.id)
+        await self.conn.execute("update daily_message_channels set toggle=$1 where guild_id=$2", not on_off,
+                                ctx.guild.id)
         return not on_off
 
     async def current_channel(self, server: discord.Guild) -> discord.TextChannel:
@@ -98,7 +100,7 @@ class DB(commands.Cog):
 
     async def get_all_users(self):
         return [self.bot.get_user(int(x[0])) for x in
-                await self.conn.fetch("select distinct discordid from user_prefs")]
+                await self.conn.fetch("select distinct user_id from user_prefs")]
 
     async def get_id_table(self):
         return await self.conn.fetch("select origin_id, monitor_id from monitor_mappings")
@@ -111,7 +113,7 @@ class DB(commands.Cog):
 
     async def add_role_tag(self, server: discord.Guild, tag: discord.Role):
         r = await self.conn.fetchrow("select exists(select 1 from daily_message_channels where guild_id=$1)",
-                                       server.id)
+                                     server.id)
         new = not r[0]
         if new:
             await self.conn.execute(
