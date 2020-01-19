@@ -171,7 +171,7 @@ async def auto_user_notifs(item):
     data = await bot.db.users(item)
     userlist = []
     for user_tuple in data:
-        user = bot.get_user(int(user_tuple[0].strip()))
+        user = bot.get_user(user_tuple[0])
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
             await bot.db.remove_pref(user_tuple[0].strip(), item)
