@@ -98,11 +98,7 @@ class Notifications(commands.Cog):
             return
         notifs = sorted([data_tuple[0].strip() for data_tuple in data])
         b = [':small_blue_diamond:' + x + '\n' for x in notifs]
-        # check if called in a direct message with the bot
-        if not ctx.guild or not ctx.author.nick:
-            user_string = f'Current notifications for {ctx.guild}:\n'
-        else:
-            user_string = f'Current notifications for {ctx.author.nick}:\n'
+        user_string = f'Current notifications for {ctx.author if not ctx.guild else ctx.author.display_name}:\n'
         string = user_string + ''.join(b)
         await ctx.send(string)
 
