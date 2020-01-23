@@ -232,7 +232,7 @@ async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
     if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
         data = await bot.db.users(item)
-        users = [bot.get_user(int(user_tuple[0].strip())) for user_tuple in data]
+        users = [bot.get_user(user_tuple[0]) for user_tuple in data]
         for user in users:
             print(user)
             await user.send(f"{item} is in stock!")

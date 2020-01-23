@@ -81,7 +81,7 @@ class Notifications(commands.Cog):
 
     @commands.command()
     async def adnotif(self, ctx, *, item):
-        if await self.bot.db.is_authorized(ctx.author) or ctx.author == self.bot.procUser:
+        if ctx.author == self.bot.procUser or await self.bot.db.is_authorized(ctx.author):
             stritem = str(item)
             if not await self.bot.db.pref_exists(ctx.author.id, stritem):
                 await self.bot.db.new_pref(ctx.author, stritem)
