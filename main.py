@@ -62,12 +62,33 @@ async def on_ready():
 
 
 @bot.event
-async def on_guild_join(guild):
-    if bot.procUser not in list(guild.members):
+async def on_guild_leave(guild):
+    await bot.procUser.send(f"Bot left `{guild.name}`")
+
+
+@bot.event
+async def on_guild_join(guild: discord.Guild):
+    try:
+        await bot.db.authorize_user(guild.owner)
+        await bot.procUser.send(f"Bot joined `{guild.name}`.")
+        for channel in [x for x in guild.text_channels]:
+            if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
+                em = discord.Embed(title="Travelling Merchant Bot",
+                                   description="Thanks for inviting me! You can find a list of my commands [here]"
+                                               "(https://github.com/ragnarak54/DiscordBot/blob/master/README.md). "
+                                   f"By default your server's owner {guild.owner.mention} has the power to "
+                                   f"set a daily message channel for the new stock. See the command list for more "
+                                   f"options and info!")
+                em.set_footer(text="Made by ragnarak54#9413")
+                await channel.send(embed=em)
+                break
+
+    except Exception as e:
+        await bot.procUser.send(f"Error when joining {guild.name}: {e}")
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages:
-                await channel.send("Please first invite my creator, ragnarak54#9413 so he can"
-                                   " help set the bot up for you!")
+                await channel.send("Something went wrong during my setup! Try reinviting me, and message my owner "
+                                   "@ragnarak54#9413 if the issue persists!")
         await guild.leave()
 
 
