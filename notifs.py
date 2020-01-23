@@ -23,6 +23,7 @@ class Notifications(commands.Cog):
                                "If you want the bot added to a server you're in, send me a message @ragnarak54#9413.")
 
         if stritem not in lst:
+            await ctx.message.add_reaction(':x:')
             if results[0][1] - results[1][1] < 20:
                 if results[1][1] > 80:
                     suggestions = [x[0] for x in results if x[1] > 80]
@@ -33,6 +34,7 @@ class Notifications(commands.Cog):
                     return
 
             if results[0][1] < 75:
+
                 await ctx.send("Make sure you're spelling your item correctly!\nCheck your PMs for a list of correct "
                                "spellings, or refer to the wikia page.")
                 b = sorted([item + '\n' for item in itemlist.item_list])
@@ -48,8 +50,10 @@ class Notifications(commands.Cog):
                     " to receive DMs and your notification list will be deleted!")
             await self.bot.db.new_pref(ctx.author, stritem)
             await ctx.send(f"Notification for {stritem} added!")
+            await ctx.message.add_reaction(':white_check_mark:')
             print(f"{ctx.author} added notification for {item} in {ctx.guild}")
         else:
+            await ctx.message.add_reaction(':x:')
             await ctx.send("Already exists for this user")
 
     @commands.command(aliases=['delnotif', 'remnotif', 'deletenotif'])
@@ -70,6 +74,7 @@ class Notifications(commands.Cog):
             stritem = results[0][0]
         if await self.bot.db.pref_exists(ctx.author.id, stritem):
             await self.bot.db.remove_pref(ctx.author.id, stritem)
+            await ctx.message.add_reaction(':white_check_mark:')
             await ctx.send(f"Notification for {stritem} removed!")
         else:
             await ctx.send("user does not have this preference")
