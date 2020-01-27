@@ -44,12 +44,12 @@ class Notifications(commands.Cog):
 
         stritem = results[0][0]
         if not await self.bot.db.pref_exists(ctx.author.id, stritem):
+            warning_str = ""
             if ctx.guild is None:
-                await ctx.send(
-                    "Warning: if you leave all servers that you share with the bot, you will no longer be able"
-                    " to receive DMs and your notification list will be deleted!")
+                warning_str = " Warning: if you leave all servers that you share with the bot, you will no longer be " \
+                              "able to receive DMs and your notification list will be deleted! "
             await self.bot.db.new_pref(ctx.author, stritem)
-            await ctx.send(f"Notification for {stritem} added!")
+            await ctx.send(f"Notification for {stritem} added!" + warning_str)
             await ctx.message.add_reaction('\U00002705')
             print(f"{ctx.author} added notification for {item} in {ctx.guild}")
         else:
@@ -77,7 +77,8 @@ class Notifications(commands.Cog):
             await ctx.message.add_reaction('\U00002705')
             await ctx.send(f"Notification for {stritem} removed!")
         else:
-            await ctx.send("user does not have this preference")
+            await ctx.message.add_reaction('\U0000274c')
+            await ctx.send("You don't have that preference")
 
     @commands.command()
     async def adnotif(self, ctx, *, item):
