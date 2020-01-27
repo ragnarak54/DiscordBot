@@ -70,7 +70,7 @@ async def on_guild_leave(guild):
 async def on_guild_join(guild: discord.Guild):
     try:
         await bot.db.authorize_user(guild.owner)
-        await bot.procUser.send(f"Bot joined `{guild.name}`.")
+        await bot.procUser.send(f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
                 em = discord.Embed(title="Travelling Merchant Bot",
