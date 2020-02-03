@@ -532,13 +532,13 @@ async def choose(ctx, *choices: str):
     """Chooses between multiple choices."""
 
     for choice in choices:
-        if "proc" in choice:
+        if "proc" in choice and random.randint(1, 10) > 2:
             await ctx.send(choice)
             return
-        if "nex" in choice:
+        if "nex" in choice and random.randint(1, 10) > 3:
             await ctx.send(choice)
             return
-        if "kk" in choices:
+        if "kk" in choices and random.randint(1, 10) > 2:
             await ctx.send(choice)
             return
     await ctx.send(random.choice(choices))
