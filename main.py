@@ -92,6 +92,11 @@ async def on_guild_join(guild: discord.Guild):
         await guild.leave()
 
 
+@bot.event
+async def on_guild_remove(guild: discord.Guild):
+    await bot.procUser.send(f"Left guild {guild.name}, which had {len(guild.members)} members")
+
+
 # background task for automatic notifications each day
 async def daily_message():
     await bot.wait_until_ready()
@@ -195,7 +200,10 @@ async def auto_user_notifs(item):
         user = bot.get_user(user_tuple[0])
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
-            await bot.db.remove_pref(user_tuple[0].strip(), item)
+            try:
+                await bot.db.remove_pref(user_tuple[0].strip(), item)
+            except Exception as e:
+                print("you failed: ", e)
         else:
             userlist.append(user)
     print("users for {0}: ".format(item))
