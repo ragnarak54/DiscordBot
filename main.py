@@ -116,8 +116,7 @@ async def custom_stock(ctx, *items):
     for item in items:
         stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
     output.generate_merch_image(items=stock)
-    print(stock)
-    # await send_stock(stock)
+    await send_stock(stock)
 
 
 # background task for automatic notifications each day
