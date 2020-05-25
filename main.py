@@ -11,6 +11,7 @@ from discord.ext import commands
 
 import error_handler
 import itemlist
+import items as it
 import merch
 import output
 import userdb
@@ -70,7 +71,8 @@ async def on_guild_leave(guild):
 async def on_guild_join(guild: discord.Guild):
     try:
         await bot.db.authorize_user(guild.owner)
-        await bot.procUser.send(f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
+        await bot.procUser.send(
+            f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
                 em = discord.Embed(title="Travelling Merchant Bot",
@@ -97,6 +99,27 @@ async def on_guild_remove(guild: discord.Guild):
     await bot.procUser.send(f"Left guild {guild.name}, which had {len(guild.members)} members")
 
 
+@bot.command()
+async def custom_stock(ctx, *items):
+    stock = []
+    print(items)
+    lst = [item for item in itemlist.item_list]
+    if any([x not in lst for x in items]):
+        await ctx.send("Try typing that out again!")
+        return
+    if len(items) == 3:
+        stock.append(
+            merch.MerchItem('Uncharted island map (Deep Sea Fishing).png', 'Uncharted island map', '800,000', 1,
+                            "Allows travel to an [[uncharted island]] with the chance of 3-6 special resources at the cost "
+                            "of no supplies<br />In addition, players may also rarely receive a [[Uncharted island map ("
+                            "red)|red uncharted island map]]."))
+    for item in items:
+        stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
+    output.generate_merch_image(items=stock)
+    print(stock)
+    # await send_stock(stock)
+
+
 # background task for automatic notifications each day
 async def daily_message():
     await bot.wait_until_ready()
@@ -110,41 +133,46 @@ async def daily_message():
 
         output.generate_merch_image()  # generate the new image for today and tomorrow
         output.generate_merch_image(1)
-        items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
-        new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
 
-        data = await bot.db.ah_roles(items)
-        roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
-
-        # format the string to be sent
-        tag_string = ""
-        if roles != set([]):
-            b = [role + '\n' for role in roles]
-            tag_string = "Tags: \n" + ''.join(b)
-        try:
-            ah_channel = bot.get_channel(config.ah_chat_id)
-            await ah_channel.send(file=discord.File(output.today_img), content=new_stock_string + tag_string)
-        except Exception as e:
-            await bot.procUser.send(f"Couldn't send message to AH: {e}")
-
-        # notify users for each item in today's stock
-        for item in items:
-            await auto_user_notifs(item)
-
-        # get all the channels for daily messages, then loop through them to send messages
-        # also, store them in daily_messages in case of a bad update
-        daily_messages.clear()
-        # TODO update DB table
-        channels = await bot.db.get_all_channels()
-        for channel in channels:
-            try:
-                tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
-                daily_messages.append(await channel.send(file=discord.File(output.today_img),
-                                                         content=new_stock_string if not tag else new_stock_string + tag.mention))
-            except discord.Forbidden:
-                await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
+        await send_stock(merch.get_stock())
 
         await asyncio.sleep(60)
+
+
+async def send_stock(stock):
+    items = [item.name.lower() for item in stock]
+    new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
+
+    data = await bot.db.ah_roles(items)
+    roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
+
+    # format the string to be sent
+    tag_string = ""
+    if roles != set([]):
+        b = [role + '\n' for role in roles]
+        tag_string = "Tags: \n" + ''.join(b)
+    try:
+        ah_channel = bot.get_channel(config.ah_chat_id)
+        await ah_channel.send(file=discord.File(output.today_img), content=new_stock_string + tag_string)
+    except Exception as e:
+        await bot.procUser.send(f"Couldn't send message to AH: {e}")
+
+    # notify users for each item in today's stock
+    for item in items:
+        await auto_user_notifs(item)
+
+    # get all the channels for daily messages, then loop through them to send messages
+    # also, store them in daily_messages in case of a bad update
+    daily_messages.clear()
+    # TODO update DB table
+    channels = await bot.db.get_all_channels()
+    for channel in channels:
+        try:
+            tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
+            daily_messages.append(await channel.send(file=discord.File(output.today_img),
+                                                     content=new_stock_string if not tag else new_stock_string + tag.mention))
+        except discord.Forbidden:
+            await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
 
 
 @bot.command()

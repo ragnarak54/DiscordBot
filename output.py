@@ -52,8 +52,10 @@ def image(items, output_img="res_img.png"):
     img.save(output_img)
 
 
-def generate_merch_image(days=0):
-    if days == 0:
+def generate_merch_image(days=0, items=None):
+    if items:
+        image(items)
+    elif days == 0:
         image(merch.get_stock(days))
     elif days == 1:
         image(merch.get_stock(days), tomorrow_img)
