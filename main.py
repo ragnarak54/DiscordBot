@@ -103,6 +103,12 @@ async def on_guild_remove(guild: discord.Guild):
 async def custom_stock(ctx, *items):
     stock = []
     print(items)
+    if items[0] == 'normal':
+        output.generate_merch_image()
+        output.generate_merch_image(1)
+
+        await send_stock(merch.get_stock())
+        return
     lst = [item for item in itemlist.item_list]
     if any([x not in lst for x in items]):
         await ctx.send("Try typing that out again!")
@@ -629,5 +635,5 @@ def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
 
 
-bot.daily_background = bot.loop.create_task(daily_message())
+# bot.daily_background = bot.loop.create_task(daily_message())
 bot.run(config.token)
