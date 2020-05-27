@@ -144,6 +144,21 @@ async def daily_message():
         await asyncio.sleep(60)
 
 
+async def stock_reminder():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        now = datetime.datetime.now()
+        schedule_time = now.replace(hour=0, minute=1) + timedelta(days=1)
+        time_left = schedule_time - now
+        sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
+        print(sleep_time)
+        await asyncio.sleep(sleep_time)
+
+        await bot.procUser.send("check the stock!")
+
+        await asyncio.sleep(60)
+
+
 async def send_stock(stock):
     items = [item.name.lower() for item in stock]
     new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
@@ -635,5 +650,6 @@ def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
 
 
+bot.loop.create_task(stock_reminder())
 # bot.daily_background = bot.loop.create_task(daily_message())
 bot.run(config.token)
