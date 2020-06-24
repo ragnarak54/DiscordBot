@@ -27,5 +27,6 @@ item_list = ['Small goebie burial charm',
              'Deathtouched dart',
              'Unfocused reward enhancer',
              'Uncharted island map',
-             'Barrel of bait']
+             'Barrel of bait',
+             'Tangled fishbowl']
 
