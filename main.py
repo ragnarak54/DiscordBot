@@ -49,17 +49,21 @@ def owner_check():
 
 @bot.event
 async def on_ready():
-    appinfo = await bot.application_info()
-    bot.procUser = appinfo.owner
-    output.generate_merch_image()
-    output.generate_merch_image(1)
-    server = await bot.fetch_guild(566048042323804160)
+    # server = await bot.fetch_guild(566048042323804160)
     # bot.add_cog(domie_backup.DomieV2(bot))
     # bot.add_cog(monitor.Monitor(bot, server))
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+
+async def set_owner():
+    await bot.wait_until_ready()
+    appinfo = await bot.application_info()
+    bot.procUser = appinfo.owner
+    output.generate_merch_image()
+    output.generate_merch_image(1)
 
 
 @bot.event
@@ -650,6 +654,6 @@ def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
 
 
-bot.loop.create_task(stock_reminder())
-# bot.daily_background = bot.loop.create_task(daily_message())
+bot.loop.create_task(set_owner())
+bot.daily_background = bot.loop.create_task(daily_message())
 bot.run(config.token)
