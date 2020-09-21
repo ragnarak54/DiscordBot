@@ -4,7 +4,9 @@ This is a bot for Discord that can be used to keep up with the [Travelling Merch
 
 ## Getting Started
 
-Add me as a friend on Discord @ragnarak54#9413, and I'll help you invite the bot to your server! Once it's invited, you'll set up which users are authorized to use admin commands, as well as what channel you want to be your daily message channel.
+Only the __owner__ of the server will be authorized by default!
+Invite the bot to your server using [this link](https://discord.com/api/oauth2/authorize?client_id=439803413623078927&permissions=280640&scope=bot).
+
 
 ## Using the bot
 
