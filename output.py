@@ -1,5 +1,7 @@
 # https://code-maven.com/create-images-with-python-pil-pillow
 # https://stackoverflow.com/questions/2563822/how-do-you-composite-an-image-onto-another-image-with-pil-in-python?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+import datetime
+import discord
 from PIL import Image, ImageDraw, ImageFont
 import merch
 
@@ -50,6 +52,21 @@ def image(items, output_img="res_img.png"):
         write(d, (x_name, y), items[i].name)
         write(d, (x_cost, y), items[i].cost)
     img.save(output_img)
+
+
+def generate_merch_embed(days=0, items=None):
+    items = merch.get_stock(days) if not items else items
+    embed = discord.Embed()
+    embed.title = f"Stock for {(datetime.datetime.now()+ datetime.timedelta(days=days)).strftime('%B %d %Y')}:"
+    embed.description = ""
+    for item in items:
+        embed.description += f"\u200b \u200b \u200b \u200b \u200b \u200b" \
+            f"{item.emoji} {item.quantity} **{item.name}** - {item.cost[:-4]}k\n\n"
+    if days == 0:
+        embed.description += f"**Tomorrow:** {', '.join([x.name for x in merch.get_stock(1)][1:])}\n"
+    embed.description += "[Command reference](https://github.com/ragnarak54/DiscordBot) (Github)"
+    embed.set_footer(text="made by Proclivity (ragnarak54#9413)")
+    return embed
 
 
 def generate_merch_image(days=0, items=None):

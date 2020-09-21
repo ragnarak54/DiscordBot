@@ -41,12 +41,13 @@ c_items = ['Dragonkin lamp', 'D&D token (weekly)', 'Deathtouched dart',
 
 
 class MerchItem:
-    def __init__(self, image_key, name, cost, quantity, use):
+    def __init__(self, image_key, name, cost, quantity, use, emoji):
         self.image_key = image_key
         self.name = name
         self.cost = cost
         self.quantity = quantity
         self.use = use
+        self.emoji = emoji
 
     def __repr__(self):
         return self.name
@@ -61,7 +62,7 @@ def get_stock(days=0):
     stock = [MerchItem('Uncharted island map (Deep Sea Fishing).png', 'Uncharted island map', '800,000', 1,
                        "Allows travel to an [[uncharted island]] with the chance of 3-6 special resources at the cost "
                        "of no supplies<br />In addition, players may also rarely receive a [[Uncharted island map ("
-                       "red)|red uncharted island map]].")]
+                       "red)|red uncharted island map]].", "<:Uncharted_map:755960222949965825>")]
     now = datetime.datetime.now(pytz.utc) + datetime.timedelta(days=days)
 
     a_b_rotation = (now - datetime.datetime(2018, 3, 11, 0, 0, 0, tzinfo=pytz.utc)).days % 120 + 1

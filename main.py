@@ -192,10 +192,13 @@ async def send_stock(stock):
     channels = await bot.db.get_all_channels()
     for channel in channels:
         try:
+            daily_messages.append(await channel.send(embed=output.generate_merch_embed()))
+
             tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
-            daily_messages.append(await channel.send(file=discord.File(output.today_img),
-                                                     content=new_stock_string if not tag else new_stock_string + tag.mention))
-        except discord.Forbidden:
+            daily_messages.append(await channel.send(embed=output.generate_merch_embed()))
+            # daily_messages.append(await channel.send(file=discord.File(output.today_img),
+            #                                        content=new_stock_string if not tag else new_stock_string + tag.mention))
+        except discord.Forbidden or Exception:
             await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
 
 
@@ -262,7 +265,7 @@ async def auto_user_notifs(item):
     for user in userlist:
         try:
             if item == "uncharted island map":
-                await user.send(content="the new stock is out!", file=discord.File(output.today_img))
+                await user.send(embed=output.generate_merch_embed())
             else:
                 await user.send(f"{item} is in stock!")
             print(user)
@@ -323,8 +326,7 @@ async def merchant(ctx):
     channel = ctx.channel
     guild = ctx.guild
     print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
-    date_message = f'The stock for {now.strftime("%m/%d/%Y")}:'
-    await ctx.send(content=date_message, file=discord.File(output.today_img))
+    await ctx.send(embed=output.generate_merch_embed())
     if not await bot.db.user_exists(ctx.author.id):
         print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
@@ -335,21 +337,13 @@ async def merchant(ctx):
 
 @bot.command(aliases=['tmrw', 'tommorow'])
 async def tomorrow(ctx):
-    tmrw = datetime.datetime.now() + datetime.timedelta(days=1)
-    date_message = "The stock for tomorrow, " + tmrw.strftime("%m/%d/%Y") + ":"
-    await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
+    await ctx.send(embed=output.generate_merch_embed(1))
 
 
 @bot.command()
 async def future(ctx, days: int):
     assert days > 0, "Negative days entered"
-    day = datetime.datetime.now() + datetime.timedelta(days=days)
-    date_message = "The stock for " + day.strftime("%m/%d/%Y") + ":"
-    if days == 1:
-        await ctx.send(file=discord.File(output.tomorrow_img), content=date_message)
-        return
-    output.generate_merch_image(days)
-    await ctx.send(file=discord.File(output.custom_img), content=date_message)
+    await ctx.send(embed=output.generate_merch_embed(days))
 
 
 @bot.command(name="next")
