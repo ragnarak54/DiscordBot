@@ -195,7 +195,6 @@ async def send_stock(stock):
             daily_messages.append(await channel.send(embed=output.generate_merch_embed()))
 
             tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
-            daily_messages.append(await channel.send(embed=output.generate_merch_embed()))
             # daily_messages.append(await channel.send(file=discord.File(output.today_img),
             #                                        content=new_stock_string if not tag else new_stock_string + tag.mention))
         except discord.Forbidden or Exception:
