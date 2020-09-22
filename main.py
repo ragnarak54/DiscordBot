@@ -74,7 +74,8 @@ async def on_guild_leave(guild):
 @bot.event
 async def on_guild_join(guild: discord.Guild):
     try:
-        await bot.db.authorize_user(guild.owner)
+        if not await bot.db.is_authorized(guild.owner):
+            await bot.db.authorize_user(guild.owner)
         await bot.procUser.send(
             f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
         for channel in [x for x in guild.text_channels]:
@@ -90,17 +91,21 @@ async def on_guild_join(guild: discord.Guild):
                 break
 
     except Exception as e:
-        await bot.procUser.send(f"Error when joining {guild.name}: {e}")
-        for channel in [x for x in guild.text_channels]:
-            if channel.permissions_for(guild.me).send_messages:
-                await channel.send("Something went wrong during my setup! Try reinviting me, and message my owner "
-                                   "@ragnarak54#9413 if the issue persists!")
-        await guild.leave()
+        try:
+            await bot.procUser.send(f"Error when joining {guild.name}: {e.with_traceback()}")
+            for channel in [x for x in guild.text_channels]:
+                if channel.permissions_for(guild.me).send_messages:
+                    await channel.send("Something went wrong during my setup! Try reinviting me, and message my owner "
+                                       "@ragnarak54#9413 if the issue persists!")
+        finally:
+            await guild.leave()
 
 
 @bot.event
 async def on_guild_remove(guild: discord.Guild):
-    await bot.procUser.send(f"Left guild {guild.name}, which had {len(guild.members)} members")
+    await bot.db.unauthorize_user(guild.owner)
+    await bot.procUser.send(f"Left guild {guild.name}, which had `{len(guild.members)}` members. "
+                            f"New usercount `{len([x for x in bot.users if not x.bot])}`.")
 
 
 @bot.command()
