@@ -520,7 +520,8 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     else:
         print(f"{ctx.author} tried to call set daily channel!")
         await bot.procUser.send(f"{ctx.author} tried to call set daily channel!")
-        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
+        await ctx.send(f"You aren't authorized to do that. Owner {ctx.guild.owner.mention} is authorized by default, "
+                       f"and can authorize others. If there's been a mistake send @ragnarak54#9413 a PM!")
 
 
 @bot.command(aliases=['channel', 'current_channel'])
