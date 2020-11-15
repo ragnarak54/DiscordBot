@@ -401,7 +401,7 @@ async def update(ctx):
 # TODO make userdb do id->object
 @bot.command(aliases=["fix_daily_messages"])
 async def fix_daily_message(ctx, delete=None):
-    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
+    if ctx.author == bot.procUser:
         output.generate_merch_image()
         new_stock_string = f'The new stock for {datetime.datetime.now().strftime("%m/%d/%Y")} is out!\n'
         channels = await bot.db.get_all_channels()
@@ -639,7 +639,8 @@ async def pyval(ctx, *, expr):
         'channel': ctx.channel,
         'author': ctx.author,
         'guild': ctx.guild,
-        'message': ctx.message
+        'message': ctx.message,
+        'discord': discord
     }
     try:
         ret = eval(expr, env)
