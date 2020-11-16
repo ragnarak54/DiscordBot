@@ -89,7 +89,6 @@ async def on_guild_join(guild: discord.Guild):
 
     except Exception as e:
         await bot.procUser.send(f"Error when joining {guild.name}: {e}")
-        print(channel.permissions_for(guild.me).read_messages)
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages:
                 print(channel.permissions_for(guild.me).read_messages)
@@ -126,11 +125,27 @@ async def custom_stock(ctx, *items):
             merch.MerchItem('Uncharted island map (Deep Sea Fishing).png', 'Uncharted island map', '800,000', 1,
                             "Allows travel to an [[uncharted island]] with the chance of 3-6 special resources at the cost "
                             "of no supplies<br />In addition, players may also rarely receive a [[Uncharted island map ("
-                            "red)|red uncharted island map]]."))
+                            "red)|red uncharted island map]].", "<:Uncharted_map:755960222949965825>"))
     for item in items:
         stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
     output.generate_merch_image(items=stock)
     await send_stock(stock)
+
+
+@owner_check()
+@bot.command()
+async def dsf_test(ctx):
+    items = [item.name.lower() for item in merch.get_stock()]
+    dsf_roles = set([role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)])
+    tag_string = ""
+    if dsf_roles != set([]):
+        tag_string = " ".join(dsf_roles)
+    try:
+        dsf_channel = bot.get_channel(427975250118967297)
+        print(f'legit about to send {tag_string} to {dsf_channel}')
+        await dsf_channel.send(tag_string, embed=output.generate_merch_embed())
+    except Exception as e:
+        await bot.procUser.send(f"Couldn't send message to DSF: {e}")
 
 
 # background task for automatic notifications each day
@@ -170,6 +185,16 @@ async def stock_reminder():
 async def send_stock(stock):
     items = [item.name.lower() for item in stock]
     new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
+
+    dsf_roles = set([role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)])
+    tag_string = ""
+    if dsf_roles != set([]):
+        tag_string = " ".join(dsf_roles)
+    try:
+        dsf_channel = bot.get_channel(config.dsf_chat_id)
+        await dsf_channel.send(tag_string, embed=output.generate_merch_embed())
+    except Exception as e:
+        await bot.procUser.send(f"Couldn't send message to DSF: {e}")
 
     data = await bot.db.ah_roles(items)
     roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
