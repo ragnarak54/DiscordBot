@@ -30,7 +30,7 @@ logger.addHandler(handler)
 description = '''```A bot to help keep up with the Travelling Merchant's daily stock!
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413.
 Lets get started!\n\n'''
-bot = commands.Bot(command_prefix=['?', '!'], description=description)
+bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=discord.Intents.default())
 bot.remove_command("help")
 bot.add_cog(error_handler.CommandErrorHandler(bot))
 bot.pool = bot.loop.run_until_complete(asyncpg.create_pool(config.psql))
@@ -67,23 +67,20 @@ async def set_owner():
 
 
 @bot.event
-async def on_guild_leave(guild):
-    await bot.procUser.send(f"Bot left `{guild.name}`")
-
-
-@bot.event
 async def on_guild_join(guild: discord.Guild):
     try:
-        if not await bot.db.is_authorized(guild.owner):
-            await bot.db.authorize_user(guild.owner)
-        await bot.procUser.send(
-            f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
+        owner = await guild.fetch_member(guild.owner_id)
+        if not await bot.db.is_authorized(owner):
+            await bot.db.authorize_user(owner)
+        # await bot.procUser.send(
+        #     f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
+        await bot.procUser.send(f"Bot joined `{guild.name}`.")
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
                 em = discord.Embed(title="Travelling Merchant Bot",
                                    description="Thanks for inviting me! You can find a list of my commands [here]"
                                                "(https://github.com/ragnarak54/DiscordBot/blob/master/README.md). "
-                                   f"By default your server's owner {guild.owner.mention} has the power to "
+                                   f"By default your server's owner {owner.mention} has the power to "
                                    f"set a daily message channel for the new stock. See the command list for more "
                                    f"options and info!")
                 em.set_footer(text="Made by ragnarak54#9413")
@@ -91,21 +88,23 @@ async def on_guild_join(guild: discord.Guild):
                 break
 
     except Exception as e:
-        try:
-            await bot.procUser.send(f"Error when joining {guild.name}: {e.with_traceback()}")
-            for channel in [x for x in guild.text_channels]:
-                if channel.permissions_for(guild.me).send_messages:
-                    await channel.send("Something went wrong during my setup! Try reinviting me, and message my owner "
-                                       "@ragnarak54#9413 if the issue persists!")
-        finally:
-            await guild.leave()
+        await bot.procUser.send(f"Error when joining {guild.name}: {e}")
+        print(channel.permissions_for(guild.me).read_messages)
+        for channel in [x for x in guild.text_channels]:
+            if channel.permissions_for(guild.me).send_messages:
+                print(channel.permissions_for(guild.me).read_messages)
+                await channel.send("Something went wrong during my setup! Try reinviting me, or message my owner "
+                                   "@ragnarak54#9413 if the issue persists!")
 
 
 @bot.event
 async def on_guild_remove(guild: discord.Guild):
-    await bot.db.unauthorize_user(guild.owner)
-    await bot.procUser.send(f"Left guild {guild.name}, which had `{len(guild.members)}` members. "
-                            f"New usercount `{len([x for x in bot.users if not x.bot])}`.")
+    # TODO post member intent approval uncomment
+    # owner = await guild.fetch_member(guild.owner_id)
+    # await bot.db.unauthorize_user(owner)
+    # await bot.procUser.send(f"Left guild {guild.name}, which had `{len(guild.members)}` members. "
+    #                         f"New usercount `{len([x for x in bot.users if not x.bot])}`.")
+    await bot.procUser.send(f"Left guild {guild.name}")
 
 
 @bot.command()
@@ -256,11 +255,11 @@ async def auto_user_notifs(item):
     data = await bot.db.users(item)
     userlist = []
     for user_tuple in data:
-        user = bot.get_user(user_tuple[0])
+        user = await bot.fetch_user(user_tuple[0])
         if user is None:
             print(f"{user_tuple[0]} wasn't found! pref for {item} removed")
             try:
-                await bot.db.remove_pref(user_tuple[0].strip(), item)
+                await bot.db.remove_pref(user_tuple[0], item)
             except Exception as e:
                 print("you failed: ", e)
         else:
@@ -299,7 +298,7 @@ async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
     if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
         data = await bot.db.users(item)
-        users = [bot.get_user(user_tuple[0]) for user_tuple in data]
+        users = [await bot.fetch_user(user_tuple[0]) for user_tuple in data]
         for user in users:
             print(user)
             await user.send(f"{item} is in stock!")
@@ -475,7 +474,7 @@ async def message_users(ctx, *, string):
 @bot.command()
 async def users(ctx, *, item):
     if ctx.author == bot.procUser:
-        userlist = [bot.get_user(x) for x in await bot.db.users(item)]
+        userlist = [await bot.fetch_user(x) for x in await bot.db.users(item)]
         await ctx.send(userlist)
 
 

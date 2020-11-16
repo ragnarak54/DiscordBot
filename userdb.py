@@ -99,7 +99,7 @@ class DB(commands.Cog):
         return channels
 
     async def get_all_users(self):
-        return [self.bot.get_user(int(x[0])) for x in
+        return [await self.bot.fetch_user(int(x[0])) for x in
                 await self.conn.fetch("select distinct user_id from user_prefs")]
 
     async def get_id_table(self):
