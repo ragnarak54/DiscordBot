@@ -38,8 +38,12 @@ class DB(commands.Cog):
 
     async def dsf_roles(self, items):
         items = [item.lower() for item in items]
-        return await self.conn.fetch("SELECT role from dsf_roles where (item = $1 or item = $2 or item = $3 or "
-                                     "item = $4)", *items)
+        roles = []
+        for item in items:
+            role = await self.conn.fetchrow("select role from dsf_roles where item = $1", item)
+            if role and role not in roles:
+                roles.append(role)
+        return roles
 
 
     async def ah_roles(self, items):

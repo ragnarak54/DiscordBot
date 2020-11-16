@@ -54,7 +54,7 @@ def image(items, output_img="res_img.png"):
     img.save(output_img)
 
 
-def generate_merch_embed(days=0, items=None):
+def generate_merch_embed(days=0, items=None, dsf=False):
     items = merch.get_stock(days) if not items else items
     embed = discord.Embed()
     embed.title = f"Stock for {(datetime.datetime.now()+ datetime.timedelta(days=days)).strftime('%B %d %Y')}:"
@@ -64,7 +64,10 @@ def generate_merch_embed(days=0, items=None):
             f"{item.emoji} {item.quantity} **{item.name}** - {item.cost[:-4]}k\n\n"
     if days == 0:
         embed.description += f"**Tomorrow:** {', '.join([x.name for x in merch.get_stock(1)][1:])}\n"
-    embed.description += "[Command reference](https://github.com/ragnarak54/DiscordBot) (Github)"
+    if not dsf:
+        embed.description += "[Command reference](https://github.com/ragnarak54/DiscordBot)"
+    else:
+        embed.colour = discord.Color.blue()
     embed.set_footer(text="made by Proclivity (ragnarak54#9413)")
     return embed
 

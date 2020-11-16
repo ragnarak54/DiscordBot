@@ -132,20 +132,22 @@ async def custom_stock(ctx, *items):
     await send_stock(stock)
 
 
-@owner_check()
 @bot.command()
-async def dsf_test(ctx):
-    items = [item.name.lower() for item in merch.get_stock()]
-    dsf_roles = set([role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)])
-    tag_string = ""
-    if dsf_roles != set([]):
-        tag_string = " ".join(dsf_roles)
-    try:
-        dsf_channel = bot.get_channel(427975250118967297)
-        print(f'legit about to send {tag_string} to {dsf_channel}')
-        await dsf_channel.send(tag_string, embed=output.generate_merch_embed())
-    except Exception as e:
-        await bot.procUser.send(f"Couldn't send message to DSF: {e}")
+async def dsf_merch(ctx):
+    if (await bot.db.is_authorized(ctx.author) and ctx.guild.id == 420803245758480405) or ctx.author == bot.procUser:
+        items = [item.name.lower() for item in merch.get_stock()]
+        dsf_roles = [role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)]
+        tag_string = ""
+        if dsf_roles:
+            tag_string = " ".join(dsf_roles)
+        try:
+            em = output.generate_merch_embed(dsf=True)
+            em.description += f'\n{bot.get_channel(566338186406789123).mention} for worlds, or join **WhirlpoolDnD** FC!'
+            await ctx.send(tag_string, embed=em)
+        except Exception as e:
+            await bot.procUser.send(f"Couldn't send message to DSF: {e}")
+    else:
+        await bot.procUser.send(f"{ctx.author} tried to call dsf_merch in {ctx.guild}!")
 
 
 # background task for automatic notifications each day
@@ -185,14 +187,14 @@ async def stock_reminder():
 async def send_stock(stock):
     items = [item.name.lower() for item in stock]
     new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
-
-    dsf_roles = set([role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)])
-    tag_string = ""
-    if dsf_roles != set([]):
-        tag_string = " ".join(dsf_roles)
     try:
+        dsf_roles = [role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)]
+        tag_string = " ".join(dsf_roles)
+
         dsf_channel = bot.get_channel(config.dsf_chat_id)
-        await dsf_channel.send(tag_string, embed=output.generate_merch_embed())
+        em = output.generate_merch_embed(dsf=True)
+        em.description += f'\n{bot.get_channel(566338186406789123).mention} for worlds, or join **WhirlpoolDnD** FC!'
+        await dsf_channel.send(tag_string, embed=em)
     except Exception as e:
         await bot.procUser.send(f"Couldn't send message to DSF: {e}")
 
