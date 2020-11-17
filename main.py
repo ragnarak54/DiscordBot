@@ -517,7 +517,9 @@ async def authorize(ctx, user: discord.Member):
     else:
         print(f"{ctx.author} tried to call authorize!")
         await bot.procUser.send(f"{ctx.author} tried to call authorize!")
-        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
+        owner = await ctx.guild.fetch_member(ctx.guild.owner_id)
+        await ctx.send(f"You aren't authorized to do that. Owner {owner.mention} is authorized by default, "
+                       f"and can authorize others. If there's been a mistake send @ragnarak54#9413 a PM!")
 
 
 @bot.command()
@@ -546,7 +548,8 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     else:
         print(f"{ctx.author} tried to call set daily channel!")
         await bot.procUser.send(f"{ctx.author} tried to call set daily channel!")
-        await ctx.send(f"You aren't authorized to do that. Owner {ctx.guild.owner.mention} is authorized by default, "
+        owner = await ctx.guild.fetch_member(ctx.guild.owner_id)
+        await ctx.send(f"You aren't authorized to do that. Owner {owner.mention} is authorized by default, "
                        f"and can authorize others. If there's been a mistake send @ragnarak54#9413 a PM!")
 
 
