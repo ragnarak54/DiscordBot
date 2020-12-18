@@ -103,7 +103,15 @@ async def on_guild_remove(guild: discord.Guild):
     # await bot.db.unauthorize_user(owner)
     # await bot.procUser.send(f"Left guild {guild.name}, which had `{len(guild.members)}` members. "
     #                         f"New usercount `{len([x for x in bot.users if not x.bot])}`.")
-    await bot.procUser.send(f"Left guild {guild.name}")
+    await bot.procUser.send(f"Left guild `{guild.name}`")
+
+
+@bot.command()
+async def user_count(ctx):
+    m = 0
+    for guild in bot.guilds:
+        m += guild.member_count
+    await ctx.send(f"users: {m}")
 
 
 @bot.command()
@@ -142,7 +150,7 @@ async def dsf_merch(ctx):
             tag_string = " ".join(dsf_roles)
         try:
             em = output.generate_merch_embed(dsf=True)
-            em.description += f'\n{bot.get_channel(566338186406789123).mention} for worlds, or join **WhirlpoolDnD** FC!'
+            em.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
             await ctx.send(tag_string, embed=em)
         except Exception as e:
             await bot.procUser.send(f"Couldn't send message to DSF: {e}")
