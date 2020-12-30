@@ -64,14 +64,15 @@ class Notifications(commands.Cog):
         notifs = [data_tuple[0].strip() for data_tuple in data]
         results = get_matches(stritem, notifs)
         if stritem not in notifs:
-            if results[0][1] - results[1][1] < 20:
+            if results[0][1] > 75:
+                stritem = results[0][0]
+            elif len(notifs) > 1 and results[0][1] - results[1][1] < 20:
                 if results[1][1] > 80:
                     suggestions = [x[0] for x in results if x[1] > 80]
                     b = [':small_blue_diamond:' + x + '\n' for x in suggestions]
                     await ctx.send("You don't have that preference. Maybe you meant:\n" + "".join(b))
                     return
-        if results[0][1] > 75:
-            stritem = results[0][0]
+
         if await self.bot.db.pref_exists(ctx.author.id, stritem):
             await self.bot.db.remove_pref(ctx.author.id, stritem)
             await ctx.message.add_reaction('\U00002705')
