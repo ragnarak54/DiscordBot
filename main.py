@@ -554,7 +554,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
         # use_external_emojis
         # send_messages
         # embed_links
-        if not perms.use_external_emojis or not perms.send_messages or not perms.embed_links:
+        if not (perms.use_external_emojis and perms.send_messages and perms.embed_links):
             try:
                 await ctx.message.add_reaction('\U0000274c')
             except:
