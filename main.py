@@ -287,7 +287,7 @@ async def toggle_daily(ctx):
 # PMs users who have the item preference
 # TODO holy god fix it
 async def auto_user_notifs(item):
-    data = await bot.db.users(item)
+    data = await bot.db.users(item)  # user ids
     userlist = []
     for user_tuple in data:
         user = await bot.fetch_user(user_tuple[0])
@@ -549,6 +549,17 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
         new = await bot.db.set_channel(new_channel)
+        perms = new_channel.permissions_for(bot.user)
+        # use_external_emojis
+        # send_messages
+        # embed_links
+        if not perms.use_external_emojis or not perms.send_messages or not perms.embed_links:
+            try:
+                await ctx.message.add_reaction('\U0000274c')
+            except:
+                pass
+            await ctx.send(f"Insufficient permissions to send to {new_channel.mention}: "
+                           f"need `send messages`, `use external emojis`, and `embed links`.")
         if new:
             await ctx.send(f"Daily message channel set to {new_channel.mention}")
         else:

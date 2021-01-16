@@ -41,6 +41,7 @@ class DB(commands.Cog):
         roles = []
         for item in items:
             role = await self.conn.fetchrow("select role from dsf_roles where item = $1", item)
+            print(item, role)
             if role and role not in roles:
                 roles.append(role)
         return roles
@@ -105,7 +106,12 @@ class DB(commands.Cog):
             if channel:
                 channels.append(channel)
             else:
-                await self.bot.procUser.send(f"Couldn't fetch channel id {id_tup[0]}!")
+                # delete channel id row from table
+                try:
+                    await self.conn.execute("delete from daily_message_channels where channel_id=$1", id_tup[0])
+                except:
+                    pass
+                await self.bot.procUser.send(f"Couldn't fetch channel id {id_tup[0]}, deleting!")
         return channels
 
     async def get_all_users(self):
