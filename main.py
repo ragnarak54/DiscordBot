@@ -561,6 +561,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
                 pass
             await ctx.send(f"Insufficient permissions to send to {new_channel.mention}: "
                            f"need `send messages`, `use external emojis`, and `embed links`.")
+            return
         if new:
             await ctx.send(f"Daily message channel set to {new_channel.mention}")
         else:
