@@ -549,7 +549,7 @@ async def unauthorize(ctx, user: discord.Member):
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
-        new = await bot.db.set_channel(new_channel)
+
         perms = new_channel.permissions_for(ctx.guild.me)
         # use_external_emojis
         # send_messages
@@ -562,6 +562,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
             await ctx.send(f"Insufficient permissions to send to {new_channel.mention}: "
                            f"need `send messages`, `use external emojis`, and `embed links`.")
             return
+        new = await bot.db.set_channel(new_channel)
         if new:
             await ctx.send(f"Daily message channel set to {new_channel.mention}")
         else:
