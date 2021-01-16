@@ -75,6 +75,7 @@ async def on_guild_join(guild: discord.Guild):
         # await bot.procUser.send(
         #     f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
         await bot.procUser.send(f"Bot joined `{guild.name}`.")
+        len([x for x in bot.users if not x.bot])
         for channel in [x for x in guild.text_channels]:
             if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
                 em = discord.Embed(title="Travelling Merchant Bot",
@@ -549,7 +550,7 @@ async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
         new = await bot.db.set_channel(new_channel)
-        perms = new_channel.permissions_for(bot.user)
+        perms = new_channel.permissions_for(ctx.guild.me)
         # use_external_emojis
         # send_messages
         # embed_links
