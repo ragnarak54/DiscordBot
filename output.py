@@ -64,7 +64,7 @@ def generate_merch_embed(days=0, items=None, dsf=False, worlds=[]):
             f"{item.emoji} {item.quantity} **{item.name}** - {item.cost[:-4]}k\n\n"
     if days == 0:
         if worlds:
-            embed.description += f"Latest worlds from [DSF discord](https://discord.gg/whirlpooldnd): {', '.join(worlds)}\n\n"
+            embed.description += f"Latest worlds from [DSF discord](https://discord.gg/whirlpooldnd): {', '.join([str(_) for _ in worlds])}\n\n"
         embed.description += f"**Tomorrow:** {', '.join([x.name for x in merch.get_stock(1)][1:])}\n"
     if not dsf:
         embed.description += "[Command reference](https://github.com/ragnarak54/DiscordBot)"
