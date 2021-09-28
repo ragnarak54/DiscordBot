@@ -367,7 +367,7 @@ async def merchant(ctx):
     channel = ctx.channel
     guild = ctx.guild
     print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
-    await ctx.send(embed=output.generate_merch_embed(bot.get_cog('WorldTracker').worlds))
+    await ctx.send(embed=output.generate_merch_embed(worlds=bot.get_cog('WorldTracker').worlds))
     if not await bot.db.user_exists(ctx.author.id):
         print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
