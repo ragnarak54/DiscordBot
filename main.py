@@ -17,6 +17,7 @@ import output
 import userdb
 from notifs import get_matches
 import notifs
+import world_tracker
 
 # import monitor
 # import domie_backup
@@ -36,6 +37,7 @@ bot.add_cog(error_handler.CommandErrorHandler(bot))
 bot.pool = bot.loop.run_until_complete(asyncpg.create_pool(config.psql))
 bot.db = userdb.DB(bot)
 bot.add_cog(notifs.Notifications(bot))
+bot.add_cog(world_tracker.WorldTracker(bot))
 
 daily_messages = []
 
@@ -365,7 +367,7 @@ async def merchant(ctx):
     channel = ctx.channel
     guild = ctx.guild
     print(f'called at {now.strftime("%H:%M")} by {member} in {channel} of {guild}')
-    await ctx.send(embed=output.generate_merch_embed())
+    await ctx.send(embed=output.generate_merch_embed(bot.get_cog('WorldTracker').worlds))
     if not await bot.db.user_exists(ctx.author.id):
         print(f"user {ctx.author} doesn't have any preferences")
         chance = random.random()
@@ -601,6 +603,13 @@ async def daily_tag(ctx, role: discord.Role = None):
         await ctx.send(f"Couldn't set daily tag role: {e}")
         return
     await ctx.send(f"Successfully updated daily role tag to `{role.name}` for {ctx.guild.name}")
+
+
+@bot.command()
+async def clear_worlds(ctx):
+    if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
+        bot.get_cog('WorldTracker').worlds.clear()
+        await ctx.send('World queue cleared')
 
 
 @bot.command()
