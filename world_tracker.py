@@ -20,12 +20,12 @@ class WorldTracker(commands.Cog):
         try:
             # DSF bot will remove invalid world calls semi-immediately
             await asyncio.sleep(10)
-            msg = await self.bot.fetch_message(msg.id)
+            msg = await msg.channel.fetch_message(msg.id)
             world = self.parse_world(msg.content)
             self.worlds.append(world)
             self.bot.loop.create_task(self.timeout_world(world))
-        except Exception as e:
-            print(e)
+        except:
+            pass
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
