@@ -24,8 +24,8 @@ class WorldTracker(commands.Cog):
             world = self.parse_world(msg.content)
             self.worlds.append(world)
             self.bot.loop.create_task(self.timeout_world(world))
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
