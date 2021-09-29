@@ -51,6 +51,12 @@ is the most basic command. Returns an image with the day's stock (if it's been f
 
 These help you manage what you get notified for by PM, every day. There are several aliases that are fairly intuitive, like `?newnotif, ?delnotif, ?notifs`, etc. The bot also is pretty lenient when it comes to item names--so don't be worried about memorizing everything!
 
+
+```
+?worlds
+```
+
+uses a real-time updated list of worlds called in the #merch-calls channel in the [DSF discord](https://discord.gg/whirlpooldnd). If there aren't any current worlds, join the `whirlpooldnd` fc and help scout!
 ```
 ?tomorrow
 ?future <number>

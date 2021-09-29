@@ -421,6 +421,14 @@ async def _next(ctx, *, item):
     await ctx.send(f"Couldn't find {stritem} in the next 200 days!")
 
 
+@bot.command(aliases=['world'])
+async def worlds(ctx):
+    w = bot.get_cog('WorldTracker').worlds
+    if w:
+        await ctx.send(f"Current world(s): {', '.join([f'**{_}**' for _ in w])}")
+    else:
+        await ctx.send("No current worlds")
+
 @bot.command()
 async def update(ctx):
     if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
