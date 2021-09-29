@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ext import commands
 import discord
 
@@ -16,7 +18,12 @@ class WorldTracker(commands.Cog):
         if msg.author.bot or msg.channel.id != 789279009333575700:
             return
         try:
-            self.worlds.append(self.parse_world(msg.content))
+            # DSF bot will remove invalid world calls semi-immediately
+            await asyncio.sleep(10)
+            msg = await self.bot.fetch_message(msg.id)
+            world = self.parse_world(msg.content)
+            self.worlds.append(world)
+            self.bot.loop.create_task(self.timeout_world(world))
         except:
             pass
 
@@ -26,6 +33,13 @@ class WorldTracker(commands.Cog):
             return
         try:
             self.worlds.remove(self.parse_world(reaction.message.content))
+        except ValueError:
+            pass
+
+    async def timeout_world(self, world):
+        await asyncio.sleep(610)
+        try:
+            self.worlds.remove(world)
         except ValueError:
             pass
 
