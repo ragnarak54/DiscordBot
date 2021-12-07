@@ -620,6 +620,31 @@ async def clear_worlds(ctx):
         await ctx.send('World queue cleared')
 
 
+@bot.command(aliases=['add_moose'])
+async def moose(ctx, url=None):
+    if ctx.author == bot.procUser or ctx.author.id == 297079340049629184:
+        if url:
+            await bot.db.add_moose(url)
+            try:
+                await ctx.message.add_reaction('\U00002705')
+            except:
+                pass
+            await ctx.send(f'`{url}` added')
+        else:
+            await ctx.send(await bot.db.get_moose())
+
+
+@bot.command()
+async def delete_moose(ctx, url):
+    if ctx.author == bot.procUser or ctx.author.id == 297079340049629184:
+        await bot.db.delete_moose(url)
+        try:
+            await ctx.message.add_reaction('\U00002705')
+        except:
+            pass
+        await ctx.send(f'`{url}` deleted')
+
+
 @bot.command()
 async def suggestion(ctx, *, string):
     """Sends a message to me with your suggestion!"""

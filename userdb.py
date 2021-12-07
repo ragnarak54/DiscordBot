@@ -143,3 +143,13 @@ class DB(commands.Cog):
     async def get_tag(self, server):
         tag = await self.conn.fetchrow("select daily_role_id from daily_message_channels where guild_id=$1", server.id)
         return tag if not tag else tag[0]
+
+    async def add_moose(self, url):
+        await self.conn.execute("insert into moose_pics (url) values ($1)", url)
+
+    async def get_moose(self):
+        moose = await self.conn.fetchrow("select url from moose_pics order by random() limit 1")
+        return moose[0]
+
+    async def delete_moose(self, url):
+        await self.conn.execute("delete from moose_pics where url=$1", url)
