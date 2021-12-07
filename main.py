@@ -620,18 +620,20 @@ async def clear_worlds(ctx):
         await ctx.send('World queue cleared')
 
 
-@bot.command(aliases=['add_moose'])
-async def moose(ctx, url=None):
+@bot.command()
+async def moose(ctx):
+    await ctx.send(await bot.db.get_moose())
+
+
+@bot.command()
+async def add_moose(ctx, url=None):
     if ctx.author == bot.procUser or ctx.author.id == 297079340049629184:
-        if url:
-            await bot.db.add_moose(url)
-            try:
-                await ctx.message.add_reaction('\U00002705')
-            except:
-                pass
-            await ctx.send(f'`{url}` added')
-        else:
-            await ctx.send(await bot.db.get_moose())
+        await bot.db.add_moose(url)
+        try:
+            await ctx.message.add_reaction('\U00002705')
+        except:
+            pass
+        await ctx.send(f'`{url}` added')
 
 
 @bot.command()
