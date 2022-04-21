@@ -9,18 +9,14 @@ import config
 import discord
 from discord.ext import commands
 
-import error_handler
+from cogs import error_handler, notifs, server_management, stock, world_tracker
 import itemlist
 import items as it
 import merch
 import output
 import userdb
-from notifs import get_matches
-import notifs
-import world_tracker
+from cogs.notifs import get_matches
 
-# import monitor
-# import domie_backup
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.CRITICAL)
@@ -31,16 +27,14 @@ logger.addHandler(handler)
 description = '''```A bot to help keep up with the Travelling Merchant's daily stock!
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413.
 Lets get started!\n\n'''
-bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=discord.Intents.default())
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=intents)
 bot.remove_command("help")
-bot.add_cog(error_handler.CommandErrorHandler(bot))
-bot.pool = bot.loop.run_until_complete(asyncpg.create_pool(config.psql))
-bot.db = userdb.DB(bot)
-bot.add_cog(notifs.Notifications(bot))
-bot.add_cog(world_tracker.WorldTracker(bot))
+
 
 daily_messages = []
-
 
 def owner_check():
     def predicate(ctx):
@@ -51,21 +45,14 @@ def owner_check():
 
 @bot.event
 async def on_ready():
-    # server = await bot.fetch_guild(566048042323804160)
-    # bot.add_cog(domie_backup.DomieV2(bot))
-    # bot.add_cog(monitor.Monitor(bot, server))
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    print('------')
-
-
-async def set_owner():
-    await bot.wait_until_ready()
     appinfo = await bot.application_info()
     bot.procUser = appinfo.owner
     output.generate_merch_image()
     output.generate_merch_image(1)
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
 
 
 @bot.event
@@ -74,8 +61,6 @@ async def on_guild_join(guild: discord.Guild):
         owner = await guild.fetch_member(guild.owner_id)
         if not await bot.db.is_authorized(owner):
             await bot.db.authorize_user(owner)
-        # await bot.procUser.send(
-        #     f"Bot joined `{guild.name}`. New usercount `{len([x for x in bot.users if not x.bot])}`.")
         await bot.procUser.send(f"Bot joined `{guild.name}`.")
         len([x for x in bot.users if not x.bot])
         for channel in [x for x in guild.text_channels]:
@@ -145,7 +130,7 @@ async def custom_stock(ctx, *items):
 
 @bot.command()
 async def dsf_merch(ctx):
-    if (await bot.db.is_authorized(ctx.author) and ctx.guild.id == 420803245758480405) or ctx.author == bot.procUser:
+    if (await bot.db.is_authorized(ctx.author) and ctx.guild.id == 420803245758480405) or await bot.is_owner(ctx.author):
         items = [item.name.lower() for item in merch.get_stock()]
         dsf_roles = [role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)]
         tag_string = ""
@@ -187,7 +172,7 @@ async def stock_reminder():
         schedule_time = now.replace(hour=0, minute=1) + timedelta(days=1)
         time_left = schedule_time - now
         sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
-        print(sleep_time)
+        print("time until reminder", sleep_time)
         await asyncio.sleep(sleep_time)
 
         await bot.procUser.send("check the stock!")
@@ -273,7 +258,7 @@ async def help(ctx, command=None):
 @bot.command()
 async def toggle_daily(ctx):
     """Toggles the daily stock message on or off for your server"""
-    if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
+    if await bot.db.is_authorized(ctx.author) or ctx.author == await bot.is_owner(ctx.author):
         new_toggle_state = await bot.db.toggle(ctx)
         if not new_toggle_state:
             await ctx.send("Daily messages toggled off")
@@ -749,6 +734,23 @@ def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
 
 
-bot.loop.create_task(set_owner())
-bot.daily_background = bot.loop.create_task(daily_message())
-bot.run(config.token)
+@bot.command()
+async def sync(ctx):
+    await bot.tree.sync(guild=discord.Object(id=439804468826210315))
+    await ctx.send(f"synced, commands: {', '.join([_.name for _ in bot.tree.get_commands(guild=ctx.guild)])}")
+
+
+async def main():
+    async with bot:
+        await bot.add_cog(error_handler.CommandErrorHandler(bot))
+        bot.pool = await asyncpg.create_pool(config.psql)
+        bot.db = userdb.DB(bot)
+        await bot.add_cog(notifs.Notifications(bot))
+        await bot.add_cog(stock.Stock(bot))
+        await bot.add_cog(world_tracker.WorldTracker(bot))
+        await bot.add_cog(server_management.ServerManagement(bot))
+
+        bot.daily_background = bot.loop.create_task(stock_reminder())
+        await bot.start(config.token)
+
+asyncio.run(main())

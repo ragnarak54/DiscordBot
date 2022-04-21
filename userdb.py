@@ -23,7 +23,8 @@ class DB(commands.Cog):
         return results[0]
 
     async def user_prefs(self, author):
-        return await self.conn.fetch("select item from user_prefs where user_id = $1", author.id)
+        results = await self.conn.fetch("select item from user_prefs where user_id = $1", author.id)
+        return [data_tuple[0].strip() for data_tuple in results]
 
     async def users(self, item):
         return await self.conn.fetch("SELECT DISTINCT user_id from user_prefs WHERE item = $1", str(item))
@@ -61,6 +62,8 @@ class DB(commands.Cog):
                                        user.guild.id, user.id)
 
     async def is_authorized(self, user: discord.Member):
+        if user == self.bot.procUser:
+            return True
         r = await self.conn.fetchrow(
             "select exists(select 1 from authorized_users where guild_id=$1 and user_id=$2)",
             user.guild.id, user.id)

@@ -29,4 +29,3 @@ item_list = ['Small goebie burial charm',
              'Uncharted island map',
              'Barrel of bait',
              'Tangled fishbowl']
-
