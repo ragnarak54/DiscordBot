@@ -117,6 +117,7 @@ async def user_count(ctx):
     await ctx.send(f"users: {m}")
 
 
+@owner_check()
 @bot.command()
 async def custom_stock(ctx, *items):
     stock = []
