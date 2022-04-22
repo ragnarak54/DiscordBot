@@ -1,3 +1,4 @@
+import datetime
 import config
 import discord
 from discord.ext import commands
@@ -23,7 +24,8 @@ class DB(commands.Cog):
         return results[0]
 
     async def user_prefs(self, author):
-        return await self.conn.fetch("select item from user_prefs where user_id = $1", author.id)
+        results = await self.conn.fetch("select item from user_prefs where user_id = $1", author.id)
+        return [data_tuple[0].strip() for data_tuple in results]
 
     async def users(self, item):
         return await self.conn.fetch("SELECT DISTINCT user_id from user_prefs WHERE item = $1", str(item))
@@ -61,6 +63,8 @@ class DB(commands.Cog):
                                        user.guild.id, user.id)
 
     async def is_authorized(self, user: discord.Member):
+        if user == self.bot.procUser:
+            return True
         r = await self.conn.fetchrow(
             "select exists(select 1 from authorized_users where guild_id=$1 and user_id=$2)",
             user.guild.id, user.id)
@@ -153,3 +157,7 @@ class DB(commands.Cog):
 
     async def delete_moose(self, url):
         await self.conn.execute("delete from moose_pics where url=$1", url)
+
+    async def log_command(self, name: str, guild_id: int, caller_id: int, type: str):
+        await self.conn.execute("insert into command_calls (name, guild_id, user_id, type, timestamp)"
+                                " values ($1, $2, $3, $4, $5)", name, guild_id, caller_id, type, datetime.datetime.now())
