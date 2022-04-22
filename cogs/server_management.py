@@ -10,7 +10,6 @@ class ServerManagement(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="toggle_daily")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def toggle_daily(self, interaction: discord.Interaction):
         """Toggles the daily stock message on or off for your server"""
         if await self.bot.db.is_authorized(interaction.user):
@@ -27,7 +26,6 @@ class ServerManagement(commands.Cog):
                                                     ephemeral=True)
 
     @app_commands.command(name="authorize")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def authorize(self, interaction: discord.Interaction, user: discord.Member):
         """Authorizes a user to manage daily messages in your server"""
         if await self.bot.db.is_authorized(interaction.user):
@@ -46,7 +44,6 @@ class ServerManagement(commands.Cog):
                                                     f"been a mistake send @ragnarak54#9413 a PM!", ephemeral=True)
 
     @app_commands.command(name="unauthorize")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def unauthorize(self, interaction: discord.Interaction, user: discord.Member):
         if await self.bot.is_owner(interaction.user):
             if await self.bot.db.is_authorized(user):
@@ -61,7 +58,6 @@ class ServerManagement(commands.Cog):
                 "You aren't authorized to do that. If there's been a mistake send me a PM!", ephemeral=True)
 
     @app_commands.command(name="set_daily_channel")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def set_daily_channel(self, interaction: discord.Interaction, new_channel: discord.TextChannel):
         """A command for authorized users to set or update the channel that receives the daily stock message"""
         if await self.bot.db.is_authorized(interaction.user) or await self.bot.is_owner(interaction.user):
@@ -81,7 +77,6 @@ class ServerManagement(commands.Cog):
                                                     f"been a mistake send @ragnarak54#9413 a PM!", ephemeral=True)
 
     @app_commands.command(name="daily_channel")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def daily_channel(self, interaction: discord.Interaction):
         """Returns the current channel set to receive the daily stock message"""
         channel = await self.bot.db.current_channel(interaction.guild)
@@ -92,7 +87,6 @@ class ServerManagement(commands.Cog):
             await interaction.response.send_message("No channel currently set. Use the `?set_daily_channel` command to change this.")
 
     @app_commands.command(name="daily_tag")
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def daily_tag(self, interaction: discord.Interaction, role: discord.Role = None):
         """Used to set a role to be tagged when the daily message is sent"""
         if not role:

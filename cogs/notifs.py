@@ -14,7 +14,6 @@ class Notifications(commands.Cog):
         self.user_cache = {}
 
     @app_commands.command(name='addnotif')
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def addnotif(self, interaction: discord.Interaction, item: str):
         """Adds an item to a user's notify list."""
         stritem = str(item).lower()
@@ -47,12 +46,10 @@ class Notifications(commands.Cog):
     async def add_item_autocomplete(self, interaction: discord.Interaction,
                                 current: str,
                                 ) -> typing.List[app_commands.Choice[str]]:
-        return [
-            app_commands.Choice(name=item, value=item) for item in itemlist.item_list if current.lower() in item.lower()
-        ]
+        matching_items = [app_commands.Choice(name=item, value=item) for item in itemlist.item_list if current.lower() in item.lower()]
+        return [] if len(matching_items) > 25 else matching_items
 
     @app_commands.command(name='removenotif')
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     async def removenotif(self, interaction: discord.Interaction, item: str):
         """Removes an item from a user's notify list."""
         user_notifs = await self.get_or_fetch_prefs(interaction.user)
@@ -72,7 +69,6 @@ class Notifications(commands.Cog):
             app_commands.Choice(name=item, value=item) for item in item_list if current.lower() in item.lower()
         ]
 
-    @app_commands.guilds(discord.Object(id=439804468826210315))
     @app_commands.command(name='shownotifs')
     async def shownotifs(self, interaction: discord.Interaction):
         """Shows a user's notify list"""

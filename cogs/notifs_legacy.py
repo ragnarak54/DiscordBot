@@ -9,7 +9,7 @@ import itemlist
 import userdb
 
 
-class Notifications(commands.Cog):
+class NotificationsLegacy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -63,8 +63,7 @@ class Notifications(commands.Cog):
     async def removenotif(self, ctx, *, item):
         """Removes an item from a user's notify list."""
         stritem = str(item).lower()
-        data = await self.bot.db.user_prefs(ctx.author)
-        notifs = [data_tuple[0].strip() for data_tuple in data]
+        notifs = await self.bot.db.user_prefs(ctx.author)
         results = get_matches(stritem, notifs)
         if stritem not in notifs:
             if results[0][1] > 75:
@@ -101,8 +100,7 @@ class Notifications(commands.Cog):
         if not data:
             await ctx.send("No notifications added for this user")
             return
-        notifs = sorted([data_tuple[0].strip() for data_tuple in data])
-        b = [':small_blue_diamond:' + x + '\n' for x in notifs]
+        b = [':small_blue_diamond:' + x + '\n' for x in sorted(data)]
         user_string = f'Current notifications for {ctx.author if not ctx.guild else ctx.author.display_name}:\n'
         string = user_string + ''.join(b)
         await ctx.send(string)

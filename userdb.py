@@ -1,3 +1,4 @@
+import datetime
 import config
 import discord
 from discord.ext import commands
@@ -156,3 +157,7 @@ class DB(commands.Cog):
 
     async def delete_moose(self, url):
         await self.conn.execute("delete from moose_pics where url=$1", url)
+
+    async def log_command(self, name: str, guild_id: int, caller_id: int, type: str):
+        await self.conn.execute("insert into command_calls (name, guild_id, user_id, type, timestamp)"
+                                " values ($1, $2, $3, $4, $5)", name, guild_id, caller_id, type, datetime.datetime.now())

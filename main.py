@@ -9,7 +9,7 @@ import config
 import discord
 from discord.ext import commands
 
-from cogs import error_handler, notifs, server_management, stock, world_tracker
+from cogs import error_handler, notifs, server_management, stock, world_tracker, notifs_legacy, analytics
 import itemlist
 import items as it
 import merch
@@ -414,19 +414,6 @@ async def worlds(ctx):
     else:
         await ctx.send("No current worlds")
 
-@bot.command()
-async def update(ctx):
-    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
-        output.generate_merch_image()
-        output.generate_merch_image(1)
-        await ctx.send(file=discord.File(output.today_img), content="Stock updated. If this stock is still "
-                                                                    "incorrect, send my owner @ragnarak54"
-                                                                    "#9413 a message.")
-    else:
-        print(f"{ctx.author} tried to call update!")
-        await bot.procUser.send(f"{ctx.author} tried to call update!")
-        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
-
 
 # TODO make userdb do id->object
 @bot.command(aliases=["fix_daily_messages"])
@@ -736,8 +723,8 @@ def check_channel(ctx):
 
 @bot.command()
 async def sync(ctx):
-    await bot.tree.sync(guild=discord.Object(id=439804468826210315))
-    await ctx.send(f"synced, commands: {', '.join([_.name for _ in bot.tree.get_commands(guild=ctx.guild)])}")
+    await bot.tree.sync()
+    await ctx.send(f"synced commands")
 
 
 async def main():
@@ -749,6 +736,8 @@ async def main():
         await bot.add_cog(stock.Stock(bot))
         await bot.add_cog(world_tracker.WorldTracker(bot))
         await bot.add_cog(server_management.ServerManagement(bot))
+        await bot.add_cog(notifs_legacy.NotificationsLegacy(bot))
+        await bot.add_cog(analytics.Analytics(bot))
 
         bot.daily_background = bot.loop.create_task(stock_reminder())
         await bot.start(config.token)
