@@ -9,8 +9,14 @@ class Analytics(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         if interaction.type == discord.InteractionType.application_command:
-            await self.bot.db.log_command(interaction.command.name, interaction.guild.id, interaction.user.id, "slash")
+            await self.bot.db.log_command(interaction.command.name,
+                                          None if not interaction.guild else interaction.guild.id,
+                                          interaction.user.id,
+                                          "slash")
 
     @commands.Cog.listener()
     async def on_command(self, ctx: discord.ext.commands.Context):
-        await self.bot.db.log_command(ctx.command.name, ctx.guild.id, ctx.author.id, "message")
+        await self.bot.db.log_command(ctx.command.name,
+                                      None if not ctx.guild else ctx.guild.id,
+                                      ctx.author.id,
+                                      "message")
