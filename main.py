@@ -36,6 +36,7 @@ bot.remove_command("help")
 
 daily_messages = []
 
+
 def owner_check():
     def predicate(ctx):
         return ctx.author == bot.procUser
@@ -166,32 +167,18 @@ async def daily_message():
         await asyncio.sleep(60)
 
 
-async def stock_reminder():
-    await bot.wait_until_ready()
-    while not bot.is_closed():
-        now = datetime.datetime.now()
-        schedule_time = now.replace(hour=0, minute=1) + timedelta(days=1)
-        time_left = schedule_time - now
-        sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
-        print("time until reminder", sleep_time)
-        await asyncio.sleep(sleep_time)
-
-        await bot.procUser.send("check the stock!")
-
-        await asyncio.sleep(60)
-
-
-async def send_stock(stock):
+async def send_stock(stock, send_dsf=True):
     items = [item.name.lower() for item in stock]
     new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
     try:
-        dsf_roles = [role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)]
-        tag_string = " ".join(dsf_roles)
+        if send_dsf:
+            dsf_roles = [role_tuple[0].strip() for role_tuple in await bot.db.dsf_roles(items)]
+            tag_string = " ".join(dsf_roles)
 
-        dsf_channel = bot.get_channel(config.dsf_chat_id)
-        em = output.generate_merch_embed(dsf=True)
-        em.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
-        await dsf_channel.send(tag_string, embed=em)
+            dsf_channel = bot.get_channel(config.dsf_chat_id)
+            em = output.generate_merch_embed(dsf=True)
+            em.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
+            await dsf_channel.send(tag_string, embed=em)
     except Exception as e:
         await bot.procUser.send(f"Couldn't send message to DSF: {e}")
 
@@ -226,7 +213,7 @@ async def send_stock(stock):
             # daily_messages.append(await channel.send(file=discord.File(output.today_img),
             #                                        content=new_stock_string if not tag else new_stock_string + tag.mention))
         except discord.Forbidden or Exception:
-            await bot.procUser.send(f'cant send message to {channel.name} of {channel.guild.name}')
+            print(f'cant send message to {channel.name} of {channel.guild.name}')
 
 
 @bot.command()
@@ -288,20 +275,17 @@ async def auto_user_notifs(item):
                 print("you failed: ", e)
         else:
             userlist.append(user)
-    print("users for {0}: ".format(item))
+    print(f"{len(userlist)} users for {item}")
     for user in userlist:
         try:
             if item == "uncharted island map":
                 await user.send(embed=output.generate_merch_embed())
             else:
                 await user.send(f"{item} is in stock!")
-            print(user)
-        except discord.InvalidArgument:
-            print("left their server!")
-        except AttributeError:
-            print("left their server!")
         except discord.Forbidden:
             print(f"forbidden: cannot send message to {user}")
+        except:
+            pass
 
 
 @bot.command(name='ah_merch')
@@ -418,35 +402,11 @@ async def worlds(ctx):
 
 # TODO make userdb do id->object
 @bot.command(aliases=["fix_daily_messages"])
-async def fix_daily_message(ctx, delete=None):
+async def fix_daily_message(ctx, send_dsf=False):
     if ctx.author == bot.procUser:
-        output.generate_merch_image()
-        new_stock_string = f'The new stock for {datetime.datetime.now().strftime("%m/%d/%Y")} is out!\n'
-        channels = await bot.db.get_all_channels()
-        if delete == "delete" and daily_messages is not None:
-            for message in daily_messages:
-                await message.delete()
-        daily_messages.clear()
-        for channel in channels:
-            try:
-                daily_messages.append(await channel.send(file=discord.File(output.today_img), content=new_stock_string))
-            except Exception:
-                await bot.procUser.send(f"Failed to send daily message to a channel!")
-        items = [item.name.lower() for item in merch.get_stock()]  # get a lowercase list of today's stock
-        data = await bot.db.ah_roles(items)
-        roles = set([role_tuple[0].strip() for role_tuple in data])  # get the roles for these items in AH discord
-        # format the string to be sent
-        tag_string = ""
-        if roles != set([]):
-            b = [role + '\n' for role in roles]
-            tag_string = "Tags: \n" + ''.join(b)
-        ah_channel = bot.get_channel(config.ah_chat_id)
-        await ah_channel.send(file=discord.File(output.today_img), content=new_stock_string + tag_string)
-
+        await send_stock(merch.get_stock(), send_dsf=send_dsf)
     else:
-        print(f"{ctx.author} tried to call fix daily messages!")
         await bot.procUser.send(f"{ctx.author} tried to call fix daily messages!")
-        await ctx.send("You aren't authorized to do that. If there's been a mistake send me a PM!")
 
 
 @bot.command()
@@ -740,7 +700,7 @@ async def main():
         await bot.add_cog(notifs_legacy.NotificationsLegacy(bot))
         await bot.add_cog(analytics.Analytics(bot))
 
-        bot.daily_background = bot.loop.create_task(stock_reminder())
+        bot.daily_background = bot.loop.create_task(daily_message())
         await bot.start(config.token)
 
 asyncio.run(main())
