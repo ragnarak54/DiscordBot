@@ -28,6 +28,7 @@ description = '''```A bot to help keep up with the Travelling Merchant's daily s
 Made by Proclivity. If you have any questions or want the bot on your server, pm me at ragnarak54#9413.
 Lets get started!\n\n'''
 
+discord.http._set_api_version(9)
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=intents)
