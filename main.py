@@ -683,6 +683,7 @@ def check_channel(ctx):
     return ctx.channel.id != 523161748866596884
 
 
+@owner_check()
 @bot.command()
 async def sync(ctx):
     await bot.tree.sync()
