@@ -148,6 +148,19 @@ class DB(commands.Cog):
         tag = await self.conn.fetchrow("select daily_role_id from daily_message_channels where guild_id=$1", server.id)
         return tag if not tag else tag[0]
 
+    async def add_mooser(self, user: discord.Member):
+        await self.conn.execute("insert into moosers (name, user_id) values ($1, $2)", user.name, user.id)
+
+    async def remove_mooser(self, user: discord.Member):
+        return await self.conn.execute("delete from moosers where user_id=$1", user.id)
+
+    async def is_mooser(self, user: discord.Member):
+        if user == self.bot.procUser:
+            return True
+        r = await self.conn.fetchrow(
+            "select exists(select 1 from moosers where user_id=$1)", user.id)
+        return r[0]
+
     async def add_moose(self, url):
         await self.conn.execute("insert into moose_pics (url) values ($1)", url)
 

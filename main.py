@@ -582,6 +582,26 @@ async def delete_moose(ctx, url):
 
 
 @bot.command()
+async def add_mooser(ctx, member: discord.Member):
+    if bot.db.is_mooser(member):
+        await bot.db.add_mooser(member)
+        try:
+            await ctx.message.add_reaction('\U00002705')
+        except:
+            pass
+
+
+@bot.command()
+async def remove_mooser(ctx, member: discord.Member):
+    if bot.db.is_mooser(member):
+        await bot.db.remove_mooser(member)
+        try:
+            await ctx.message.add_reaction('\U00002705')
+        except:
+            pass
+
+
+@bot.command()
 async def suggestion(ctx, *, string):
     """Sends a message to me with your suggestion!"""
     await bot.procUser.send(f"{ctx.author} says: {string}")
