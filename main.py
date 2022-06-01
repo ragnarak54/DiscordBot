@@ -561,7 +561,7 @@ async def moose(ctx):
 
 @bot.command()
 async def add_moose(ctx, url=None):
-    if ctx.author == bot.procUser or ctx.author.id == 297079340049629184:
+    if await bot.db.is_mooser(ctx.author):
         await bot.db.add_moose(url)
         try:
             await ctx.message.add_reaction('\U00002705')
@@ -572,7 +572,7 @@ async def add_moose(ctx, url=None):
 
 @bot.command()
 async def delete_moose(ctx, url):
-    if ctx.author == bot.procUser or ctx.author.id == 297079340049629184:
+    if await bot.db.is_mooser(ctx.author):
         await bot.db.delete_moose(url)
         try:
             await ctx.message.add_reaction('\U00002705')
@@ -583,7 +583,7 @@ async def delete_moose(ctx, url):
 
 @bot.command()
 async def add_mooser(ctx, member: discord.Member):
-    if bot.db.is_mooser(member):
+    if await bot.db.is_mooser(member):
         await bot.db.add_mooser(member)
         try:
             await ctx.message.add_reaction('\U00002705')
