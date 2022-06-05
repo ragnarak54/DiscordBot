@@ -554,6 +554,7 @@ async def clear_worlds(ctx):
         await ctx.send('World queue cleared')
 
 
+@commands.cooldown(1, 30, commands.BucketType.guild)
 @bot.command()
 async def moose(ctx):
     await ctx.send(await bot.db.get_moose())
