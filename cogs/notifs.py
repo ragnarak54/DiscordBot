@@ -13,6 +13,10 @@ class Notifications(commands.Cog):
         self.bot = bot
         self.user_cache = {}
 
+    @app_commands.command(name="moose")
+    async def slash_moose(self, interaction: discord.Interaction):
+        await interaction.response.send_message(await self.bot.db.get_moose())
+
     @app_commands.command(name='addnotif')
     async def addnotif(self, interaction: discord.Interaction, item: str):
         """Adds an item to a user's notify list."""

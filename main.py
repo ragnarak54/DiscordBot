@@ -554,17 +554,6 @@ async def clear_worlds(ctx):
         bot.get_cog('WorldTracker').worlds.clear()
         await ctx.send('World queue cleared')
 
-        
-@app_commands.command(name="moose")
-async def slash_moose(interaction: discord.Interaction):
-    await interaction.response.send_message(await bot.db.get_moose())
-
-
-@app_commands.Cooldown(1, 5)
-@app_commands.command(name="moose")
-async def moose_(interaction: discord.Interaction):
-    await interaction.response.send_message(await bot.db.get_moose())
-
 
 @commands.cooldown(1, 15, commands.BucketType.member)
 @bot.command()
