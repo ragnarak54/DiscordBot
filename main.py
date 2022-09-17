@@ -9,6 +9,7 @@ import config
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord import app_commands
 
 from cogs import error_handler, notifs, server_management, stock, world_tracker, notifs_legacy, analytics
 import itemlist
@@ -31,7 +32,6 @@ Lets get started!\n\n'''
 
 discord.http._set_api_version(9)
 intents = discord.Intents.default()
-intents.message_content = True
 bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=intents)
 bot.remove_command("help")
 
@@ -553,6 +553,11 @@ async def clear_worlds(ctx):
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
         bot.get_cog('WorldTracker').worlds.clear()
         await ctx.send('World queue cleared')
+
+        
+@app_commands.command(name="moose")
+async def slash_moose(interaction: discord.Interaction):
+    await interaction.response.send_message(await bot.db.get_moose())
 
 
 @app_commands.Cooldown(1, 5)
