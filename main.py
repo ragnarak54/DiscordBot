@@ -7,6 +7,7 @@ from datetime import timedelta
 
 import config
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from cogs import error_handler, notifs, server_management, stock, world_tracker, notifs_legacy, analytics
@@ -552,6 +553,12 @@ async def clear_worlds(ctx):
     if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
         bot.get_cog('WorldTracker').worlds.clear()
         await ctx.send('World queue cleared')
+
+
+@app_commands.Cooldown(1, 5)
+@app_commands.command(name="moose")
+async def moose_(interaction: discord.Interaction):
+    await interaction.response.send_message(await bot.db.get_moose())
 
 
 @commands.cooldown(1, 15, commands.BucketType.member)
