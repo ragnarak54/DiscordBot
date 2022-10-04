@@ -32,6 +32,7 @@ Lets get started!\n\n'''
 
 discord.http._set_api_version(9)
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix=['?', '!'], description=description, intents=intents)
 bot.remove_command("help")
 
