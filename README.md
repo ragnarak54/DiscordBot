@@ -65,6 +65,11 @@ uses a real-time updated list of worlds called in the #merch-calls channel in th
 
 These commands deal with what's coming up. `?tomorrow` (and `?tmrw`), as you might guess, shows you tomorrow's stock. `?future 10` would show you the stock 10 days from now. `?next air rune` would tell you how long before the next unstable air rune is in stock.
 
+## Privacy Policy
+When you add a notification or a daily channel with the bot, your discord user data is stored. This is only used for notification purposes, and can be deleted with the relevant commands above. Server and channel IDs will be deleted within 24 hours of removing the bot from your server.
+
+Message content is not stored by the bot except for the #merch-calls channel in the DSF discord, which is stored for 10 minutes in program memory and not persisted.
+
 ## Built With
 
 * [Python](https://www.python.org/) - The base language used
