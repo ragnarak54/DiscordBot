@@ -61,7 +61,7 @@ def generate_merch_embed(days=0, items=None, dsf=False, worlds=[]):
     embed.description = ""
     for item in items:
         embed.description += f"\u200b \u200b \u200b \u200b \u200b \u200b" \
-            f"{item.emoji} {item.quantity} **{item.name}** - {0 if item.cost == '0' else item.cost[:-4]}k\n\n"
+            f"{item.emoji} {item.quantity} **{item.name}** - {'unknown' if item.cost == '0' else item.cost[:-4] + 'k'}\n\n"
     if days == 0:
         if worlds:
             embed.description += f"Latest worlds from [DSF discord](https://discord.gg/whirlpooldnd): {', '.join([str(_) for _ in worlds])}\n\n"
