@@ -87,7 +87,10 @@ items = [{'name': 'Barrel of bait', 'cost': '50,000', 'quantity': '1',
           'emoji': '<:Deathtouched_dart:755960154108723313>'},
          {'name': 'Unfocused reward enhancer', 'cost': '10,000,000', 'quantity': '1',
           'use': 'Allows choice of any reward enhancer at the cost of lower charges',
-          'emoji': '<:Unfocused_reward_enhancer:755960222736187503>'}, ]
+          'emoji': '<:Unfocused_reward_enhancer:755960222736187503>'},
+         {'name': 'Horn of honour', 'cost': '0', 'quantity': '1',
+          'use': 'Gives Barbarian Assault Honor Points',
+          'emoji': '<:BAHorn:1047635641556545608>'}]
 
 
 def get_attrs(name):

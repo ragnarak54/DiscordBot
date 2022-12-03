@@ -169,7 +169,7 @@ async def daily_message():
 
         await asyncio.sleep(60)
 
-
+# careful with custom stock, will still generate the "tomorrow's stock" text in the embed
 async def send_stock(stock, send_dsf=True):
     items = [item.name.lower() for item in stock]
     new_stock_string = "The new stock for {0} is out!\n".format(datetime.datetime.now().strftime("%m/%d/%Y"))
@@ -179,7 +179,7 @@ async def send_stock(stock, send_dsf=True):
             tag_string = " ".join(dsf_roles)
 
             dsf_channel = bot.get_channel(config.dsf_chat_id)
-            em = output.generate_merch_embed(dsf=True)
+            em = output.generate_merch_embed(items=stock, dsf=True)
             em.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
             await dsf_channel.send(tag_string, embed=em)
     except Exception as e:
@@ -210,7 +210,7 @@ async def send_stock(stock, send_dsf=True):
     channels = await bot.db.get_all_channels()
     for channel in channels:
         try:
-            daily_messages.append(await channel.send(embed=output.generate_merch_embed()))
+            daily_messages.append(await channel.send(embed=output.generate_merch_embed(items=stock)))
 
             tag = channel.guild.get_role(await bot.db.get_tag(channel.guild))
             # daily_messages.append(await channel.send(file=discord.File(output.today_img),
