@@ -130,7 +130,7 @@ async def custom_stock(ctx, *items):
     for item in items:
         stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
     output.generate_merch_image(items=stock)
-    await send_stock(stock)
+    await send_stock(stock, send_dsf=True)
 
 
 @bot.command()
@@ -725,7 +725,7 @@ async def main():
         await bot.add_cog(notifs_legacy.NotificationsLegacy(bot))
         await bot.add_cog(analytics.Analytics(bot))
 
-        bot.daily_background = bot.loop.create_task(daily_message())
+        # bot.daily_background = bot.loop.create_task(daily_message())
         await bot.start(config.token)
 
 asyncio.run(main())
