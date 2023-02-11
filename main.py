@@ -38,6 +38,7 @@ bot.remove_command("help")
 
 
 daily_messages = []
+skip_daily = False
 
 
 def owner_check():
@@ -129,8 +130,24 @@ async def custom_stock(ctx, *items):
                             "red)|red uncharted island map]].", "<:Uncharted_map:755960222949965825>"))
     for item in items:
         stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
+    dsf_embed = output.generate_merch_embed(items=items, dsf=True)
+    dsf_embed.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
+    general_embed = output.generate_merch_embed(items=items)
+    await ctx.send("About to send the following stock, confirm?", embed=dsf_embed)
+    await ctx.send(embed=general_embed)
+
+    def check(reaction, user):
+        return user == ctx.message.author and reaction.emoji == '\U00002705'
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
+    except asyncio.TimeoutError:
+        await ctx.send("Aborted")
+    else:
+        await ctx.send("Confirmed, sending stock (jk)")
+
     output.generate_merch_image(items=stock)
-    await send_stock(stock, send_dsf=True)
+    # await send_stock(stock, send_dsf=True)
 
 
 @bot.command()
@@ -161,11 +178,13 @@ async def daily_message():
         sleep_time = time_left.total_seconds()  # seconds from now until tomorrow at 00:01
         print(sleep_time)
         await asyncio.sleep(sleep_time)
+        if skip_daily:
+            skip_daily = False
+        else:
+            output.generate_merch_image()  # generate the new image for today and tomorrow
+            output.generate_merch_image(1)
 
-        output.generate_merch_image()  # generate the new image for today and tomorrow
-        output.generate_merch_image(1)
-
-        await send_stock(merch.get_stock())
+            await send_stock(merch.get_stock())
 
         await asyncio.sleep(60)
 
@@ -725,7 +744,7 @@ async def main():
         await bot.add_cog(notifs_legacy.NotificationsLegacy(bot))
         await bot.add_cog(analytics.Analytics(bot))
 
-        # bot.daily_background = bot.loop.create_task(daily_message())
+        bot.daily_background = bot.loop.create_task(daily_message())
         await bot.start(config.token)
 
 asyncio.run(main())
