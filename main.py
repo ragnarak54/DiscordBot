@@ -130,9 +130,9 @@ async def custom_stock(ctx, *items):
                             "red)|red uncharted island map]].", "<:Uncharted_map:755960222949965825>"))
     for item in items:
         stock.append(merch.MerchItem(f'{item}.png', item, *it.get_attrs(item)))
-    dsf_embed = output.generate_merch_embed(items=items, dsf=True)
+    dsf_embed = output.generate_merch_embed(items=stock, dsf=True)
     dsf_embed.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
-    general_embed = output.generate_merch_embed(items=items)
+    general_embed = output.generate_merch_embed(items=stock)
     await ctx.send("About to send the following stock, confirm?", embed=dsf_embed)
     await ctx.send(embed=general_embed)
 
