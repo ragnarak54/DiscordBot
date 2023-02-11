@@ -109,6 +109,14 @@ async def user_count(ctx):
 
 @owner_check()
 @bot.command()
+async def skip_next_daily(ctx):
+    global skip_daily
+    skip_daily = not skip_daily
+    await ctx.send(f"skip_daily now `{skip_daily}`")
+
+
+@owner_check()
+@bot.command()
 async def custom_stock(ctx, *items):
     stock = []
     print(items)
@@ -134,10 +142,11 @@ async def custom_stock(ctx, *items):
     dsf_embed.description += f'\n{bot.get_channel(789279009333575700).mention} for worlds, or join **WhirlpoolDnD** FC!'
     general_embed = output.generate_merch_embed(items=stock)
     await ctx.send("About to send the following stock, confirm?", embed=dsf_embed)
-    await ctx.send(embed=general_embed)
+    msg = await ctx.send(embed=general_embed)
+    await msg.add_reaction('\U00002705')
 
     def check(reaction, user):
-        return user == ctx.message.author and reaction.emoji == '\U00002705'
+        return user == ctx.message.author and reaction.message == msg and reaction.emoji == '\U00002705'
 
     try:
         reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
@@ -147,7 +156,7 @@ async def custom_stock(ctx, *items):
         await ctx.send("Confirmed, sending stock (jk)")
 
     output.generate_merch_image(items=stock)
-    # await send_stock(stock, send_dsf=True)
+    await send_stock(stock, send_dsf=True)
 
 
 @bot.command()
@@ -170,6 +179,7 @@ async def dsf_merch(ctx):
 
 # background task for automatic notifications each day
 async def daily_message():
+    global skip_daily
     await bot.wait_until_ready()
     while not bot.is_closed():
         now = datetime.datetime.now()
@@ -179,6 +189,7 @@ async def daily_message():
         print(sleep_time)
         await asyncio.sleep(sleep_time)
         if skip_daily:
+            await bot.procUser.send("Skipping daily message")
             skip_daily = False
         else:
             output.generate_merch_image()  # generate the new image for today and tomorrow
