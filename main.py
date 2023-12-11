@@ -392,7 +392,6 @@ async def future(ctx, days: int):
 
 @bot.command(name="next")
 async def _next(ctx, *, item):
-    await ctx.trigger_typing()
     stritem = str(item).lower()
     lst = [item.lower() for item in itemlist.item_list]
     results = get_matches(stritem, lst)
