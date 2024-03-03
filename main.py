@@ -523,31 +523,23 @@ async def unauthorize(ctx, user: discord.Member):
 @bot.command()
 async def set_daily_channel(ctx, new_channel: discord.TextChannel):
     """A command for authorized users to set or update the channel that receives the daily stock message"""
-    if await bot.db.is_authorized(ctx.author) or ctx.author == bot.procUser:
-
-        perms = new_channel.permissions_for(ctx.guild.me)
-        # use_external_emojis
-        # send_messages
-        # embed_links
-        if not (perms.use_external_emojis and perms.send_messages and perms.embed_links):
-            try:
-                await ctx.message.add_reaction('\U0000274c')
-            except:
-                pass
-            await ctx.send(f"Insufficient permissions to send to {new_channel.mention}: "
-                           f"need `send messages`, `use external emojis`, and `embed links`.")
-            return
-        new = await bot.db.set_channel(new_channel)
-        if new:
-            await ctx.send(f"Daily message channel set to {new_channel.mention}")
-        else:
-            await ctx.send(f"Daily message channel updated to {new_channel.mention}")
+    perms = new_channel.permissions_for(ctx.guild.me)
+    # use_external_emojis
+    # send_messages
+    # embed_links
+    if not (perms.use_external_emojis and perms.send_messages and perms.embed_links):
+        try:
+            await ctx.message.add_reaction('\U0000274c')
+        except:
+            pass
+        await ctx.send(f"Insufficient permissions to send to {new_channel.mention}: "
+                       f"need `send messages`, `use external emojis`, and `embed links`.")
+        return
+    new = await bot.db.set_channel(new_channel)
+    if new:
+        await ctx.send(f"Daily message channel set to {new_channel.mention}")
     else:
-        print(f"{ctx.author} tried to call set daily channel!")
-        await bot.procUser.send(f"{ctx.author} tried to call set daily channel!")
-        owner = await ctx.guild.fetch_member(ctx.guild.owner_id)
-        await ctx.send(f"You aren't authorized to do that. Owner {owner.mention} is authorized by default, "
-                       f"and can authorize others. If there's been a mistake send @ragnarak54#9413 a PM!")
+        await ctx.send(f"Daily message channel updated to {new_channel.mention}")
 
 
 @bot.command(aliases=['channel', 'current_channel'])
