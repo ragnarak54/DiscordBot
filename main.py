@@ -335,31 +335,23 @@ async def ah_test(ctx):
 
 
 @bot.command()
+@owner_check()
 async def user_notifs(ctx, *, item):
     """Notifies users who have the input preference"""
-    if ctx.author == bot.procUser or await bot.db.is_authorized(ctx.author):
-        data = await bot.db.users(item)
-        users = [await bot.fetch_user(user_tuple[0]) for user_tuple in data]
-        for user in users:
-            print(user)
-            await user.send(f"{item} is in stock!")
-            print(user)
-    else:
-        print(f"{ctx.author} tried to call user_notifs!")
-        await bot.procUser.send(f"{ctx.author} tried to call user_notifs!")
-        await ctx.send("This command isn't for you!")
+    data = await bot.db.users(item)
+    users = [await bot.fetch_user(user_tuple[0]) for user_tuple in data]
+    for user in users:
+        print(user)
+        await user.send(f"{item} is in stock!")
 
 
 @bot.command()
+@owner_check()
 async def force_notifs(ctx):
     """Notifies users for today's stock"""
-    if ctx.author == bot.procUser:
-        items = [item.name.lower() for item in merch.get_stock()]
-        for item in items:
-            await auto_user_notifs(item)
-    else:
-        await bot.procUser.send(f"{ctx.author} tried to call notif_test!")
-        await ctx.send("This command isn't for you!")
+    items = [item.name.lower() for item in merch.get_stock()]
+    for item in items:
+        await auto_user_notifs(item)
 
 
 @bot.command(name='merch', aliases=['merchant', 'shop', 'stock'])
