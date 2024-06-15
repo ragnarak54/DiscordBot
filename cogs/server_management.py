@@ -60,21 +60,13 @@ class ServerManagement(commands.Cog):
     @app_commands.command(name="set_daily_channel")
     async def set_daily_channel(self, interaction: discord.Interaction, new_channel: discord.TextChannel):
         """A command for authorized users to set or update the channel that receives the daily stock message"""
-        if await self.bot.db.is_authorized(interaction.user) or await self.bot.is_owner(interaction.user):
-            perms = new_channel.permissions_for(interaction.guild.me)
-            if not (perms.use_external_emojis and perms.send_messages and perms.embed_links):
-                await interaction.response.send_message(f"⚠️ Missing permissions for {new_channel.mention}. I'll need "
-                                                        f"`send messages`, `use external emojis`, and `embed links`.")
-                return
-            new = await self.bot.db.set_channel(new_channel)
-            await interaction.response.send_message(f"Daily message channel {'set' if new else 'updated'} to {new_channel.mention}")
-        else:
-            print(f"{interaction.user} tried to call set daily channel!")
-            await self.bot.procUser.send(f"{interaction.user} tried to call set daily channel!")
-            owner = await interaction.guild.fetch_member(interaction.guild.owner_id)
-            await interaction.response.send_message(f"You aren't authorized to do that. Owner {owner.mention} is "
-                                                    f"authorized by default, and can authorize others. If there's "
-                                                    f"been a mistake send @ragnarak54#9413 a PM!", ephemeral=True)
+        perms = new_channel.permissions_for(interaction.guild.me)
+        if not (perms.use_external_emojis and perms.send_messages and perms.embed_links):
+            await interaction.response.send_message(f"⚠️ Missing permissions for {new_channel.mention}. I'll need "
+                                                    f"`send messages`, `use external emojis`, and `embed links`.")
+            return
+        new = await self.bot.db.set_channel(new_channel)
+        await interaction.response.send_message(f"Daily message channel {'set' if new else 'updated'} to {new_channel.mention}")
 
     @app_commands.command(name="daily_channel")
     async def daily_channel(self, interaction: discord.Interaction):
