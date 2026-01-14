@@ -400,7 +400,10 @@ async def _next(ctx, *, item):
                            "spellings, or refer to the wikia page.")
             b = sorted([item + '\n' for item in itemlist.item_list])
             itemstrv2 = ''.join(b)
-            await ctx.author.send('Possible items:\n' + itemstrv2)
+            try:
+                await ctx.author.send('Possible items:\n' + itemstrv2)
+            except discord.Forbidden:
+                pass
             return
     stritem = results[0][0]
     i = 1
