@@ -460,11 +460,31 @@ async def message_channels(ctx, *, string):
     embed.colour = discord.Colour.dark_blue()
     for channel in channels:
         try:
-            mass_messages.append(await channel.send(embed=embed))
+            print(f"would have messaged {channel.name}")
+            # mass_messages.append(await channel.send(embed=embed))
         except discord.Forbidden:
             print(f"cant send message to channel {channel}!")
             pass
 
+    await ctx.send(embed=embed)
+
+@bot.command()
+@owner_check()
+async def final_message(ctx, *, string):
+    channels = await bot.db.get_all_channels()
+    mass_messages = []
+    embed = discord.Embed()
+    embed.description = string
+    embed.colour = discord.Colour.dark_blue()
+    for channel in channels:
+        try:
+            print(f"would have messaged {channel.name}")
+            # mass_messages.append(await channel.send(embed=embed))
+        except discord.Forbidden:
+            print(f"cant send message to channel {channel}!")
+            pass
+
+    await ctx.send(embed=embed)
 
 @bot.command()
 @owner_check()
@@ -741,7 +761,7 @@ async def main():
         await bot.add_cog(notifs_legacy.NotificationsLegacy(bot))
         await bot.add_cog(analytics.Analytics(bot))
 
-        bot.daily_background = bot.loop.create_task(daily_message())
+        # bot.daily_background = bot.loop.create_task(daily_message())
         await bot.start(config.token)
 
 asyncio.run(main())
