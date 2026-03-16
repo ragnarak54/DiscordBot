@@ -468,23 +468,24 @@ async def message_channels(ctx, *, string):
 
     await ctx.send(embed=embed)
 
+
 @bot.command()
 @owner_check()
 async def final_message(ctx, *, string):
     channels = await bot.db.get_all_channels()
-    mass_messages = []
+    print(len(channels))
     embed = discord.Embed()
     embed.description = string
     embed.colour = discord.Colour.dark_blue()
     for channel in channels:
         try:
-            print(f"would have messaged {channel.name}")
-            # mass_messages.append(await channel.send(embed=embed))
+            await channel.send(embed=embed)
         except discord.Forbidden:
             print(f"cant send message to channel {channel}!")
             pass
 
     await ctx.send(embed=embed)
+
 
 @bot.command()
 @owner_check()
